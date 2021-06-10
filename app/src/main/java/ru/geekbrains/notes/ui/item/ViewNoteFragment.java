@@ -13,13 +13,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import ru.geekbrains.notes.MyApplication;
 import ru.geekbrains.notes.domain.note.Note;
 import ru.geekbrains.notes.R;
+import ru.geekbrains.notes.ui.SharedPref;
 
 import static android.app.Activity.RESULT_CANCELED;
+import static ru.geekbrains.notes.Constant.MILISECOND;
 import static ru.geekbrains.notes.Constant.REQUEST_CODE_EDIT_NOTE;
+import static ru.geekbrains.notes.Constant.REQUEST_CODE_EDIT_NOTE2;
+import static ru.geekbrains.notes.Constant.RESULT_DELETED;
 
 
 public class ViewNoteFragment extends Fragment implements View.OnClickListener {
@@ -27,6 +37,8 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener {
     private static final String ARG = "NOTE_ID";
 
     private TextView textViewNoteValue;
+
+    private View viewFragment;
 
     public static ViewNoteFragment newInstance(Note note) {
         Log.v("Debug1", "ViewNoteFragment newInstance");
@@ -64,8 +76,15 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener {
         button_edit.setOnClickListener(this);
         Button button_delete = v.findViewById(R.id.button_delete);
         button_delete.setOnClickListener(this);
+        Button button_cancel = v.findViewById(R.id.button_cancel);
+        button_cancel.setOnClickListener(this);
 
         return v;
+    }
+
+    private void fillList(Note note, View view){
+        textViewNoteValue = view.findViewById(R.id.viewTextNoteValue);
+        textViewNoteValue.setText(note.getValue());
     }
 
     @Override
@@ -73,9 +92,8 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "ViewNoteFragment onViewCreated");
 
-        textViewNoteValue = view.findViewById(R.id.viewTextNoteValue);
-        Note note = getArguments().getParcelable(ARG);
-        textViewNoteValue.setText(note.getValue());
+        viewFragment = view;
+
     }
 
 
@@ -91,15 +109,47 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener {
 
             Intent intent = new Intent(getActivity(), EditNoteActivity.class);
             intent.putExtra(EditNoteActivity.ARG, note.getID());
-            startActivityForResult(intent, REQUEST_CODE_EDIT_NOTE);
+            getActivity().startActivityForResult(intent, REQUEST_CODE_EDIT_NOTE2);
         }
         else
             if (v.getId() == R.id.button_delete) {
                 Log.v("Debug1", "ViewNoteFragment onClick button_delete");
 
+                List<Note> notes = ((MyApplication) getActivity().getApplication()).getNotes();
+
+                Note note = getArguments().getParcelable(ARG);
+                notes.remove(note.getID());
+                new SharedPref(getContext()).saveNotes(notes);
+
                 Intent intentResult = new Intent();
-                getActivity().setResult(RESULT_CANCELED, intentResult);
+                getActivity().setResult(RESULT_DELETED, intentResult);
                 getActivity().finish();
             }
+            else
+                if (v.getId() == R.id.button_cancel){
+                    Log.v("Debug1", "ViewNoteFragment onClick button_cancel");
+
+                    Intent intentResult = new Intent();
+                    getActivity().setResult(RESULT_CANCELED, intentResult);
+                    getActivity().finish();
+                }
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.v("Debug1", "ViewNoteFragment onStart");
+
+        Note note = getArguments().getParcelable(ARG);
+        List<Note> notes = ((MyApplication) getActivity().getApplication()).getNotes();
+
+        fillList(notes.get(note.getID()), viewFragment);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.v("Debug1", "ViewNoteFragment onStop");
+    }
+
 }

@@ -22,8 +22,18 @@
         android:layout_height="wrap_content"
         android:text="Delete"
         app:layout_constraintBottom_toTopOf="@+id/viewTextNoteValue"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/button_cancel"
         app:layout_constraintStart_toEndOf="@+id/button_edit"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_cancel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        app:layout_constraintBottom_toTopOf="@+id/viewTextNoteValue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/button_delete"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView

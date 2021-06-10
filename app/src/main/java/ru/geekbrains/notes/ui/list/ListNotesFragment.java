@@ -108,10 +108,9 @@ public class ListNotesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Log.v("Debug1", "ListNotesFragment onViewCreated");
 
         viewFragment = view;
-
-        Log.v("Debug1", "ListNotesFragment onViewCreated");
 
         List<Note> notes = noteRepository.getNotes(getContext());
 

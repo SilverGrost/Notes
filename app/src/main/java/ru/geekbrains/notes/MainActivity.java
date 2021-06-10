@@ -21,6 +21,7 @@ import ru.geekbrains.notes.ui.item.ViewNoteFragment;
 import ru.geekbrains.notes.ui.list.ListNotesFragment;
 
 import static ru.geekbrains.notes.Constant.REQUEST_CODE_EDIT_NOTE;
+import static ru.geekbrains.notes.Constant.RESULT_DELETED;
 
 public class MainActivity extends AppCompatActivity implements ListNotesFragment.onNoteClicked, View.OnClickListener {
 
@@ -92,6 +93,14 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
             List<Note> notes = ((MyApplication) this.getApplication()).getNotes();
             new SharedPref(this).saveNotes(notes);
         }
+        /*else if (resultCode == RESULT_DELETED) {
+            Log.v("Debug1", "ViewNoteActivity onActivityResult RESULT_DELETED");
+
+            Note note = getIntent().getParcelableExtra(ViewNoteActivity.ARG);
+            List<Note> notes = ((MyApplication) this.getApplication()).getNotes();
+            notes.remove(note.getID());
+            new SharedPref(this).saveNotes(notes);
+        }*/
     }
 
 }

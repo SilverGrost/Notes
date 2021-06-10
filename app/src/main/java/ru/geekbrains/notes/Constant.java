@@ -11,4 +11,6 @@ public class Constant {
     public static final String COUNTNOTES = "CountOfNotes";
     public static final String NOTE = "Note";
     public static final int REQUEST_CODE_EDIT_NOTE = 99;
+    public static final int REQUEST_CODE_EDIT_NOTE2 = 999;
+    public static final int RESULT_DELETED = 3;
 }

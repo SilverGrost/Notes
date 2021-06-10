@@ -1,12 +1,22 @@
 package ru.geekbrains.notes.ui.item;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.util.List;
+
+import ru.geekbrains.notes.MyApplication;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.domain.note.Note;
+import ru.geekbrains.notes.ui.SharedPref;
+
+import static ru.geekbrains.notes.Constant.REQUEST_CODE_EDIT_NOTE;
+import static ru.geekbrains.notes.Constant.REQUEST_CODE_EDIT_NOTE2;
+import static ru.geekbrains.notes.Constant.RESULT_DELETED;
 
 public class ViewNoteActivity extends AppCompatActivity {
 
@@ -22,13 +32,26 @@ public class ViewNoteActivity extends AppCompatActivity {
 
             Note note = getIntent().getParcelableExtra(ARG);
 
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container_note_view, ViewNoteFragment.newInstance(note))
-                    .commit();
+            FragmentTransaction fragmentTransaction;
 
+            fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container_note_view, ViewNoteFragment.newInstance(note));
+            fragmentTransaction.commit();
         }
     }
 
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        Log.v("Debug1", "ViewNoteActivity onActivityResult resultCode=" + resultCode);
+
+        if (requestCode != REQUEST_CODE_EDIT_NOTE2) {
+            super.onActivityResult(requestCode, resultCode, data);
+            return;
+        } else if (resultCode == RESULT_OK) {
+            Log.v("Debug1", "ViewNoteActivity onActivityResult RESULT_OK");
+            List<Note> notes = ((MyApplication) this.getApplication()).getNotes();
+            new SharedPref(this).saveNotes(notes);
+        }
+    }
 
 }
