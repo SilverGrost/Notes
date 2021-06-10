@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -47,13 +48,14 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
 
         Log.v("Debug1", "MainActivity onNoteClicked");
 
-        boolean isLandscape = getResources().getBoolean(R.bool.isLandscape);
-
-        FragmentTransaction fragmentTransaction;
+        //boolean isLandscape = getResources().getBoolean(R.bool.isLandscape);
 
 
-        if (isLandscape) {
 
+
+
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            FragmentTransaction fragmentTransaction;
             fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_item_note_container, ViewNoteFragment.newInstance(note));
             fragmentTransaction.commit();
@@ -93,14 +95,6 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
             List<Note> notes = ((MyApplication) this.getApplication()).getNotes();
             new SharedPref(this).saveNotes(notes);
         }
-        /*else if (resultCode == RESULT_DELETED) {
-            Log.v("Debug1", "ViewNoteActivity onActivityResult RESULT_DELETED");
-
-            Note note = getIntent().getParcelableExtra(ViewNoteActivity.ARG);
-            List<Note> notes = ((MyApplication) this.getApplication()).getNotes();
-            notes.remove(note.getID());
-            new SharedPref(this).saveNotes(notes);
-        }*/
     }
 
 }

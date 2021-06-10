@@ -94,6 +94,15 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener {
 
         viewFragment = view;
 
+        //List<Note> notes = noteRepository.getNotes(getContext());
+        Note note = null;
+        if (getArguments() != null) {
+            note = getArguments().getParcelable(ARG);
+            fillList(note, viewFragment);
+        }
+
+
+
     }
 
 
@@ -140,10 +149,10 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener {
         super.onStart();
         Log.v("Debug1", "ViewNoteFragment onStart");
 
-        Note note = getArguments().getParcelable(ARG);
+        /*Note note = getArguments().getParcelable(ARG);
         List<Note> notes = ((MyApplication) getActivity().getApplication()).getNotes();
 
-        fillList(notes.get(note.getID()), viewFragment);
+        fillList(notes.get(note.getID()), viewFragment);*/
     }
 
     @Override
