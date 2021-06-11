@@ -10,7 +10,7 @@ import ru.geekbrains.notes.domain.note.Note;
 
 import static ru.geekbrains.notes.Constant.*;
 
-
+//Пока храню заметки через SharedPreferences. Понимаю, что криво, но потмо переделаю на БД
 public class SharedPref {
 
     private final android.content.SharedPreferences SharedPreferences;
