@@ -49,8 +49,10 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
                 fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
                 List<Note> notes = ((MyApplication) this.getApplication()).getNotes();
-                fragmentTransaction.replace(R.id.fragment_item_note_container, ViewNoteFragment.newInstance(notes.get(0)));
-                fragmentTransaction.commit();
+                if (notes.size() != 0) {
+                    fragmentTransaction.replace(R.id.fragment_item_note_container, ViewNoteFragment.newInstance(notes.get(0)));
+                    fragmentTransaction.commit();
+                }
 
             } else {
                 Log.v("Debug1", "MainActivity onCreate savedInstanceState != null NOT_ORIENTATION_LANDSCAPE");
