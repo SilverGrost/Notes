@@ -3,5 +3,5 @@
     android:id="@+id/textViewTop"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#FFC107"
+    android:background="@color/top_textview_color"
     tools:text="19.03.2021 15:36" />

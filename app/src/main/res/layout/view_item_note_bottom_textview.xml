@@ -3,7 +3,7 @@
     android:id="@+id/textViewBottom"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#FFEB3B"
+    android:background="@color/bottom_textview_color"
     android:maxLines="1"
-    android:textSize="34sp"
+    android:textSize="@dimen/textview_viewnote_textsize"
     tools:text="Текст заметки начинается тут" />

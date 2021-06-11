@@ -14,9 +14,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.text.DateFormat;
 import java.util.List;
+import java.util.Locale;
 
 import ru.geekbrains.notes.MyApplication;
 import ru.geekbrains.notes.domain.note.Note;
@@ -32,21 +32,30 @@ public class ListNotesFragment extends Fragment {
     private View viewFragment;
 
     public interface onNoteClicked {
-        void onNoteClicked(Note note);
+        void onNoteClickedList(Note note);
+    }
+
+    public interface onDateClicked {
+        void onDateClickedList(Note note);
     }
 
     private NoteRepository noteRepository;
 
     private ListNotesFragment.onNoteClicked onNoteClicked;
 
+    private ListNotesFragment.onDateClicked onDateClicked;
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-
         Log.v("Debug1", "ListNotesFragment onAttach");
 
         if (context instanceof ListNotesFragment.onNoteClicked) {
             onNoteClicked = (ListNotesFragment.onNoteClicked) context;
+        }
+
+        if (context instanceof ListNotesFragment.onDateClicked) {
+            onDateClicked = (ListNotesFragment.onDateClicked) context;
         }
     }
 
@@ -55,6 +64,7 @@ public class ListNotesFragment extends Fragment {
         super.onDetach();
         Log.v("Debug1", "ListNotesFragment onDetach");
         onNoteClicked = null;
+        onDateClicked = null;
     }
 
     @Override
@@ -71,31 +81,38 @@ public class ListNotesFragment extends Fragment {
         return inflater.inflate(R.layout.activity_list_notes, container, false);
     }
 
-    private void fillList(List<Note> notes, View view){
+    private void fillList(List<Note> notes, View view) {
         LinearLayout linearLayoutNotesList = view.findViewById(R.id.activity_list_notes);
         LinearLayout linearLayoutIntoScrollView = view.findViewById(R.id.linearLayoutIntoScrollViewCont);
 
         linearLayoutIntoScrollView.removeAllViews();
 
-        for (Note note: notes) {
-
+        for (Note note : notes) {
             View viewTop = LayoutInflater.from(requireContext()).inflate(R.layout.view_item_note_top_textview, linearLayoutNotesList, false);
             View viewBottom = LayoutInflater.from(requireContext()).inflate(R.layout.view_item_note_bottom_textview, linearLayoutNotesList, false);
 
-            viewBottom.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (onNoteClicked != null) {
-                        onNoteClicked.onNoteClicked(note);
-                    }
+            viewBottom.setOnClickListener(v -> {
+                if (onNoteClicked != null) {
+                    onNoteClicked.onNoteClickedList(note);
+                }
+            });
+
+            viewTop.setOnClickListener(v -> {
+                if (onDateClicked != null) {
+                    onDateClicked.onDateClickedList(note);
                 }
             });
 
             TextView textViewTop = viewTop.findViewById(R.id.textViewTop);
             long date = note.getDate() * MILISECOND;
-            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-            String dateStr = sdf.format(new Date(date));
+
+            DateFormat f = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
+            String dateStr = f.format(date);
+
             textViewTop.setText(dateStr);
+            textViewTop.setTag(note.getID());
+
+            Log.v("Debug1", "ListNotesFragment fillList textViewTop.getTag()=" + textViewTop.getTag());
 
             TextView textViewBottom = viewBottom.findViewById(R.id.textViewBottom);
             textViewBottom.setText(note.getHeader());
@@ -111,9 +128,7 @@ public class ListNotesFragment extends Fragment {
         Log.v("Debug1", "ListNotesFragment onViewCreated");
 
         viewFragment = view;
-
         List<Note> notes = noteRepository.getNotes(getContext());
-
         fillList(notes, view);
     }
 
@@ -122,8 +137,12 @@ public class ListNotesFragment extends Fragment {
     public void onStart() {
         super.onStart();
         Log.v("Debug1", "ListNotesFragment onStart");
-        List<Note> notes = ((MyApplication) getActivity().getApplication()).getNotes();
-        fillList(notes, viewFragment);
+        if (getActivity() != null) {
+            if (getActivity().getApplication() != null) {
+                List<Note> notes = ((MyApplication) getActivity().getApplication()).getNotes();
+                fillList(notes, viewFragment);
+            }
+        }
     }
 
     @Override
@@ -131,4 +150,16 @@ public class ListNotesFragment extends Fragment {
         super.onStop();
         Log.v("Debug1", "ListNotesFragment onStop");
     }
+
+
+    public void onResume() {
+        super.onResume();
+        Log.v("Debug1", "ListNotesFragment onResume");
+    }
+
+    public void onPause() {
+        super.onPause();
+        Log.v("Debug1", "ListNotesFragment onPause");
+    }
+
 }

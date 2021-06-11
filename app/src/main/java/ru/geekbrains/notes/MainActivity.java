@@ -22,11 +22,9 @@ import ru.geekbrains.notes.ui.item.ViewNoteFragment;
 import ru.geekbrains.notes.ui.list.ListNotesFragment;
 
 import static ru.geekbrains.notes.Constant.REQUEST_CODE_EDIT_NOTE;
-import static ru.geekbrains.notes.Constant.RESULT_DELETED;
+import static ru.geekbrains.notes.Constant.RESULT_FINISH;
 
-public class MainActivity extends AppCompatActivity implements ListNotesFragment.onNoteClicked, View.OnClickListener {
-
-
+public class MainActivity extends AppCompatActivity implements ListNotesFragment.onNoteClicked, ListNotesFragment.onDateClicked, View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,24 +33,34 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
 
         Log.v("Debug1", "MainActivity onCreate");
 
-        NoteRepository noteRepository = new NoteRepositoryImpl();
-        List<Note> notes = noteRepository.getNotes(this);
-        ((MyApplication) this.getApplication()).setNotes(notes);
+        if (savedInstanceState == null) {
+            Log.v("Debug1", "MainActivity onCreate savedInstanceState == null");
+            NoteRepository noteRepository = new NoteRepositoryImpl();
+            List<Note> notes = noteRepository.getNotes(this);
+            ((MyApplication) this.getApplication()).setNotes(notes);
 
-        Button buttonAddNote = findViewById(R.id.buttonAddNote);
-        buttonAddNote.setOnClickListener(this);
+            Button buttonAddNote = findViewById(R.id.buttonAddNote);
+            buttonAddNote.setOnClickListener(this);
+        } else {
+            Log.v("Debug1", "MainActivity onCreate savedInstanceState != null");
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                Log.v("Debug1", "MainActivity onCreate savedInstanceState != null ORIENTATION_LANDSCAPE");
+                FragmentTransaction fragmentTransaction;
+                fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+                List<Note> notes = ((MyApplication) this.getApplication()).getNotes();
+                fragmentTransaction.replace(R.id.fragment_item_note_container, ViewNoteFragment.newInstance(notes.get(0)));
+                fragmentTransaction.commit();
+
+            } else {
+                Log.v("Debug1", "MainActivity onCreate savedInstanceState != null NOT_ORIENTATION_LANDSCAPE");
+            }
+        }
     }
 
     @Override
-    public void onNoteClicked(Note note) {
-
+    public void onNoteClickedList(Note note) {
         Log.v("Debug1", "MainActivity onNoteClicked");
-
-        //boolean isLandscape = getResources().getBoolean(R.bool.isLandscape);
-
-
-
-
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             FragmentTransaction fragmentTransaction;
@@ -66,6 +74,25 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
             startActivity(intent);
         }
     }
+
+    @Override
+    public void onDateClickedList(Note note) {
+        Log.v("Debug1", "MainActivity onDateClickedList");
+
+        if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
+            FragmentTransaction fragmentTransaction;
+            fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.add(R.id.ListNotesFragment, DatepickerFragment.newInstance(note), "DP");
+            fragmentTransaction.commit();
+        }
+        else {
+            FragmentTransaction fragmentTransaction;
+            fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.add(R.id.LandLayout, DatepickerFragment.newInstance(note));
+            fragmentTransaction.commit();
+        }
+    }
+
 
     @Override
     public void onClick(View v) {
@@ -94,6 +121,12 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
             Log.v("Debug1", "MainActivity onActivityResult RESULT_OK");
             List<Note> notes = ((MyApplication) this.getApplication()).getNotes();
             new SharedPref(this).saveNotes(notes);
+        }
+
+        if (resultCode == RESULT_FINISH) {
+            Log.v("Debug1", "MainActivity onActivityResult RESULT_FINISH");
+            /*List<Note> notes = ((MyApplication) this.getApplication()).getNotes();
+            new SharedPref(this).saveNotes(notes);*/
         }
     }
 
