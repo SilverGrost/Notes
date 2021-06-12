@@ -8,7 +8,7 @@ import ru.geekbrains.notes.domain.note.Note;
 // Обработчик подписок
 public class Publisher {
 
-    private List<Observer> observers;
+    private List<ObserverNote> observers;
 
     //Конструктор
     public Publisher() {
@@ -16,18 +16,18 @@ public class Publisher {
     }
 
     // Подписать
-    public void subscribe(Observer observer) {
+    public void subscribe(ObserverNote observer) {
         observers.add(observer);
     }
 
     // Отписать
-    public void unsubscribe(Observer observer) {
+    public void unsubscribe(ObserverNote observer) {
         observers.remove(observer);
     }
 
     // Разослать событие
     public void notify(Note note) {
-        for (Observer observer: observers) {
+        for (ObserverNote observer: observers) {
             observer.updateNote(note);
         }
     }

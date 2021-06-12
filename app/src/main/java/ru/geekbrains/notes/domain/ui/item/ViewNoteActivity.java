@@ -1,4 +1,4 @@
-package ru.geekbrains.notes.ui.item;
+package ru.geekbrains.notes.domain.ui.item;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -7,32 +7,32 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
-
 import java.util.List;
 
 import ru.geekbrains.notes.MyApplication;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.domain.note.Note;
-import ru.geekbrains.notes.ui.SharedPref;
+import ru.geekbrains.notes.domain.ui.SharedPref;
 
-import static ru.geekbrains.notes.Constant.REQUEST_CODE_EDIT_NOTE2;
-import static ru.geekbrains.notes.Constant.RESULT_FINISH;
+import static ru.geekbrains.notes.domain.Constant.REQUEST_CODE_EDIT_NOTE2;
+import static ru.geekbrains.notes.domain.Constant.RESULT_FINISH;
 
 public class ViewNoteActivity extends AppCompatActivity {
-
     public static final String ARG = "NOTE_ID";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.v("Debug1", "ViewNoteActivity onCreate");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_view_note);
+        setContentView(R.layout.activity_view_note);
 
         if (savedInstanceState == null) {
+            Log.v("Debug1", "ViewNoteActivity onCreate savedInstanceState == null");
             Note note = getIntent().getParcelableExtra(ARG);
             FragmentTransaction fragmentTransaction;
             fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container_note_view, ViewNoteFragment.newInstance(note));
+            ViewNoteFragment viewNoteFragment = ViewNoteFragment.newInstance(note);
+            fragmentTransaction.replace(R.id.activity_container_note_view, viewNoteFragment);
             fragmentTransaction.commit();
         } else {
             Log.v("Debug1", "ViewNoteActivity onCreate savedInstanceState != null");
@@ -60,5 +60,4 @@ public class ViewNoteActivity extends AppCompatActivity {
             new SharedPref(this).saveNotes(notes);
         }
     }
-
 }

@@ -1,53 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/activity_view_note"
+<androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_container_note_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".domain.ui.item.ViewNoteActivity"
+    tools:layout="@layout/fragment_view_note" />
 
-    <Button
-        android:id="@+id/button_edit"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/button_edit"
-        app:layout_constraintBottom_toTopOf="@+id/viewTextNoteValue"
-        app:layout_constraintEnd_toStartOf="@+id/button_delete"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <!--android:name="ru.geekbrains.notes2.domain.ui.item.ViewNoteFragment"-->
 
-    <Button
-        android:id="@+id/button_delete"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/button_delete"
-        app:layout_constraintBottom_toTopOf="@+id/viewTextNoteValue"
-        app:layout_constraintEnd_toEndOf="@+id/button_cancel"
-        app:layout_constraintStart_toEndOf="@+id/button_edit"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/button_cancel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/button_cancel"
-        app:layout_constraintBottom_toTopOf="@+id/viewTextNoteValue"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button_delete"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/viewTextNoteValue"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:ems="10"
-        android:inputType="text"
-        android:text=""
-
-        android:textSize="@dimen/textview_viewnote_textsize"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_edit" />
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>

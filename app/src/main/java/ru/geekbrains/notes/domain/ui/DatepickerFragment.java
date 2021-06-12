@@ -1,4 +1,4 @@
-package ru.geekbrains.notes;
+package ru.geekbrains.notes.domain.ui;
 
 import android.os.Bundle;
 
@@ -19,10 +19,11 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import ru.geekbrains.notes.MyApplication;
+import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.domain.note.Note;
-import ru.geekbrains.notes.ui.SharedPref;
 
-import static ru.geekbrains.notes.Constant.MILISECOND;
+import static ru.geekbrains.notes.domain.Constant.MILISECOND;
 
 
 public class DatepickerFragment extends Fragment {
@@ -67,7 +68,7 @@ public class DatepickerFragment extends Fragment {
                 Note note1 = getArguments().getParcelable(ARG);
                 Calendar calendar1 = Calendar.getInstance();
                 calendar1.set(year1, monthOfYear, dayOfMonth);
-                long newDate = calendar1.getTimeInMillis() / 1000;
+                long newDate = calendar1.getTimeInMillis() / MILISECOND;
 
                 if (getActivity() != null) {
                     List<Note> notes = ((MyApplication) getActivity().getApplication()).getNotes();
@@ -84,13 +85,13 @@ public class DatepickerFragment extends Fragment {
                         fragmentTransaction.remove(DatepickerFragment.this);
                         fragmentTransaction.commit();
 
-                        LinearLayout linearLayout = getActivity().findViewById(R.id.linearLayoutIntoScrollViewCont);
+                        LinearLayout linearLayout = getActivity().findViewById(R.id.linearLayoutIntoScrollViewIntoFragmentListNotes);
                         TextView textViewTop = linearLayout.findViewWithTag(note.getID());
 
                         Log.v("Debug1", "DatepickerFragment onDateChanged into note.getID()=" + note.getID());
 
                         DateFormat f = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
-                        String dateStr = f.format(newDate * 1000);
+                        String dateStr = f.format(newDate * MILISECOND);
 
                         textViewTop.setText(dateStr);
                     }

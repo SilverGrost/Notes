@@ -1,4 +1,4 @@
-package ru.geekbrains.notes.ui.item;
+package ru.geekbrains.notes.domain.ui.item;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,16 +20,18 @@ import java.util.List;
 import ru.geekbrains.notes.MyApplication;
 import ru.geekbrains.notes.domain.note.Note;
 import ru.geekbrains.notes.R;
-import ru.geekbrains.notes.ui.SharedPref;
+import ru.geekbrains.notes.domain.observer.Publisher;
+import ru.geekbrains.notes.domain.observer.PublisherHolder;
+import ru.geekbrains.notes.domain.ui.SharedPref;
 
-import static android.app.Activity.RESULT_CANCELED;
-import static ru.geekbrains.notes.Constant.REQUEST_CODE_EDIT_NOTE2;
-import static ru.geekbrains.notes.Constant.RESULT_DELETED;
-
+import static ru.geekbrains.notes.domain.Constant.REQUEST_CODE_EDIT_NOTE2;
+import static ru.geekbrains.notes.domain.Constant.RESULT_DELETED;
 
 public class ViewNoteFragment extends Fragment implements View.OnClickListener {
 
     private static final String ARG = "NOTE_ID";
+    private int index;
+    private Publisher publisher;
 
     private View viewFragment;
 
@@ -43,15 +45,29 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.v("Debug1", "ViewNoteFragment onCreate");
+        if (getArguments() != null) {
+            index = getArguments().getInt(ARG);
+        }
+    }
+
+    @Override
     public void onAttach(@NonNull Context context) {
-        Log.v("Debug1", "ViewNoteFragment onAttach");
         super.onAttach(context);
+        Log.v("Debug1", "ViewNoteFragment onAttach");
+
+        if (context instanceof PublisherHolder) {
+            publisher = ((PublisherHolder) context).getPublisher();
+        }
     }
 
     @Override
     public void onDetach() {
-        Log.v("Debug1", "ViewNoteFragment onDetach");
         super.onDetach();
+        Log.v("Debug1", "ViewNoteFragment onDetach");
+        publisher = null;
     }
 
     public ViewNoteFragment() {
@@ -63,21 +79,23 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         Log.v("Debug1", "ViewNoteFragment onCreateView");
 
-        View v = inflater.inflate(R.layout.activity_view_note, container, false);
+        View v = inflater.inflate(R.layout.fragment_view_note, container, false);
 
         Button button_edit = v.findViewById(R.id.button_edit);
         button_edit.setOnClickListener(this);
+
         Button button_delete = v.findViewById(R.id.button_delete);
         button_delete.setOnClickListener(this);
-        Button button_cancel = v.findViewById(R.id.button_cancel);
-        button_cancel.setOnClickListener(this);
 
         return v;
     }
 
-    private void fillList(Note note, View view) {
+    private void fillViewNote(Note note, View view) {
         TextView textViewNoteValue = view.findViewById(R.id.viewTextNoteValue);
-        textViewNoteValue.setText(note.getValue());
+        if (note != null)
+            textViewNoteValue.setText(note.getValue());
+        else
+            textViewNoteValue.setText("");
     }
 
     @Override
@@ -90,14 +108,12 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener {
         if (getArguments() != null) {
             Note note;
             note = getArguments().getParcelable(ARG);
-            fillList(note, viewFragment);
+            fillViewNote(note, viewFragment);
         }
     }
 
-
     @Override
     public void onClick(View v) {
-
         Log.v("Debug1", "ViewNoteFragment onClick");
 
         if (v.getId() == R.id.button_edit) {
@@ -119,22 +135,38 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener {
 
                 if (getArguments() != null && getArguments().getParcelable(ARG) != null) {
                     Note note = getArguments().getParcelable(ARG);
-                    notes.remove(note.getID());
+
+                    int prevID = 0;
+                    for (int i = 0; i < notes.size(); i++) {
+                        if (notes.get(i).getID() == note.getID()) {
+                            notes.remove(i);
+                            break;
+                        }
+                        prevID = i;
+                    }
+
+                    ((MyApplication) getActivity().getApplication()).setNotes(notes);
                     if (getContext() != null) {
                         new SharedPref(getContext()).saveNotes(notes);
                         Intent intentResult = new Intent();
                         getActivity().setResult(RESULT_DELETED, intentResult);
-                        getActivity().finish();
+
+                        if (getContext() instanceof ViewNoteActivity) {
+                            getActivity().finish();
+                        }
+                        else{
+                            if (notes.size() > prevID){
+                                fillViewNote(notes.get(prevID), viewFragment);
+                            }
+                            else {
+                                fillViewNote(new Note(), viewFragment);
+                            }
+                            if (publisher != null) {
+                                publisher.notify(note);
+                            }
+                        }
                     }
                 }
-            }
-        } else if (v.getId() == R.id.button_cancel) {
-            Log.v("Debug1", "ViewNoteFragment onClick button_cancel");
-
-            Intent intentResult = new Intent();
-            if (getActivity() != null) {
-                getActivity().setResult(RESULT_CANCELED, intentResult);
-                getActivity().finish();
             }
         }
     }
@@ -146,9 +178,13 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener {
 
         if (getArguments() != null) {
             Note note = getArguments().getParcelable(ARG);
+            Log.v("Debug1", "ViewNoteFragment onStart note.getID()=" + note.getID());
             if (getActivity() != null) {
                 List<Note> notes = ((MyApplication) getActivity().getApplication()).getNotes();
-                fillList(notes.get(note.getID()), viewFragment);
+                for (int i = 0; i < notes.size(); i++) {
+                    if (note.getID() == i)
+                        fillViewNote(notes.get(i), viewFragment);
+                }
             }
         }
     }
@@ -158,5 +194,4 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener {
         super.onStop();
         Log.v("Debug1", "ViewNoteFragment onStop");
     }
-
 }

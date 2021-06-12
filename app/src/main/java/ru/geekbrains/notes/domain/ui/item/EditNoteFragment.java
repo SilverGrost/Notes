@@ -1,4 +1,4 @@
-package ru.geekbrains.notes.ui.item;
+package ru.geekbrains.notes.domain.ui.item;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,10 +24,10 @@ import ru.geekbrains.notes.R;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
-import static ru.geekbrains.notes.Constant.*;
+import static ru.geekbrains.notes.domain.Constant.*;
 
 
-public class EditNoteFragment extends Fragment implements View.OnClickListener {
+public class EditNoteFragment extends Fragment  implements View.OnClickListener{
 
     private static final String ARG = "NOTE_ID";
 
@@ -43,15 +43,24 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.v("Debug1", "EditNoteFragment onCreate");
+        /*if (getArguments() != null) {
+            index = getArguments().getInt(ARG);
+        }*/
+    }
+
+    @Override
     public void onAttach(@NonNull Context context) {
-        Log.v("Debug1", "EditNoteFragment onAttach");
         super.onAttach(context);
+        Log.v("Debug1", "EditNoteFragment onAttach");
     }
 
     @Override
     public void onDetach() {
-        Log.v("Debug1", "EditNoteFragment onDetach");
         super.onDetach();
+        Log.v("Debug1", "EditNoteFragment onDetach");
     }
 
     public EditNoteFragment() {
@@ -63,7 +72,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         Log.v("Debug1", "EditNoteFragment onCreateView");
 
-        View v = inflater.inflate(R.layout.activity_edit_note, container, false);
+        View v = inflater.inflate(R.layout.fragment_edit_note, container, false);
 
         Button button_ok = v.findViewById(R.id.button_ok);
         button_ok.setOnClickListener(this);

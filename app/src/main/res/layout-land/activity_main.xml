@@ -9,33 +9,30 @@
 
     <!-- Фрагмент со списком заметок -->
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/listNotes"
-        android:name="ru.geekbrains.notes.ui.list.ListNotesFragment"
+        android:id="@+id/fragment_list_note_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
+        android:name="ru.geekbrains.notes.domain.ui.list.ListNotesFragment"
         app:layout_constraintBottom_toTopOf="@id/buttonAddNote"
         app:layout_constraintEnd_toStartOf="@id/fragment_item_note_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:context=".MainActivity"
-        tools:layout="@layout/activity_list_notes" />
+        tools:layout="@layout/fragment_list_notes"/>
 
     <!-- Здесь будет выбранная заметка -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_item_note_container"
-        android:name="ru.geekbrains.notes.ui.item.ViewNoteFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@id/buttonAddNote"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/listNotes"
+        app:layout_constraintStart_toEndOf="@id/fragment_list_note_container"
         app:layout_constraintTop_toTopOf="parent"
-        tools:context=".MainActivity"
-        tools:layout="@layout/activity_view_note" />
+        tools:layout="@layout/fragment_view_note"/>
 
     <Button
         android:id="@+id/buttonAddNote"
@@ -45,6 +42,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/listNotes" />
+        app:layout_constraintTop_toBottomOf="@+id/fragment_list_note_container" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

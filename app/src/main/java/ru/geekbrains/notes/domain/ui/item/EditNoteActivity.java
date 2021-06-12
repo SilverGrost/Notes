@@ -1,4 +1,4 @@
-package ru.geekbrains.notes.ui.item;
+package ru.geekbrains.notes.domain.ui.item;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -15,7 +15,7 @@ public class EditNoteActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_edit_note);
+        setContentView(R.layout.activity_edit_note);
 
         Log.v("Debug1", "EditNoteActivity onCreate");
 
@@ -23,12 +23,13 @@ public class EditNoteActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
 
-            Log.v("Debug1", "EditNoteActivity onCreate savedInstanceState == null");
+            Log.v("Debug1", "EditNoteActivity onCreate savedInstanceState == null start");
 
             int idNote = getIntent().getIntExtra(ARG, 0);
 
+            EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(idNote);
             fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container_note_edit, EditNoteFragment.newInstance(idNote));
+            fragmentTransaction.replace(R.id.activity_container_note_edit, editNoteFragment);
             fragmentTransaction.commit();
 
             Log.v("Debug1", "EditNoteActivity onCreate savedInstanceState == null end");
@@ -37,5 +38,4 @@ public class EditNoteActivity extends AppCompatActivity {
         Log.v("Debug1", "EditNoteActivity onCreate end");
 
     }
-
 }

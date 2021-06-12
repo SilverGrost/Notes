@@ -1,4 +1,4 @@
-package ru.geekbrains.notes;
+package ru.geekbrains.notes.domain;
 
 public class Constant {
     public static final int LENHEADER = 15;
