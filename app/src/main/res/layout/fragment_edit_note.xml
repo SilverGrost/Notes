@@ -9,9 +9,10 @@
         android:id="@+id/editTextNoteValue"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:backgroundTint="#FFEB3B"
         android:ems="10"
-        android:inputType="text"
 
+        android:inputType="text"
         app:layout_constraintBottom_toTopOf="@+id/button_ok"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

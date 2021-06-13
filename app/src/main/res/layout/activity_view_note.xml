@@ -4,8 +4,9 @@
     android:id="@+id/activity_container_note_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".domain.ui.item.ViewNoteActivity"
+    android:background="#FFEB3B"
 
+    tools:context=".domain.ui.item.ViewNoteActivity"
     tools:layout="@layout/fragment_view_note" />
 
     <!--android:name="ru.geekbrains.notes2.domain.ui.item.ViewNoteFragment"-->

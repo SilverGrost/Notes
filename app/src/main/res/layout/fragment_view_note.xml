@@ -29,9 +29,10 @@
         android:id="@+id/viewTextNoteValue"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:background="#FFEB3B"
         android:ems="10"
-        android:inputType="text"
 
+        android:inputType="text"
         android:textSize="@dimen/textview_viewnote_textsize"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
