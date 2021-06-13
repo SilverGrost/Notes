@@ -18,7 +18,7 @@ import android.widget.EditText;
 import java.util.Date;
 import java.util.List;
 
-import ru.geekbrains.notes.MyApplication;
+import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.domain.note.Note;
 import ru.geekbrains.notes.R;
 
@@ -27,17 +27,18 @@ import static android.app.Activity.RESULT_OK;
 import static ru.geekbrains.notes.domain.Constant.*;
 
 
-public class EditNoteFragment extends Fragment  implements View.OnClickListener{
+public class EditNoteFragment extends Fragment implements View.OnClickListener {
 
     private static final String ARG = "NOTE_ID";
+    int noteId = 0;
 
     private EditText editTextNoteValue;
 
-    public static EditNoteFragment newInstance(int idNote) {
-        Log.v("Debug1", "EditNoteFragment newInstance");
+    public static EditNoteFragment newInstance(int noteId) {
+        Log.v("Debug1", "EditNoteFragment newInstance noteId=" + noteId);
         EditNoteFragment fragment = new EditNoteFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG, idNote);
+        args.putInt(ARG, noteId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -46,9 +47,6 @@ public class EditNoteFragment extends Fragment  implements View.OnClickListener{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.v("Debug1", "EditNoteFragment onCreate");
-        /*if (getArguments() != null) {
-            index = getArguments().getInt(ARG);
-        }*/
     }
 
     @Override
@@ -89,15 +87,12 @@ public class EditNoteFragment extends Fragment  implements View.OnClickListener{
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "EditNoteFragment onViewCreated");
 
-        if (getArguments() != null) {
-            int idNote = getArguments().getInt(ARG, 0);
-            if (getActivity() != null && getActivity().getApplication() != null) {
-                List<Note> notes = ((MyApplication) getActivity().getApplication()).getNotes();
-                editTextNoteValue = view.findViewById(R.id.editTextNoteValue);
-                if (idNote < notes.size()) {
-                    editTextNoteValue.setText(notes.get(idNote).getValue());
-                }
-            }
+        if (getArguments() != null && getActivity() != null) {
+            noteId = getArguments().getInt(ARG, 0);
+            Log.v("Debug1", "EditNoteFragment onViewCreated getArguments() != null noteId=" + noteId);
+            Note note = ((GlobalVariables) getActivity().getApplication()).getNoteById(noteId);
+            editTextNoteValue = view.findViewById(R.id.editTextNoteValue);
+            editTextNoteValue.setText(note.getValue());
         }
     }
 
@@ -118,28 +113,28 @@ public class EditNoteFragment extends Fragment  implements View.OnClickListener{
                 lenHeader = value.length();
 
             String header = (editTextNoteValue.getText().toString().substring(0, lenHeader) + "...");
-            if (getArguments() != null) {
-                int idNote = getArguments().getInt(ARG, 0);
-                Date date = new Date();
 
-                if (getActivity() != null) {
-                    List<Note> notes = ((MyApplication) getActivity().getApplication()).getNotes();
-                    if (idNote < notes.size()) {
-                        Note note = notes.get(idNote);
-                        note.setDate(date.toInstant().getEpochSecond());
-                        note.setHeader(header);
-                        note.setValue(value);
-                        notes.set(idNote, note);
-                    } else {
-                        Note note = new Note(value, header, idNote, date.toInstant().getEpochSecond());
-                        notes.add(note);
-                    }
-                    ((MyApplication) getActivity().getApplication()).setNotes(notes);
+            Date date = new Date();
 
-                    Intent intentResult = new Intent();
-                    getActivity().setResult(RESULT_OK, intentResult);
-                    getActivity().finish();
+            if (getActivity() != null) {
+                List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+
+                Note note = ((GlobalVariables) getActivity().getApplication()).getNoteById(noteId);
+
+                note.setDate(date.toInstant().getEpochSecond());
+                note.setHeader(header);
+                note.setValue(value);
+
+                if (note.getID() == -1) {
+                    note.setID(((GlobalVariables) getActivity().getApplication()).getNewId());
+                    notes.add(note);
+                } else {
+                    ((GlobalVariables) getActivity().getApplication()).setNoteById(noteId, note);
                 }
+
+                Intent intentResult = new Intent();
+                getActivity().setResult(RESULT_OK, intentResult);
+                getActivity().finish();
             }
         } else if (v.getId() == R.id.button_cancel) {
             Log.v("Debug1", "EditNoteFragment onClick button_cancel");

@@ -11,6 +11,7 @@ public class Note implements Parcelable {
     private long date;
 
     public Note() {
+        this.id = -1;
     }
 
     public Note(String value, String header, int id, long date) {
@@ -82,6 +83,5 @@ public class Note implements Parcelable {
         dest.writeString(getHeader());
         dest.writeInt(getID());
         dest.writeLong(getDate());
-        //dest.writeLong(getDate().toInstant().getEpochSecond());
     }
 }

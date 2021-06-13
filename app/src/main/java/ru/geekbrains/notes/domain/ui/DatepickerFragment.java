@@ -19,7 +19,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import ru.geekbrains.notes.MyApplication;
+import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.domain.note.Note;
 
@@ -29,16 +29,17 @@ import static ru.geekbrains.notes.domain.Constant.MILISECOND;
 public class DatepickerFragment extends Fragment {
 
     private static final String ARG = "NOTE_ID";
+    private int noteId;
 
     public DatepickerFragment() {
         // Required empty public constructor
     }
 
-    public static DatepickerFragment newInstance(Note note) {
-        Log.v("Debug1", "DatepickerFragment newInstance");
+    public static DatepickerFragment newInstance(int noteId) {
+        Log.v("Debug1", "DatepickerFragment newInstance noteId=" + noteId);
         DatepickerFragment fragment = new DatepickerFragment();
         Bundle bundle = new Bundle();
-        bundle.putParcelable(ARG, note);
+        bundle.putInt(ARG, noteId);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -46,15 +47,18 @@ public class DatepickerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.v("Debug1", "DatepickerFragment onCreateView");
-
         View v = inflater.inflate(R.layout.fragment_datepicker, container, false);
-        DatePicker datePicker = v.findViewById(R.id.datepicker);
+        if (getArguments() != null && getActivity() != null) {
+            noteId = getArguments().getInt(ARG, 0);
+            Log.v("Debug1", "DatepickerFragment onCreateView noteId=" + noteId);
 
-        if (getArguments() != null) {
-            Note note;
-            note = getArguments().getParcelable(ARG);
+
+            DatePicker datePicker = v.findViewById(R.id.datepicker);
+
+            Note note = ((GlobalVariables) getActivity().getApplication()).getNoteById(noteId);
+
             long date = note.getDate() * MILISECOND;
+
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(date);
             int year = calendar.get(Calendar.YEAR);
@@ -65,36 +69,29 @@ public class DatepickerFragment extends Fragment {
 
                 Log.v("Debug1", "DatepickerFragment onDateChanged into");
 
-                Note note1 = getArguments().getParcelable(ARG);
-                Calendar calendar1 = Calendar.getInstance();
-                calendar1.set(year1, monthOfYear, dayOfMonth);
-                long newDate = calendar1.getTimeInMillis() / MILISECOND;
+                Calendar calendarNew = Calendar.getInstance();
+                calendarNew.set(year1, monthOfYear, dayOfMonth);
+                long newDate = calendarNew.getTimeInMillis() / MILISECOND;
 
-                if (getActivity() != null) {
-                    List<Note> notes = ((MyApplication) getActivity().getApplication()).getNotes();
-                    note1.setDate(newDate);
-                    notes.set(note1.getID(), note1);
-                    ((MyApplication) getActivity().getApplication()).setNotes(notes);
+                if (DatepickerFragment.this.getActivity() != null) {
+                    note.setDate(newDate);
+                    ((GlobalVariables) getActivity().getApplication()).setNoteById(noteId, note);
+                    List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+                    new SharedPref(DatepickerFragment.this.getActivity()).saveNotes(notes);
 
-                    new SharedPref(getActivity()).saveNotes(notes);
+                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                    fragmentTransaction.remove(DatepickerFragment.this);
+                    fragmentTransaction.commit();
 
-                    //getFragmentManager().beginTransaction().remove(DatepickerFragment.this).commit();
+                    LinearLayout linearLayout = DatepickerFragment.this.getActivity().findViewById(R.id.linearLayoutIntoScrollViewIntoFragmentListNotes);
+                    TextView textViewTop = linearLayout.findViewWithTag(note.getID());
 
-                    if (getFragmentManager() != null) {
-                        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                        fragmentTransaction.remove(DatepickerFragment.this);
-                        fragmentTransaction.commit();
+                    Log.v("Debug1", "DatepickerFragment onDateChanged into note.getID()=" + note.getID());
 
-                        LinearLayout linearLayout = getActivity().findViewById(R.id.linearLayoutIntoScrollViewIntoFragmentListNotes);
-                        TextView textViewTop = linearLayout.findViewWithTag(note.getID());
+                    DateFormat f = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
+                    String dateStr = f.format(newDate * MILISECOND);
 
-                        Log.v("Debug1", "DatepickerFragment onDateChanged into note.getID()=" + note.getID());
-
-                        DateFormat f = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
-                        String dateStr = f.format(newDate * MILISECOND);
-
-                        textViewTop.setText(dateStr);
-                    }
+                    textViewTop.setText(dateStr);
                 }
             });
         }
@@ -106,12 +103,15 @@ public class DatepickerFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "DatepickerFragment onViewCreated");
 
-        if (getArguments() != null) {
-            Note note;
-            note = getArguments().getParcelable(ARG);
+        if (getArguments() != null && getActivity() != null) {
+            noteId = getArguments().getInt(ARG, 0);
+
+            Log.v("Debug1", "DatepickerFragment onViewCreated noteId=" + noteId);
+            Note note = ((GlobalVariables) getActivity().getApplication()).getNoteById(noteId);
             long date = note.getDate() / MILISECOND;
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(date);
         }
+
     }
 }

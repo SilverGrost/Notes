@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".domain.ui.item.EditNoteActivity"
+
+
     tools:layout="@layout/fragment_edit_note"/>
     <!--android:name="ru.geekbrains.notes2.domain.ui.item.EditNoteFragment"-->
 

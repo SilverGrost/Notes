@@ -18,7 +18,7 @@ import java.text.DateFormat;
 import java.util.List;
 import java.util.Locale;
 
-import ru.geekbrains.notes.MyApplication;
+import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.domain.note.Note;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.domain.observer.ObserverNote;
@@ -30,32 +30,26 @@ import static ru.geekbrains.notes.domain.Constant.MILISECOND;
 
 public class ListNotesFragment extends Fragment implements ObserverNote {
 
-    private int currentPosition = 0;
     private View viewFragment;
     private Publisher publisher;
 
     @Override
-    public void updateNote(Note note) {
+    public void updateNote(int noteID) {
         fillList(viewFragment);
-        Log.v("Debug1", "ListNotesFragment updateNote");
+        Log.v("Debug1", "ListNotesFragment updateNote noteID=" + noteID);
     }
 
-    public int getCurrentPosition() {
-        return currentPosition;
-    }
-
-    public void setCurrentPosition(int currentPosition) {
-        this.currentPosition = currentPosition;
-    }
 
     public interface onNoteClicked {
-        void onNoteClickedList(Note note);
+        void onNoteClickedList(int noteID);
     }
+
     private ListNotesFragment.onNoteClicked onNoteClicked;
 
     public interface onDateClicked {
-        void onDateClickedList(Note note);
+        void onDateClickedList(int noteID);
     }
+
     private ListNotesFragment.onDateClicked onDateClicked;
 
 
@@ -89,39 +83,6 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         }
     }
 
-    public static ListNotesFragment newInstance() {
-        Log.v("Debug1", "ListNotesFragment newInstance");
-        ListNotesFragment fragment = new ListNotesFragment();
-        /*Bundle bundle = new Bundle();
-        bundle.putParcelable(ARG, notes);
-        fragment.setArguments(bundle);*/
-        return fragment;
-    }
-
-    // activity создана, можно к ней обращаться. Выполним начальные действия
-    /*@Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        Log.v("Debug1", "ListNotesFragment onActivityCreated");
-
-        // Определение, можно ли будет расположить рядом герб в другом фрагменте
-        isLandscape = getResources().getConfiguration().orientation
-                == Configuration.ORIENTATION_LANDSCAPE;
-
-        // Если это не первое создание, то восстановим текущую позицию
-        if (savedInstanceState != null) {
-            // Восстановление текущей позиции.
-            currentPosition = savedInstanceState.getInt(CURRENT_CITY, 0);
-        }
-
-        // Если можно нарисовать рядом герб, то сделаем это
-        if (isLandscape) {
-            showLandCoatOfArms(currentPosition);
-        }
-    }*/
-
-
     // При создании фрагмента укажем его макет
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -136,9 +97,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "ListNotesFragment onViewCreated");
         viewFragment = view;
-        //fillList(view);
     }
-
 
     protected void fillList(View view) {
         Log.v("Debug1", "ListNotesFragment fillList");
@@ -148,7 +107,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         linearLayoutIntoScrollView.removeAllViews();
 
         if (getActivity() != null && getActivity().getApplication() != null) {
-            List<Note> notes = ((MyApplication) getActivity().getApplication()).getNotes();
+            List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
 
             for (Note note : notes) {
                 View viewTop = LayoutInflater.from(requireContext()).inflate(R.layout.view_item_note_top_textview, linearLayoutNotesList, false);
@@ -156,15 +115,13 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
                 viewBottom.setOnClickListener(v -> {
                     if (onNoteClicked != null) {
-                        onNoteClicked.onNoteClickedList(note);
-                        //currentPosition = note.getID();
+                        onNoteClicked.onNoteClickedList(note.getID());
                     }
                 });
 
                 viewTop.setOnClickListener(v -> {
                     if (onDateClicked != null) {
-                        onDateClicked.onDateClickedList(note);
-                        //currentPosition = note.getID();
+                        onDateClicked.onDateClickedList(note.getID());
                     }
                 });
 
@@ -200,7 +157,6 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         super.onStop();
         Log.v("Debug1", "ListNotesFragment onStop");
     }
-
 
     public void onResume() {
         super.onResume();

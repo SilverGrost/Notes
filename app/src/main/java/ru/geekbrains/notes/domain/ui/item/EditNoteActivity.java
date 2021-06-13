@@ -19,15 +19,13 @@ public class EditNoteActivity extends AppCompatActivity {
 
         Log.v("Debug1", "EditNoteActivity onCreate");
 
-        FragmentTransaction fragmentTransaction;
-
         if (savedInstanceState == null) {
 
-            Log.v("Debug1", "EditNoteActivity onCreate savedInstanceState == null start");
+            int noteId = getIntent().getIntExtra(ARG, 0);
+            Log.v("Debug1", "EditNoteActivity onCreate savedInstanceState == null noteId=" + noteId);
 
-            int idNote = getIntent().getIntExtra(ARG, 0);
-
-            EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(idNote);
+            FragmentTransaction fragmentTransaction;
+            EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(noteId);
             fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.activity_container_note_edit, editNoteFragment);
             fragmentTransaction.commit();

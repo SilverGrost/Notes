@@ -12,7 +12,7 @@ import android.widget.Button;
 
 import java.util.List;
 
-import ru.geekbrains.notes.MyApplication;
+import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.domain.note.Note;
 import ru.geekbrains.notes.domain.note.NoteRepository;
@@ -30,6 +30,7 @@ import static ru.geekbrains.notes.domain.Constant.RESULT_FINISH;
 public class MainActivity extends AppCompatActivity implements ListNotesFragment.onNoteClicked, ListNotesFragment.onDateClicked, View.OnClickListener, PublisherHolder {
 
     private final Publisher publisher = new Publisher();
+    public static final String ARG = "NOTE_ID";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,28 +50,15 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
             List<Note> notes = noteRepository.getNotes(this);
 
             //Сохраняем заметки в глобальной переменной
-            ((MyApplication) this.getApplication()).setNotes(notes);
+            ((GlobalVariables) this.getApplication()).setNotes(notes);
+
+            //fragmentTransaction.replace(R.id.ListNotesFragment, listNotesFragment);
 
         } else {
             Log.v("Debug1", "MainActivity onCreate savedInstanceState != null");
+
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 Log.v("Debug1", "MainActivity onCreate savedInstanceState != null ORIENTATION_LANDSCAPE");
-                FragmentTransaction fragmentTransaction;
-                fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
-                //Получаем заметки из глобальной переменной
-                List<Note> notes = ((MyApplication) this.getApplication()).getNotes();
-
-                // Создаём новый фрагмент для отображения списка
-                ListNotesFragment listNotesFragment = ListNotesFragment.newInstance();
-                fragmentTransaction.replace(R.id.fragment_list_note_container, listNotesFragment);
-
-                if (notes.size() != 0) {
-                    // Создаём новый фрагмент для текущей заметки
-                    ViewNoteFragment viewNoteFragment = ViewNoteFragment.newInstance(notes.get(listNotesFragment.getCurrentPosition()));
-                    fragmentTransaction.replace(R.id.fragment_item_note_container, viewNoteFragment);
-                    fragmentTransaction.commit();
-                }
 
             } else {
                 Log.v("Debug1", "MainActivity onCreate savedInstanceState != null NOT_ORIENTATION_LANDSCAPE");
@@ -79,36 +67,35 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
     }
 
     @Override
-    public void onNoteClickedList(Note note) {
+    public void onNoteClickedList(int noteId) {
         Log.v("Debug1", "MainActivity onNoteClickedList");
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            ViewNoteFragment viewNoteFragment = ViewNoteFragment.newInstance(noteId);
+
             FragmentTransaction fragmentTransaction;
             fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
-            ViewNoteFragment viewNoteFragment = ViewNoteFragment.newInstance(note);
-            fragmentTransaction.replace(R.id.fragment_item_note_container, viewNoteFragment);
+            fragmentTransaction.replace(R.id.activity_container_note_view, viewNoteFragment);
             fragmentTransaction.commit();
         } else {
             Intent intent = new Intent(this, ViewNoteActivity.class);
-            intent.putExtra(ViewNoteActivity.ARG, note);
+            intent.putExtra(ARG, noteId);
             startActivity(intent);
         }
     }
 
     @Override
-    public void onDateClickedList(Note note) {
+    public void onDateClickedList(int noteId) {
         Log.v("Debug1", "MainActivity onDateClickedList");
 
-        DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(note);
+        DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
 
         FragmentTransaction fragmentTransaction;
         fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
         if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
             fragmentTransaction.add(R.id.ListNotesFragment, datepickerFragment);
-        }
-        else {
+        } else {
             fragmentTransaction.add(R.id.LandLayout, datepickerFragment);
         }
         fragmentTransaction.commit();
@@ -121,10 +108,10 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
 
             Log.v("Debug1", "MainActivity onClick buttonAddNote");
 
-            List<Note> notes = ((MyApplication) this.getApplication()).getNotes();
+            List<Note> notes = ((GlobalVariables) this.getApplication()).getNotes();
 
             Intent intent = new Intent(this, EditNoteActivity.class);
-            intent.putExtra(EditNoteActivity.ARG, notes.size());
+            intent.putExtra(EditNoteActivity.ARG, -1);
             startActivityForResult(intent, REQUEST_CODE_EDIT_NOTE);
         }
     }
@@ -140,14 +127,12 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
 
         if (resultCode == RESULT_OK) {
             Log.v("Debug1", "MainActivity onActivityResult RESULT_OK");
-            List<Note> notes = ((MyApplication) this.getApplication()).getNotes();
+            List<Note> notes = ((GlobalVariables) this.getApplication()).getNotes();
             new SharedPref(this).saveNotes(notes);
         }
 
         if (resultCode == RESULT_FINISH) {
             Log.v("Debug1", "MainActivity onActivityResult RESULT_FINISH");
-            /*List<Note> notes = ((MyApplication) this.getApplication()).getNotes();
-            new SharedPref(this).saveNotes(notes);*/
         }
     }
 

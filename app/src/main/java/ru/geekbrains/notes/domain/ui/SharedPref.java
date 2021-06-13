@@ -29,11 +29,6 @@ public class SharedPref {
         return note;
     }
 
-    /*
-    public List<City> getCities() {
-        ArrayList<City> result = new ArrayList<>();
-     */
-
     // Чтение заметок
     public ArrayList<Note> loadNotes() {
         int countNotes = SharedPreferences.getInt(COUNTNOTES, 0);
