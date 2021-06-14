@@ -32,7 +32,8 @@
         android:background="#FFEB3B"
         android:ems="10"
 
-        android:inputType="text"
+        android:inputType="textMultiLine|text"
+        android:singleLine="false"
         android:textSize="@dimen/textview_viewnote_textsize"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

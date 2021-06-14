@@ -12,7 +12,8 @@
         android:backgroundTint="#FFEB3B"
         android:ems="10"
 
-        android:inputType="text"
+        android:inputType="textMultiLine|text"
+        android:singleLine="true"
         app:layout_constraintBottom_toTopOf="@+id/button_ok"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
