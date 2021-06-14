@@ -3,18 +3,19 @@
     android:id="@+id/fragment_list_notes"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#000000"
     android:orientation="vertical">
 
     <ScrollView
         android:id="@+id/scrollView_cont"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#AF6D0C">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:id="@+id/linearLayoutIntoScrollViewIntoFragmentListNotes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#000000"
             android:orientation="vertical">
 
         </LinearLayout>

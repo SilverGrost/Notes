@@ -5,38 +5,39 @@
     android:id="@+id/LandLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#000000"
     android:orientation="horizontal">
 
     <!-- Фрагмент со списком заметок -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/ListNotesFragment"
 
+        android:name="ru.geekbrains.notes.domain.ui.list.ListNotesFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:name="ru.geekbrains.notes.domain.ui.list.ListNotesFragment"
-     app:layout_constraintBottom_toTopOf="@id/buttonAddNote"
-     app:layout_constraintEnd_toStartOf="@id/activity_container_note_view"
-     app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toTopOf="parent"
-     tools:layout="@layout/fragment_list_notes"/>
-     <!--  android:name="ru.geekbrains.notes.domain.ui.list.ListNotesFragment" -->
+        app:layout_constraintBottom_toTopOf="@id/buttonAddNote"
+        app:layout_constraintEnd_toStartOf="@id/activity_container_note_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout="@layout/fragment_list_notes" />
+    <!--  android:name="ru.geekbrains.notes.domain.ui.list.ListNotesFragment" -->
 
 
- <!-- Здесь будет выбранная заметка -->
+    <!-- Здесь будет выбранная заметка -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/activity_container_note_view"
+        android:name="ru.geekbrains.notes.domain.ui.item.ViewNoteFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
-        android:name="ru.geekbrains.notes.domain.ui.item.ViewNoteFragment"
         app:layout_constraintBottom_toTopOf="@id/buttonAddNote"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/ListNotesFragment"
         app:layout_constraintTop_toTopOf="parent"
-        tools:layout="@layout/fragment_view_note"/>
+        tools:layout="@layout/fragment_view_note" />
     <!--android:name="ru.geekbrains.notes.domain.ui.item.ViewNoteFragment"-->
     <!---->
 
