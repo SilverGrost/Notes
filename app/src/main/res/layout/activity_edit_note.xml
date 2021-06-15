@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_container_note_edit"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFEB3B"
+
+
+    tools:context=".domain.ui.item.EditNoteActivity"
+    tools:layout="@layout/fragment_edit_note" />
+    <!--android:name="ru.geekbrains.notes2.domain.ui.item.EditNoteFragment"-->
+
