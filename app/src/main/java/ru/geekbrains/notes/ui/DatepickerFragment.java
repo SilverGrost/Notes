@@ -1,10 +1,10 @@
-package ru.geekbrains.notes.domain.ui;
+package ru.geekbrains.notes.ui;
 
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.fragment.app.FragmentManager;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,9 +21,10 @@ import java.util.Locale;
 
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
-import ru.geekbrains.notes.domain.note.Note;
+import ru.geekbrains.notes.SharedPref;
+import ru.geekbrains.notes.note.Note;
 
-import static ru.geekbrains.notes.domain.Constant.MILISECOND;
+import static ru.geekbrains.notes.Constant.MILISECOND;
 
 
 public class DatepickerFragment extends Fragment {
@@ -79,10 +80,6 @@ public class DatepickerFragment extends Fragment {
                     List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
                     new SharedPref(DatepickerFragment.this.getActivity()).saveNotes(notes);
 
-                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                    fragmentTransaction.remove(DatepickerFragment.this);
-                    fragmentTransaction.commit();
-
                     LinearLayout linearLayout = DatepickerFragment.this.getActivity().findViewById(R.id.linearLayoutIntoScrollViewIntoFragmentListNotes);
                     TextView textViewTop = linearLayout.findViewWithTag(note.getID());
 
@@ -92,6 +89,12 @@ public class DatepickerFragment extends Fragment {
                     String dateStr = f.format(newDate * MILISECOND);
 
                     textViewTop.setText(dateStr);
+
+                    FragmentManager fragmentManager = getFragmentManager();
+                    if (fragmentManager != null) {
+                        fragmentManager.popBackStack();
+                    }
+
                 }
             });
         }

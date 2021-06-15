@@ -1,4 +1,4 @@
-package ru.geekbrains.notes.domain.note;
+package ru.geekbrains.notes.note;
 
 import android.os.Parcel;
 import android.os.Parcelable;

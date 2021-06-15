@@ -1,4 +1,4 @@
-package ru.geekbrains.notes.domain.ui.list;
+package ru.geekbrains.notes.ui.list;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -19,13 +19,13 @@ import java.util.List;
 import java.util.Locale;
 
 import ru.geekbrains.notes.GlobalVariables;
-import ru.geekbrains.notes.domain.note.Note;
+import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.R;
-import ru.geekbrains.notes.domain.observer.ObserverNote;
-import ru.geekbrains.notes.domain.observer.Publisher;
-import ru.geekbrains.notes.domain.observer.PublisherHolder;
+import ru.geekbrains.notes.observer.ObserverNote;
+import ru.geekbrains.notes.observer.Publisher;
+import ru.geekbrains.notes.observer.PublisherHolder;
 
-import static ru.geekbrains.notes.domain.Constant.MILISECOND;
+import static ru.geekbrains.notes.Constant.MILISECOND;
 
 
 public class ListNotesFragment extends Fragment implements ObserverNote {
@@ -35,16 +35,15 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
     @Override
     public void updateNote(int noteID) {
-        fillList(viewFragment);
         Log.v("Debug1", "ListNotesFragment updateNote noteID=" + noteID);
+        fillList(viewFragment);
     }
 
-
-    public interface onNoteClicked {
+    public interface OnNoteClicked {
         void onNoteClickedList(int noteID);
     }
 
-    private ListNotesFragment.onNoteClicked onNoteClicked;
+    private OnNoteClicked NoteClicked;
 
     public interface onDateClicked {
         void onDateClickedList(int noteID);
@@ -58,8 +57,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         super.onAttach(context);
         Log.v("Debug1", "ListNotesFragment onAttach");
 
-        if (context instanceof ListNotesFragment.onNoteClicked) {
-            onNoteClicked = (ListNotesFragment.onNoteClicked) context;
+        if (context instanceof OnNoteClicked) {
+            NoteClicked = (OnNoteClicked) context;
         }
 
         if (context instanceof ListNotesFragment.onDateClicked) {
@@ -76,7 +75,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     public void onDetach() {
         super.onDetach();
         Log.v("Debug1", "ListNotesFragment onDetach");
-        onNoteClicked = null;
+        NoteClicked = null;
         onDateClicked = null;
         if (publisher != null) {
             publisher.unsubscribe(this);
@@ -101,7 +100,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
     protected void fillList(View view) {
         Log.v("Debug1", "ListNotesFragment fillList");
-        LinearLayout linearLayoutNotesList = view.findViewById(R.id.fragment_list_notes);
+        LinearLayout linearLayoutNotesList = view.findViewById(R.id.ListNotesFragment);
         LinearLayout linearLayoutIntoScrollView = view.findViewById(R.id.linearLayoutIntoScrollViewIntoFragmentListNotes);
 
         linearLayoutIntoScrollView.removeAllViews();
@@ -114,8 +113,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                 View viewBottom = LayoutInflater.from(requireContext()).inflate(R.layout.view_item_note_bottom_textview, linearLayoutNotesList, false);
 
                 viewBottom.setOnClickListener(v -> {
-                    if (onNoteClicked != null) {
-                        onNoteClicked.onNoteClickedList(note.getID());
+                    if (NoteClicked != null) {
+                        NoteClicked.onNoteClickedList(note.getID());
                     }
                 });
 

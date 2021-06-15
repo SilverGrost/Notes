@@ -1,6 +1,6 @@
-package ru.geekbrains.notes.domain.observer;
+package ru.geekbrains.notes.observer;
 
-import ru.geekbrains.notes.domain.note.Note;
+import ru.geekbrains.notes.note.Note;
 
 // Наблюдатель, вызывается updateNote, когда надо отправить событие по изменению заметки
 public interface ObserverNote {

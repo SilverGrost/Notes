@@ -1,11 +1,11 @@
-package ru.geekbrains.notes.domain.note;
+package ru.geekbrains.notes.note;
 
 import android.content.Context;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.geekbrains.notes.domain.ui.SharedPref;
+import ru.geekbrains.notes.SharedPref;
 
 public class NoteRepositoryImpl implements NoteRepository {
 

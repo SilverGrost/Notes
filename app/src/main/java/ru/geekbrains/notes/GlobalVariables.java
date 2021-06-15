@@ -4,7 +4,7 @@ import android.app.Application;
 
 import java.util.List;
 
-import ru.geekbrains.notes.domain.note.Note;
+import ru.geekbrains.notes.note.Note;
 
 public class GlobalVariables extends Application {
 

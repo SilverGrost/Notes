@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_list_notes"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameListNotes"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="#000000"
-    android:orientation="vertical">
+    tools:context=".ui.list.ListNotesFragment">
 
     <ScrollView
         android:id="@+id/scrollView_cont"
@@ -21,6 +23,4 @@
         </LinearLayout>
     </ScrollView>
 
-
 </LinearLayout>
-

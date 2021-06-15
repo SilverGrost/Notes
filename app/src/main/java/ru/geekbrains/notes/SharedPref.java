@@ -1,4 +1,4 @@
-package ru.geekbrains.notes.domain.ui;
+package ru.geekbrains.notes;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -6,9 +6,9 @@ import android.content.SharedPreferences;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.geekbrains.notes.domain.note.Note;
+import ru.geekbrains.notes.note.Note;
 
-import static ru.geekbrains.notes.domain.Constant.*;
+import static ru.geekbrains.notes.Constant.*;
 
 //Пока храню заметки через SharedPreferences. Понимаю, что криво, но потмо переделаю на БД
 public class SharedPref {

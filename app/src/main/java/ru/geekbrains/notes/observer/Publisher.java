@@ -1,9 +1,9 @@
-package ru.geekbrains.notes.domain.observer;
+package ru.geekbrains.notes.observer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.geekbrains.notes.domain.note.Note;
+import ru.geekbrains.notes.note.Note;
 
 // Обработчик подписок
 public class Publisher {
