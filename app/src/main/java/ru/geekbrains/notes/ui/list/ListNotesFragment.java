@@ -128,7 +128,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                         NoteClicked.onNoteClickedList(note.getID());
 
 
-                        Activity activity = requireActivity();
+                        /*Activity activity = requireActivity();
                         PopupMenu popupMenu = new PopupMenu(activity, v);
                         activity.getMenuInflater().inflate(R.menu.popup, popupMenu.getMenu());
                         Menu menu = popupMenu.getMenu();
@@ -151,7 +151,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                             }
                             return true;
                         });
-                        popupMenu.show();
+                        popupMenu.show();*/
 
 
                     }
@@ -207,7 +207,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         inflater.inflate(R.menu.main_drawer, menu);
     }*/
 
-    @Override
+    /*@Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         Log.v("Debug1", "ListNotesFragment onOptionsItemSelected");
         if (item.getItemId() == R.id.popup_view) {
@@ -215,6 +215,6 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
 }

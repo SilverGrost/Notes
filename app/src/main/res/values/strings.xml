@@ -14,4 +14,7 @@
     <string name="menu_settings_item">Настройки</string>
     <string name="menu_about_item">О программе</string>
     <string name="Search">Поиск</string>
+    <string name="popup_menu_view">Просмотр</string>
+    <string name="popup_menu_edit">Правка</string>
+    <string name="popup_menu_delete">Удалить</string>
 </resources>
