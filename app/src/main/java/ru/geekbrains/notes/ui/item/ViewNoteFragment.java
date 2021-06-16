@@ -7,7 +7,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -148,15 +147,22 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
             Log.v("Debug1", "ViewNoteFragment onClick button_edit");
             EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(noteId);
 
-            Fragment ParentFragment = getParentFragment();
-            if (ParentFragment != null){
-                FragmentManager fragmentManager = ParentFragment.getFragmentManager();
-                if (fragmentManager != null){
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
-                    fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.commit();
+
+            FragmentManager fragmentManager = null;
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                fragmentManager = getFragmentManager();
+            } else {
+                Fragment ParentFragment = getParentFragment();
+                if (ParentFragment != null){
+                    fragmentManager = ParentFragment.getFragmentManager();
                 }
+            }
+
+            if (fragmentManager != null){
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
             }
 
         } else if (v.getId() == R.id.button_delete) {
