@@ -56,7 +56,7 @@ public class AboutFragment extends Fragment {
         Log.v("Debug1", "AboutFragment onStop");
     }
 
-        public void onResume() {
+    public void onResume() {
         super.onResume();
         Log.v("Debug1", "AboutFragment onResume");
     }

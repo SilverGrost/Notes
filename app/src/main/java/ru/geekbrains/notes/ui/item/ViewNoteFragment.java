@@ -150,15 +150,19 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
 
             FragmentManager fragmentManager = null;
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                fragmentManager = getFragmentManager();
+                //fragmentManager = getFragmentManager();
+                if (getActivity() != null)
+                    fragmentManager = getActivity().getSupportFragmentManager();
             } else {
                 Fragment ParentFragment = getParentFragment();
-                if (ParentFragment != null){
-                    fragmentManager = ParentFragment.getFragmentManager();
+                if (ParentFragment != null) {
+                    //fragmentManager = ParentFragment.getFragmentManager();
+                    if (getActivity() != null)
+                        fragmentManager = ParentFragment.getActivity().getSupportFragmentManager();
                 }
             }
 
-            if (fragmentManager != null){
+            if (fragmentManager != null) {
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
                 fragmentTransaction.addToBackStack(null);
@@ -194,8 +198,9 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
 
                     if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
 
-                        FragmentManager fragmentManager = getFragmentManager();
-                        if (fragmentManager != null) {
+                        //FragmentManager fragmentManager = getFragmentManager();
+                        if (getActivity() != null) {
+                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                             fragmentTransaction.remove(this);
                             fragmentTransaction.commit();

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -47,8 +46,9 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         if (v.getId() == R.id.buttonAddNote) {
             EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(-1);
 
-            FragmentManager fragmentManager = getFragmentManager();
-            if (fragmentManager != null) {
+            //FragmentManager fragmentManager = getFragmentManager();
+            if (getActivity() != null) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
                 fragmentTransaction.addToBackStack(null);

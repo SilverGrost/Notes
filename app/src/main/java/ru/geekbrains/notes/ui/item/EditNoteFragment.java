@@ -140,9 +140,11 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
         }
 
         Log.v("Debug1", "EditNoteFragment onClick FragmentTransaction");
-        FragmentManager fragmentManager = getFragmentManager();
-        if (fragmentManager != null)
+        //FragmentManager fragmentManager = getFragmentManager();
+        if (getActivity() != null) {
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             fragmentManager.popBackStack();
+        }
         Log.v("Debug1", "EditNoteFragment onClick end");
     }
 

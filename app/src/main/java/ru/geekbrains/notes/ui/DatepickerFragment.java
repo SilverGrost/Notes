@@ -90,8 +90,9 @@ public class DatepickerFragment extends Fragment {
 
                     textViewTop.setText(dateStr);
 
-                    FragmentManager fragmentManager = getFragmentManager();
-                    if (fragmentManager != null) {
+                    //FragmentManager fragmentManager = getFragmentManager();
+                    if (getActivity() != null) {
+                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                         fragmentManager.popBackStack();
                     }
 
