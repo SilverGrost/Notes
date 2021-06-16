@@ -15,13 +15,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.List;
 
+import ru.geekbrains.notes.BuildConfig;
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.note.Note;
@@ -48,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
         Log.v("Debug1", "MainActivity onCreate");
 
         initView();
+
 
         //Поднимем layout вместе с клавиатурой
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
@@ -93,6 +97,19 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
 
         // Обработка навигационного меню
         NavigationView navigationView = findViewById(R.id.nav_view);
+        //textView_version_menu
+
+        // get header
+        View navHeader = navigationView.getHeaderView(0);
+
+        TextView textView = navHeader.findViewById(R.id.textView_version_menu);
+        if (textView != null) {
+            int versionCode = BuildConfig.VERSION_CODE;
+            String versionName = BuildConfig.VERSION_NAME;
+            String strAbout = getResources().getString(R.string.menu_string) + versionName;
+            textView.setText(strAbout);
+        }
+
         navigationView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
             if (navigateFragment(id)) {
@@ -101,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
             }
             return false;
         });
+
     }
 
     /*private Fragment getVisibleFragment(FragmentManager fragmentManager){

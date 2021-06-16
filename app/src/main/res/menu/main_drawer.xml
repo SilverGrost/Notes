@@ -7,7 +7,7 @@
         android:title="@string/menu_settings_item" />
     <item
         android:id="@+id/action_about"
-        android:icon="@android:drawable/ic_menu_compass"
+        android:icon="@android:drawable/ic_menu_help"
         android:orderInCategory="20"
         android:title="@string/menu_about_item"/>
 

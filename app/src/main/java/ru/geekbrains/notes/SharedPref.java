@@ -33,7 +33,6 @@ public class SharedPref {
     public ArrayList<Note> loadNotes() {
         int countNotes = SharedPreferences.getInt(COUNTNOTES, 0);
         ArrayList<Note> notes = new ArrayList<>();
-        //Note[] notes = new Note[countNotes];
         for (int i = 0; i < countNotes; i++) {
             notes.add(loadNote(i));
         }
