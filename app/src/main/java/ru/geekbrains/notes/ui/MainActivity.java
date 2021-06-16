@@ -29,6 +29,7 @@ import ru.geekbrains.notes.note.NoteRepository;
 import ru.geekbrains.notes.note.NoteRepositoryImpl;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
+import ru.geekbrains.notes.ui.item.EditNoteFragment;
 import ru.geekbrains.notes.ui.item.ViewNoteFragment;
 import ru.geekbrains.notes.ui.list.ListNotesFragment;
 import ru.geekbrains.notes.ui.settings.AboutFragment;
@@ -171,17 +172,18 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
         // Обработка выбора пункта меню приложения (активити)
         int id = item.getItemId();
 
-        /*switch(id){
-            case R.id.action_settings:
-                addFragment(new SettingsFragment());
-                return true;
-            case R.id.action_main:
-                addFragment(new MainFragment());
-                return true;
-            case R.id.action_favorite:
-                addFragment(new FavoriteFragment());
-                return true;
-        }*/
+        if (id == R.id.action_search) {//addFragment(new SettingsFragment());
+            return true;
+        } else if (id == R.id.action_add) {
+            EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(-1);
+
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -198,13 +200,14 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
                 Toast.makeText(MainActivity.this, query, Toast.LENGTH_SHORT).show();
                 return true;
             }
+
             // реагирует на нажатие каждой клавиши
             @Override
             public boolean onQueryTextChange(String newText) {
+                Toast.makeText(MainActivity.this, newText, Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
-
         return true;
     }
 

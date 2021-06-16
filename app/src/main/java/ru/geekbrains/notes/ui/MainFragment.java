@@ -26,7 +26,9 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_main, container, false);
+        View view = inflater.inflate(R.layout.fragment_main, container, false);
+        Log.v("Debug1", "MainFragment onCreateView");
+        return view;
     }
 
     // вызывается после создания макета фрагмента, здесь мы проинициализируем список
@@ -53,4 +55,6 @@ public class MainFragment extends Fragment implements View.OnClickListener {
             }
         }
     }
+
+
 }
