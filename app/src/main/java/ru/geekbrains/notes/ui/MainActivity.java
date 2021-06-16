@@ -1,6 +1,11 @@
 package ru.geekbrains.notes.ui;
 
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -8,6 +13,8 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
+
+import com.google.android.material.navigation.NavigationView;
 
 import java.util.List;
 
@@ -20,6 +27,8 @@ import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.ui.item.ViewNoteFragment;
 import ru.geekbrains.notes.ui.list.ListNotesFragment;
+import ru.geekbrains.notes.ui.settings.AboutFragment;
+import ru.geekbrains.notes.ui.settings.SettingsFragment;
 
 
 public class MainActivity extends AppCompatActivity implements ListNotesFragment.OnNoteClicked, ListNotesFragment.onDateClicked, PublisherHolder {
@@ -30,6 +39,10 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.v("Debug1", "MainActivity onCreate");
+
+        initView();
 
         //Поднимем layout вместе с клавиатурой
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
@@ -56,6 +69,99 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
         }
     }
 
+    private void initView() {
+        Log.v("Debug1", "MainActivity initView");
+        Toolbar toolbar = initToolbar();
+        initDrawer(toolbar);
+    }
+
+    // регистрация drawer
+    private void initDrawer(Toolbar toolbar) {
+        Log.v("Debug1", "MainActivity initDrawer");
+        final DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        // Обработка навигационного меню
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (navigateFragment(id)) {
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    /*private Fragment getVisibleFragment(FragmentManager fragmentManager){
+        Log.v("Debug1", "MainActivity getVisibleFragment");
+        List<Fragment> fragments = fragmentManager.getFragments();
+        int countFragments = fragments.size();
+        Log.v("Debug1", "MainActivity getVisibleFragment countFragments=" + countFragments);
+        for(int i = countFragments - 1; i >= 0; i--){
+            Fragment fragment = fragments.get(i);
+            //if(fragment.isVisible()) {
+                int fragmentId = fragment.getId();
+                String fragmentTag = fragment.getTag();
+                Log.v("Debug1", "MainActivity getVisibleFragment fragmentId=" + fragmentId + ", fragmentTag=" + fragmentTag);
+                //return fragment;
+            //}
+        }
+        return null;
+    }*/
+
+    private void addFragment(int fragmentID) {
+        Log.v("Debug1", "MainActivity addFragment fragmentID=" + fragmentID);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        String fragmentTag = null;
+        if (fragmentID == R.id.frameLayoutAboutFragment) {
+            fragmentTag = "AboutFragment";
+        } else if (fragmentID == R.id.frameLayoutSettingsFragment) {
+            fragmentTag = "SettingsFragment";
+        }
+        Fragment fragment = fragmentManager.findFragmentByTag(fragmentTag);
+        if (fragment == null) {
+            Log.v("Debug1", "MainActivity addFragment fragment == null");
+            fragment = new SettingsFragment();
+            if (fragmentID == R.id.frameLayoutAboutFragment) {
+                fragment = new AboutFragment();
+            } else if (fragmentID == R.id.frameLayoutSettingsFragment) {
+                fragment = new SettingsFragment();
+            }
+            Log.v("Debug1", "MainActivity addFragment fragmentTag=" + fragmentTag);
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.add(R.id.frame_container_main, fragment, fragmentTag);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        } else {
+            Log.v("Debug1", "MainActivity addFragment fragment != null");
+        }
+    }
+
+    private boolean navigateFragment(int id) {
+        Log.v("Debug1", "MainActivity navigateFragment id=" + id);
+        if (id == R.id.action_about) {
+            addFragment(R.id.frameLayoutAboutFragment);
+            return true;
+        } else if (id == R.id.action_settings) {
+            addFragment(R.id.frameLayoutSettingsFragment);
+            return true;
+        }
+        return false;
+    }
+
+    private Toolbar initToolbar() {
+        Log.v("Debug1", "MainActivity initToolbar");
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        return toolbar;
+    }
+
     @Override
     public void onNoteClickedList(int noteId) {
         Log.v("Debug1", "MainActivity onNoteClickedList noteId=" + noteId);
@@ -77,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
             viewNoteFragment = ViewNoteFragment.newInstance(noteId);
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment);
+            fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragment");
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         } else {
@@ -92,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
         DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
         FragmentTransaction fragmentTransaction;
         fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.add(R.id.frame_container_main, datepickerFragment);
+        fragmentTransaction.add(R.id.frame_container_main, datepickerFragment, "DatepickerFragment");
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
