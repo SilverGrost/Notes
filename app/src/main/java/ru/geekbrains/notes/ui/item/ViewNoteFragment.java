@@ -164,6 +164,7 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
 
             if (fragmentManager != null) {
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
                 fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
@@ -202,6 +203,7 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
                         if (getActivity() != null) {
                             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                            fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
                             fragmentTransaction.remove(this);
                             fragmentTransaction.commit();
                         }
