@@ -31,6 +31,15 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         return view;
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        setHasOptionsMenu(false);
+        super.onCreate(savedInstanceState);
+        Log.v("Debug1", "MainFragment onCreate");
+
+    }
+
+
     // вызывается после создания макета фрагмента, здесь мы проинициализируем список
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {

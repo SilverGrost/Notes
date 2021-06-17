@@ -42,7 +42,7 @@ import ru.geekbrains.notes.ui.settings.AboutFragment;
 import ru.geekbrains.notes.ui.settings.SettingsFragment;
 
 
-public class MainActivity extends AppCompatActivity implements ListNotesFragment.OnNoteClicked, ListNotesFragment.onDateClicked, PublisherHolder {
+public class MainActivity extends AppCompatActivity implements ListNotesFragment.OnNoteClicked, ListNotesFragment.onDateClicked, PublisherHolder, SearchView.OnQueryTextListener, SearchResultFragment.OnNoteClicked, SearchResultFragment.onDateClicked {
 
     private final Publisher publisher = new Publisher();
 
@@ -50,11 +50,11 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //setHasOptionsMenu(false);
 
         Log.v("Debug1", "MainActivity onCreate");
 
         initView();
-
 
         //Поднимем layout вместе с клавиатурой
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
@@ -128,21 +128,17 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
 
     }
 
-    /*private Fragment getVisibleFragment(FragmentManager fragmentManager){
+    /*private void getAllFragment(FragmentManager fragmentManager) {
         Log.v("Debug1", "MainActivity getVisibleFragment");
         List<Fragment> fragments = fragmentManager.getFragments();
         int countFragments = fragments.size();
         Log.v("Debug1", "MainActivity getVisibleFragment countFragments=" + countFragments);
-        for(int i = countFragments - 1; i >= 0; i--){
+        for (int i = countFragments - 1; i >= 0; i--) {
             Fragment fragment = fragments.get(i);
-            //if(fragment.isVisible()) {
-                int fragmentId = fragment.getId();
-                String fragmentTag = fragment.getTag();
-                Log.v("Debug1", "MainActivity getVisibleFragment fragmentId=" + fragmentId + ", fragmentTag=" + fragmentTag);
-                //return fragment;
-            //}
+            int fragmentId = fragment.getId();
+            String fragmentTag = fragment.getTag();
+            Log.v("Debug1", "MainActivity getVisibleFragment fragmentId=" + fragmentId + ", fragmentTag=" + fragmentTag);
         }
-        return null;
     }*/
 
     private void addFragment(int fragmentID) {
@@ -196,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.v("Debug1", "MainActivity onOptionsItemSelected");
         // Обработка выбора пункта меню приложения (активити)
         int id = item.getItemId();
 
@@ -204,10 +201,8 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
             return true;
         } else if (id == R.id.action_add) {
             EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(-1);
-
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            //fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
             fragmentTransaction.addToBackStack(null);
@@ -217,74 +212,11 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Здесь определяем меню приложения (активити)
-        getMenuInflater().inflate(R.menu.main, menu);
-        MenuItem search = menu.findItem(R.id.action_search); // поиск пункта меню поиска
-        SearchView searchText = (SearchView) search.getActionView(); // строка поиска
-        searchText.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            // реагирует на конец ввода поиска
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                //Toast.makeText(MainActivity.this, query, Toast.LENGTH_SHORT).show();
-
-                SearchResultFragment searchResultFragment = SearchResultFragment.newInstance(query);
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
-                    fragmentTransaction.add(R.id.frame_container_main, searchResultFragment, "SearchResultFragment");
-                else
-                    fragmentTransaction.add(R.id.frame_container_main, searchResultFragment, "SearchResultFragment");
-                //fragmentTransaction.add(R.id.frame_container_main, searchResultFragment, "SearchResultFragment");
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-
-                return true;
-            }
-
-            // реагирует на нажатие каждой клавиши
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                Toast.makeText(MainActivity.this, newText, Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        });
-        return true;
-    }
-
 
     @Override
     public void onNoteClickedList(int noteId) {
         Log.v("Debug1", "MainActivity onNoteClickedList noteId=" + noteId);
-
-        ViewNoteFragment viewNoteFragment = null;
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            viewNoteFragment = (ViewNoteFragment) getSupportFragmentManager().findFragmentById(R.id.activity_container_note_view);
-        } else {
-            MainFragment mainFragment = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.frame_container_main);
-            if (mainFragment != null) {
-                FragmentManager childFragmentManager = mainFragment.getChildFragmentManager();
-                viewNoteFragment = (ViewNoteFragment) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
-            }
-            //viewNoteFragment = (ViewNoteFragment) mainFragment.getChildFragmentManager().findFragmentById(R.id.activity_container_note_view);
-        }
-
-        if (viewNoteFragment == null) {
-            Log.v("Debug1", "MainActivity onNoteClickedList viewNoteFragment == null");
-            viewNoteFragment = ViewNoteFragment.newInstance(noteId);
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            //fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
-            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragment");
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
-        } else {
-            Log.v("Debug1", "MainActivity onNoteClickedList viewNoteFragment != null");
-            viewNoteFragment.fillViewNote(noteId, viewNoteFragment.getViewFragment());
-        }
+        openNoteView(noteId);
     }
 
     @Override
@@ -300,11 +232,104 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
         fragmentTransaction.commit();
     }
 
+
+    @Override
+    public void onNoteClickedSearchList(int noteId) {
+        Log.v("Debug1", "MainActivity onNoteClickedSearchList noteId=" + noteId);
+        ViewNoteFragment viewNoteFragment = ViewNoteFragment.newInstance(noteId);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentFromSearch");
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+    @Override
+    public void onDateClickedSearchList(int noteId) {
+        Log.v("Debug1", "MainActivity onDateClickedSearchList");
+        openDatepicker(noteId);
+    }
+
+    public void openDatepicker(int noteId) {
+        Log.v("Debug1", "MainActivity openDatepicker");
+        DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
+        FragmentTransaction fragmentTransaction;
+        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        fragmentTransaction.add(R.id.frame_container_main, datepickerFragment, "DatepickerFragment");
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+
+    public void openNoteView(int noteId) {
+        Log.v("Debug1", "MainActivity openNoteView");
+        ViewNoteFragment viewNoteFragment = null;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            viewNoteFragment = (ViewNoteFragment) getSupportFragmentManager().findFragmentById(R.id.activity_container_note_view);
+        } else {
+            MainFragment mainFragment = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.frame_container_main);
+            if (mainFragment != null) {
+                FragmentManager childFragmentManager = mainFragment.getChildFragmentManager();
+                viewNoteFragment = (ViewNoteFragment) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
+            }
+            //viewNoteFragment = (ViewNoteFragment) mainFragment.getChildFragmentManager().findFragmentById(R.id.activity_container_note_view);
+        }
+
+        if (viewNoteFragment == null) {
+            Log.v("Debug1", "MainActivity openNoteView viewNoteFragment == null");
+            viewNoteFragment = ViewNoteFragment.newInstance(noteId);
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            //fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragment");
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        } else {
+            Log.v("Debug1", "MainActivity openNoteView viewNoteFragment != null");
+            viewNoteFragment.fillViewNote(noteId, viewNoteFragment.getViewFragment());
+        }
+    }
+
+
     @Override
     public Publisher getPublisher() {
         Log.v("Debug1", "MainActivity getPublisher");
         return publisher;
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Здесь определяем меню приложения (активити)
+        Log.v("Debug1", "MainActivity onCreateOptionsMenu");
+        getMenuInflater().inflate(R.menu.main, menu);
+        MenuItem search = menu.findItem(R.id.action_search); // поиск пункта меню поиска
+        SearchView searchText = (SearchView) search.getActionView(); // строка поиска
+        searchText.clearFocus();
+        searchText.setOnQueryTextListener(this);
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        Log.v("Debug1", "MainActivity onQueryTextSubmit query=" + query);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        SearchResultFragment searchResultFragment = SearchResultFragment.newInstance(query);
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        fragmentTransaction.add(R.id.frame_container_main, searchResultFragment, "SearchResultFragment");
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+        //getAllFragment(fragmentManager);
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        Log.v("Debug1", "MainActivity onQueryTextChange");
+        return true;
+    }
 
 }

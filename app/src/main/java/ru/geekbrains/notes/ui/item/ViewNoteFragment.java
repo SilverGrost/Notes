@@ -27,6 +27,7 @@ import ru.geekbrains.notes.observer.ObserverNote;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.SharedPref;
+import ru.geekbrains.notes.ui.list.SearchResultFragment;
 
 public class ViewNoteFragment extends Fragment implements View.OnClickListener, ObserverNote {
 
@@ -153,24 +154,23 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
             Log.v("Debug1", "ViewNoteFragment onClick button_edit");
             EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(noteId);
 
+            if (getActivity() != null) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                SearchResultFragment searchResultFragment = (SearchResultFragment) fragmentManager.findFragmentByTag("SearchResultFragment");
+                if (searchResultFragment == null)
+                    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        if (getActivity() != null)
+                            fragmentManager = getActivity().getSupportFragmentManager();
+                    } else {
+                        fragmentManager = getActivity().getSupportFragmentManager();
+                        Fragment parentFragment = getParentFragment();
+                        if (parentFragment != null) {
+                            if (getActivity() != null)
+                                fragmentManager = parentFragment.getActivity().getSupportFragmentManager();
+                        }
+                    }
 
-            FragmentManager fragmentManager = null;
-            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                //fragmentManager = getFragmentManager();
-                if (getActivity() != null)
-                    fragmentManager = getActivity().getSupportFragmentManager();
-            } else {
-                Fragment ParentFragment = getParentFragment();
-                if (ParentFragment != null) {
-                    //fragmentManager = ParentFragment.getFragmentManager();
-                    if (getActivity() != null)
-                        fragmentManager = ParentFragment.getActivity().getSupportFragmentManager();
-                }
-            }
-
-            if (fragmentManager != null) {
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                //fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
                 fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                 fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
                 fragmentTransaction.addToBackStack(null);

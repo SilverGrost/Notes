@@ -15,6 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="#AF6D0C"
+        android:tag="ListNotesFragment"
         app:layout_constraintBottom_toTopOf="@+id/buttonAddNote"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

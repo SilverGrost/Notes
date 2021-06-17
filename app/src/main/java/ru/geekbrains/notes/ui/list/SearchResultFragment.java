@@ -25,22 +25,32 @@ import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.note.DateSorterComparator;
 import ru.geekbrains.notes.note.HeaderSorterComparator;
 import ru.geekbrains.notes.note.Note;
+import ru.geekbrains.notes.observer.ObserverNote;
+import ru.geekbrains.notes.observer.Publisher;
+import ru.geekbrains.notes.observer.PublisherHolder;
 
 import static ru.geekbrains.notes.Constant.MILISECOND;
 
 
-public class SearchResultFragment extends Fragment {
+public class SearchResultFragment extends Fragment implements ObserverNote {
 
     private View viewFragment;
+    private Publisher publisher;
 
-    public interface OnNoteClicked {
-        void onNoteClickedList(int noteID);
+    @Override
+    public void updateNote(int noteID) {
+        Log.v("Debug1", "SearchResultFragment updateNote noteID=" + noteID);
+        fillList(viewFragment, mParam1);
     }
 
-    private OnNoteClicked NoteClicked;
+    public interface OnNoteClicked {
+        void onNoteClickedSearchList(int noteID);
+    }
+
+    private OnNoteClicked noteClicked;
 
     public interface onDateClicked {
-        void onDateClickedList(int noteID);
+        void onDateClickedSearchList(int noteID);
     }
 
     private onDateClicked onDateClicked;
@@ -51,21 +61,28 @@ public class SearchResultFragment extends Fragment {
         Log.v("Debug1", "SearchResultFragment onAttach");
 
         if (context instanceof OnNoteClicked) {
-            NoteClicked = (OnNoteClicked) context;
+            noteClicked = (OnNoteClicked) context;
         }
 
         if (context instanceof onDateClicked) {
             onDateClicked = (onDateClicked) context;
         }
 
+        if (context instanceof PublisherHolder) {
+            publisher = ((PublisherHolder) context).getPublisher();
+            publisher.subscribe(this);
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         Log.v("Debug1", "SearchResultFragment onDetach");
-        NoteClicked = null;
+        noteClicked = null;
         onDateClicked = null;
+        if (publisher != null) {
+            publisher.unsubscribe(this);
+        }
     }
 
     private static final String ARG_PARAM1 = "param1";
@@ -148,41 +165,13 @@ public class SearchResultFragment extends Fragment {
 
                     viewTop.setOnClickListener(v -> {
                         if (onDateClicked != null) {
-                            onDateClicked.onDateClickedList(note.getID());
+                            onDateClicked.onDateClickedSearchList(note.getID());
                         }
                     });
 
                     viewBottom.setOnClickListener(v -> {
-                        if (NoteClicked != null) {
-                            NoteClicked.onNoteClickedList(note.getID());
-
-
-                        /*Activity activity = requireActivity();
-                        PopupMenu popupMenu = new PopupMenu(activity, v);
-                        activity.getMenuInflater().inflate(R.menu.popup, popupMenu.getMenu());
-                        Menu menu = popupMenu.getMenu();
-                        //menu.findItem(R.id.popup_view).setVisible(false);
-                        menu.add(0, 123456, 12, "Dynamic");
-                        popupMenu.setOnMenuItemClickListener(item -> {
-                            int id = item.getItemId();
-                            if (id == R.id.popup_view) {
-                                Toast.makeText(getContext(), "Chosen popup item view", Toast.LENGTH_SHORT).show();
-                                return true;
-                            } else if (id == R.id.popup_edit) {
-                                Toast.makeText(getContext(), "Chosen popup item edit2", Toast.LENGTH_SHORT).show();
-                                return true;
-                            } else if (id == R.id.popup_delete) {
-                                Toast.makeText(getContext(), "Chosen popup item delete", Toast.LENGTH_SHORT).show();
-                                return true;
-                            } else if (id == 123456) {
-                                Toast.makeText(getContext(), "Chosen new item added", Toast.LENGTH_SHORT).show();
-                                return true;
-                            }
-                            return true;
-                        });
-                        popupMenu.show();*/
-
-
+                        if (noteClicked != null) {
+                            noteClicked.onNoteClickedSearchList(note.getID());
                         }
                     });
 

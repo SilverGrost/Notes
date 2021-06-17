@@ -16,7 +16,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.text.DateFormat;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -48,13 +47,13 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         void onNoteClickedList(int noteID);
     }
 
-    private OnNoteClicked NoteClicked;
+    private OnNoteClicked noteClicked;
 
     public interface onDateClicked {
         void onDateClickedList(int noteID);
     }
 
-    private ListNotesFragment.onDateClicked onDateClicked;
+    private ListNotesFragment.onDateClicked dateClicked;
 
 
     @Override
@@ -63,11 +62,11 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         Log.v("Debug1", "ListNotesFragment onAttach");
 
         if (context instanceof OnNoteClicked) {
-            NoteClicked = (OnNoteClicked) context;
+            noteClicked = (OnNoteClicked) context;
         }
 
         if (context instanceof ListNotesFragment.onDateClicked) {
-            onDateClicked = (ListNotesFragment.onDateClicked) context;
+            dateClicked = (onDateClicked) context;
         }
 
         if (context instanceof PublisherHolder) {
@@ -80,8 +79,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     public void onDetach() {
         super.onDetach();
         Log.v("Debug1", "ListNotesFragment onDetach");
-        NoteClicked = null;
-        onDateClicked = null;
+        noteClicked = null;
+        dateClicked = null;
         if (publisher != null) {
             publisher.unsubscribe(this);
         }
@@ -139,14 +138,14 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                 View viewBottom = LayoutInflater.from(requireContext()).inflate(R.layout.view_item_note_bottom_textview, linearLayoutNotesList, false);
 
                 viewTop.setOnClickListener(v -> {
-                    if (onDateClicked != null) {
-                        onDateClicked.onDateClickedList(note.getID());
+                    if (dateClicked != null) {
+                        dateClicked.onDateClickedList(note.getID());
                     }
                 });
 
                 viewBottom.setOnClickListener(v -> {
-                    if (NoteClicked != null) {
-                        NoteClicked.onNoteClickedList(note.getID());
+                    if (noteClicked != null) {
+                        noteClicked.onNoteClickedList(note.getID());
 
 
                         /*Activity activity = requireActivity();
