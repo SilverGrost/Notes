@@ -157,9 +157,11 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
                     break;
             }
 
+            int countResults = 0;
             for (int i = 0, notesSize = notes.size(); i < notesSize; i++) {
                 Note note = notes.get(i);
                 if (note.getValue().contains(query)) {
+                    countResults++;
                     View viewTop = LayoutInflater.from(requireContext()).inflate(R.layout.view_item_note_top_textview, linearLayoutNotesList, false);
                     View viewBottom = LayoutInflater.from(requireContext()).inflate(R.layout.view_item_note_bottom_textview, linearLayoutNotesList, false);
 
@@ -200,6 +202,14 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
                     linearLayoutIntoScrollViewIntoFragmentSearchResult.addView(viewTop);
                     linearLayoutIntoScrollViewIntoFragmentSearchResult.addView(viewBottom);
                 }
+            }
+            if (countResults == 0) {
+                //textViewNoSearchResult
+                View viewNoSearchResult = LayoutInflater.from(requireContext()).inflate(R.layout.view_nosearchresult_textview, linearLayoutNotesList, false);
+                TextView textViewNoSearchResult = viewNoSearchResult.findViewById(R.id.textViewNoSearchResult);
+                String strNoSearchResult = getResources().getString(R.string.textViewNoSearchResult) + query;
+                textViewNoSearchResult.setText(strNoSearchResult);
+                linearLayoutIntoScrollViewIntoFragmentSearchResult.addView(textViewNoSearchResult);
             }
         }
     }

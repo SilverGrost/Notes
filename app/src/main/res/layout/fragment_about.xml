@@ -16,19 +16,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/version"
-        android:textSize="18sp" />
+        android:textSize="@dimen/textSizeInterface" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="18sp" />
+        android:textSize="@dimen/textSizeInterface" />
 
     <TextView
         android:id="@+id/textView3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/textAbout"
-        android:textSize="18sp" />
+        android:textSize="@dimen/textSizeInterface" />
 
 </LinearLayout>
