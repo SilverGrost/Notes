@@ -18,4 +18,5 @@
     <string name="logo">Logo</string>
     <string name="textViewTextSize">Размер шрифта</string>
     <string name="textViewSortType">Сортировка заметок</string>
+    <string name="textAbout">Умный и не особо текст о программе, лицензии, возможностях и чего-нибудь ещё</string>
 </resources>

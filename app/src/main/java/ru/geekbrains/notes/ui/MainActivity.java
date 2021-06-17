@@ -37,6 +37,7 @@ import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
 import ru.geekbrains.notes.ui.item.ViewNoteFragment;
 import ru.geekbrains.notes.ui.list.ListNotesFragment;
+import ru.geekbrains.notes.ui.list.SearchResultFragment;
 import ru.geekbrains.notes.ui.settings.AboutFragment;
 import ru.geekbrains.notes.ui.settings.SettingsFragment;
 
@@ -110,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
 
         TextView textView = navHeader.findViewById(R.id.textView_version_menu);
         if (textView != null) {
-            int versionCode = BuildConfig.VERSION_CODE;
+            //int versionCode = BuildConfig.VERSION_CODE;
             String versionName = BuildConfig.VERSION_NAME;
             String strAbout = getResources().getString(R.string.menu_string) + versionName;
             textView.setText(strAbout);
@@ -199,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
         int id = item.getItemId();
 
         if (id == R.id.action_search) {//addFragment(new SettingsFragment());
+            Toast.makeText(MainActivity.this, "action_search", Toast.LENGTH_SHORT).show();
             return true;
         } else if (id == R.id.action_add) {
             EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(-1);
@@ -225,7 +227,20 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
             // реагирует на конец ввода поиска
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Toast.makeText(MainActivity.this, query, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, query, Toast.LENGTH_SHORT).show();
+
+                SearchResultFragment searchResultFragment = SearchResultFragment.newInstance(query);
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+                    fragmentTransaction.add(R.id.frame_container_main, searchResultFragment, "SearchResultFragment");
+                else
+                    fragmentTransaction.add(R.id.frame_container_main, searchResultFragment, "SearchResultFragment");
+                //fragmentTransaction.add(R.id.frame_container_main, searchResultFragment, "SearchResultFragment");
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+
                 return true;
             }
 
