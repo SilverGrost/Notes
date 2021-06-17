@@ -8,7 +8,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="version">Версия: </string>
-    <string name="menu_string">Заметки, версия: </string>
+    <string name="menu_string">"Заметки: "</string>
     <string name="menu_settings_item">Настройки</string>
     <string name="menu_about_item">О программе</string>
     <string name="Search">Поиск</string>

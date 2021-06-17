@@ -109,7 +109,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         if (getActivity() != null && getActivity().getApplication() != null) {
             List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
 
-            for (Note note : notes) {
+            for (int i = 0, notesSize = notes.size(); i < notesSize; i++) {
+                Note note = notes.get(i);
                 View viewTop = LayoutInflater.from(requireContext()).inflate(R.layout.view_item_note_top_textview, linearLayoutNotesList, false);
                 View viewBottom = LayoutInflater.from(requireContext()).inflate(R.layout.view_item_note_bottom_textview, linearLayoutNotesList, false);
 
