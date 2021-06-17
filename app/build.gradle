@@ -40,7 +40,8 @@ android {
 
         defaultConfig {
             minSdkVersion 26
-            targetSdkVersion 30
+            //noinspection ExpiredTargetSdkVersion
+            targetSdkVersion 26
             applicationId "ru.geekbrains.notes"
             versionCode versionProps['VERSION_NUMBER'].toInteger()
             versionName "${mVersionName} Build: ${versionProps['VERSION_BUILD']}"
