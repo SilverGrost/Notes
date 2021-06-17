@@ -9,5 +9,8 @@ public class Constant {
     public static final String NOTEDATE = "Date";
     public static final String NAME_SHARED_PREFERENCE = "Notes";
     public static final String COUNTNOTES = "CountOfNotes";
-
+    public static final String APPSETTINGSTEXTSIZE = "AppSettingsTextSize";
+    public static final String APPSETTINGSSORTTYPE = "AppSettingsSortType";
+    public static final int DEFAULTTEXTSIZE = 0;
+    public static final int DEFAULTSORTTYPE = 0;
 }

@@ -58,4 +58,17 @@ public class SharedPref {
         }
         editor.apply();
     }
+
+    // Чтение настроек
+    public Settings loadSettings() {
+        return new Settings(SharedPreferences.getInt(APPSETTINGSTEXTSIZE, DEFAULTTEXTSIZE), SharedPreferences.getInt(APPSETTINGSSORTTYPE, DEFAULTSORTTYPE));
+    }
+
+    // Сохранение настроек
+    public void saveSettings(Settings settings) {
+        SharedPreferences.Editor editor = SharedPreferences.edit();
+        editor.putInt(APPSETTINGSTEXTSIZE, settings.getTextSize());
+        editor.putInt(APPSETTINGSSORTTYPE, settings.getSortType());
+        editor.apply();
+    }
 }
