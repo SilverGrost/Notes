@@ -158,6 +158,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                 DateFormat f = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
                 String dateStr = f.format(date);
 
+                //textViewTop.setPadding(0,50,0,0);
+
                 textViewTop.setText(dateStr);
                 textViewTop.setTag(note.getID());
 
@@ -165,6 +167,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
                 TextView textViewBottom = viewBottom.findViewById(R.id.textViewBottom);
                 textViewBottom.setText(note.getHeader());
+
+                //textViewBottom.setPadding(0,0,0,50);
 
                 linearLayoutIntoScrollView.addView(viewTop);
                 linearLayoutIntoScrollView.addView(viewBottom);

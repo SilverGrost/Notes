@@ -5,7 +5,7 @@
     android:id="@+id/frameEditNote"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#8BC34A"
+    android:background="@drawable/round_note_edit"
     tools:context=".ui.item.EditNoteFragment">
 
     <EditText
@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:ems="10"
-        tools:ignore="LabelFor"
+        tools:ignore="Autofill,LabelFor"
 
         android:inputType="textMultiLine|text"
         android:singleLine="true"

@@ -158,7 +158,8 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
             }
             Log.v("Debug1", "MainActivity addFragment fragmentTag=" + fragmentTag);
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+            //fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             fragmentTransaction.add(R.id.frame_container_main, fragment, fragmentTag);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
@@ -198,7 +199,8 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
 
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+            //fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
@@ -253,7 +255,8 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
             viewNoteFragment = ViewNoteFragment.newInstance(noteId);
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+            //fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragment");
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
@@ -269,7 +272,8 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
         DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
         FragmentTransaction fragmentTransaction;
         fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+        //fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         fragmentTransaction.add(R.id.frame_container_main, datepickerFragment, "DatepickerFragment");
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();

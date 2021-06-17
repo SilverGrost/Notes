@@ -3,5 +3,7 @@
     android:id="@+id/textViewTop"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/top_textview_color"
+    android:background="@drawable/round_top_textview"
+    android:paddingStart="5dp"
+    android:paddingEnd="0dp"
     tools:text="19.03.2021 15:36" />
