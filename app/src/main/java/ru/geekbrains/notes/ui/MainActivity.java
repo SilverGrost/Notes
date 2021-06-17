@@ -212,57 +212,6 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
         return super.onOptionsItemSelected(item);
     }
 
-
-    @Override
-    public void onNoteClickedList(int noteId) {
-        Log.v("Debug1", "MainActivity onNoteClickedList noteId=" + noteId);
-        openNoteView(noteId);
-    }
-
-    @Override
-    public void onDateClickedList(int noteId) {
-        Log.v("Debug1", "MainActivity onDateClickedList");
-        DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
-        FragmentTransaction fragmentTransaction;
-        fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        //fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
-        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        fragmentTransaction.add(R.id.frame_container_main, datepickerFragment, "DatepickerFragment");
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
-    }
-
-
-    @Override
-    public void onNoteClickedSearchList(int noteId) {
-        Log.v("Debug1", "MainActivity onNoteClickedSearchList noteId=" + noteId);
-        ViewNoteFragment viewNoteFragment = ViewNoteFragment.newInstance(noteId);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentFromSearch");
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
-    }
-
-    @Override
-    public void onDateClickedSearchList(int noteId) {
-        Log.v("Debug1", "MainActivity onDateClickedSearchList");
-        openDatepicker(noteId);
-    }
-
-    public void openDatepicker(int noteId) {
-        Log.v("Debug1", "MainActivity openDatepicker");
-        DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
-        FragmentTransaction fragmentTransaction;
-        fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        fragmentTransaction.add(R.id.frame_container_main, datepickerFragment, "DatepickerFragment");
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
-    }
-
-
     public void openNoteView(int noteId) {
         Log.v("Debug1", "MainActivity openNoteView");
         ViewNoteFragment viewNoteFragment = null;
@@ -295,6 +244,54 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
 
 
     @Override
+    public void onNoteClickedList(int noteId) {
+        Log.v("Debug1", "MainActivity onNoteClickedList noteId=" + noteId);
+        openNoteView(noteId);
+    }
+
+    @Override
+    public void onNoteClickedSearchList(int noteId) {
+        Log.v("Debug1", "MainActivity onNoteClickedSearchList noteId=" + noteId);
+        ViewNoteFragment viewNoteFragment = ViewNoteFragment.newInstance(noteId);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentFromSearch");
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+    public void openDatepicker(int noteId) {
+        Log.v("Debug1", "MainActivity openDatepicker");
+        DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
+        FragmentTransaction fragmentTransaction;
+        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        fragmentTransaction.add(R.id.frame_container_main, datepickerFragment, "DatepickerFragment");
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+    @Override
+    public void onDateClickedSearchList(int noteId) {
+        Log.v("Debug1", "MainActivity onDateClickedSearchList");
+        openDatepicker(noteId);
+    }
+
+    @Override
+    public void onDateClickedList(int noteId) {
+        Log.v("Debug1", "MainActivity onDateClickedList");
+        openDatepicker(noteId);
+        /*DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
+        FragmentTransaction fragmentTransaction;
+        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        fragmentTransaction.add(R.id.frame_container_main, datepickerFragment, "DatepickerFragment");
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();*/
+    }
+
+    @Override
     public Publisher getPublisher() {
         Log.v("Debug1", "MainActivity getPublisher");
         return publisher;
@@ -316,13 +313,18 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
     public boolean onQueryTextSubmit(String query) {
         Log.v("Debug1", "MainActivity onQueryTextSubmit query=" + query);
         FragmentManager fragmentManager = getSupportFragmentManager();
-        SearchResultFragment searchResultFragment = SearchResultFragment.newInstance(query);
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        fragmentTransaction.add(R.id.frame_container_main, searchResultFragment, "SearchResultFragment");
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
-        //getAllFragment(fragmentManager);
+        SearchResultFragment searchResultFragment;
+        searchResultFragment = (SearchResultFragment) fragmentManager.findFragmentByTag("SearchResultFragment");
+        if (searchResultFragment == null) {
+            searchResultFragment = SearchResultFragment.newInstance(query);
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            fragmentTransaction.add(R.id.frame_container_main, searchResultFragment, "SearchResultFragment");
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        } else {
+            searchResultFragment.fillList(searchResultFragment.getViewFragment(), query);
+        }
         return true;
     }
 

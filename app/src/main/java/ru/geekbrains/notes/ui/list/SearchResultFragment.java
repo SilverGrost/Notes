@@ -37,6 +37,12 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
     private View viewFragment;
     private Publisher publisher;
 
+    public View getViewFragment() {
+        return viewFragment;
+    }
+
+
+
     @Override
     public void updateNote(int noteID) {
         Log.v("Debug1", "SearchResultFragment updateNote noteID=" + noteID);
@@ -127,7 +133,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
         viewFragment = view;
     }
 
-    protected void fillList(View view, String query) {
+    public void fillList(View view, String query) {
         Log.v("Debug1", "SearchResultFragment fillList");
         LinearLayout linearLayoutNotesList = view.findViewById(R.id.ListNotesFragment);
         LinearLayout linearLayoutIntoScrollViewIntoFragmentSearchResult = view.findViewById(R.id.linearLayoutIntoScrollViewIntoFragmentSearchResult);
