@@ -197,7 +197,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                 float textSizeFloat = Float.parseFloat(textSize[textSizeId]);
                 textViewBottom.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSizeFloat);
 
-                textViewBottom.setText(note.getHeader());
+                textViewBottom.setText(note.getValue());
 
                 linearLayoutIntoScrollView.addView(viewTop);
                 linearLayoutIntoScrollView.addView(viewBottom);

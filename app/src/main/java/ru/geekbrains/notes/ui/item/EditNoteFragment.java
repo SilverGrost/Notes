@@ -26,8 +26,6 @@ import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.SharedPref;
 
-import static ru.geekbrains.notes.Constant.*;
-
 
 public class EditNoteFragment extends Fragment implements View.OnClickListener {
 
@@ -111,20 +109,11 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
         if (v.getId() == R.id.button_ok) {
             Log.v("Debug1", "EditNoteFragment onClick button_ok");
             String value = editTextNoteValue.getText().toString();
-            int lenHeader;
-            int lenValue = value.length();
-            if (lenValue > LENHEADER)
-                lenHeader = LENHEADER;
-            else
-                lenHeader = value.length();
-
-            String header = (editTextNoteValue.getText().toString().substring(0, lenHeader) + "...");
             Date date = new Date();
             if (getActivity() != null) {
                 List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
                 Note note = ((GlobalVariables) getActivity().getApplication()).getNoteById(noteId);
                 note.setDate(date.toInstant().getEpochSecond());
-                note.setHeader(header);
                 note.setValue(value);
 
                 if (note.getID() == -1) {
@@ -147,7 +136,6 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
         }
 
         Log.v("Debug1", "EditNoteFragment onClick FragmentTransaction");
-        //FragmentManager fragmentManager = getFragmentManager();
         if (getActivity() != null) {
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             fragmentManager.popBackStack();

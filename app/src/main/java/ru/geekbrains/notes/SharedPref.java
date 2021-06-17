@@ -23,7 +23,7 @@ public class SharedPref {
     private Note loadNote(int id) {
         Note note = new Note();
         note.setValue(SharedPreferences.getString(NOTEVALUE + id, note.getValue()));
-        note.setHeader(SharedPreferences.getString(NOTEHEADER + id, note.getHeader()));
+        //note.setHeader(SharedPreferences.getString(NOTEHEADER + id, note.getHeader()));
         note.setID(SharedPreferences.getInt(NOTEID + id, note.getID()));
         note.setDate(SharedPreferences.getLong(NOTEDATE + id, note.getDate()));
         return note;
@@ -43,7 +43,7 @@ public class SharedPref {
     private void saveNote(Note note, int id) {
         SharedPreferences.Editor editor = SharedPreferences.edit();
         editor.putString(NOTEVALUE + id, note.getValue());
-        editor.putString(NOTEHEADER + id, note.getHeader());
+        //editor.putString(NOTEHEADER + id, note.getHeader());
         editor.putInt(NOTEID + id, note.getID());
         editor.putLong(NOTEDATE + id, note.getDate());
         editor.apply();

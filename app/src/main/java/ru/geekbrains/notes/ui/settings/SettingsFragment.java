@@ -144,9 +144,6 @@ public class SettingsFragment extends Fragment {
         if (getContext() != null)
             new SharedPref(getContext()).saveSettings(settings);
 
-        /*FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        ListNotesFragment listNotesFragment = fragmentManager.findFragmentByTag(fragmentTag);*/
-
         if (publisher != null) {
             publisher.notify(0);
         }

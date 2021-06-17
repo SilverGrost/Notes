@@ -203,7 +203,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
                     float textSizeFloat = Float.parseFloat(textSize[textSizeId]);
                     textViewBottom.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSizeFloat);
 
-                    textViewBottom.setText(note.getHeader());
+                    textViewBottom.setText(note.getValue());
 
                     linearLayoutIntoScrollViewIntoFragmentSearchResult.addView(viewTop);
                     linearLayoutIntoScrollViewIntoFragmentSearchResult.addView(viewBottom);

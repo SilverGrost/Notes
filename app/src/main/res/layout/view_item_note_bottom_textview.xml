@@ -7,5 +7,6 @@
     android:maxLines="1"
     android:paddingStart="5dp"
     android:paddingEnd="0dp"
+    android:ellipsize="end"
     android:textSize="@dimen/textview_viewnote_textsize"
     tools:text="Текст заметки начинается тут" />
