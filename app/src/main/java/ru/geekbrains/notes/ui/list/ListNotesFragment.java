@@ -16,10 +16,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.text.DateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
 import ru.geekbrains.notes.GlobalVariables;
+import ru.geekbrains.notes.note.DateSorterComparator;
+import ru.geekbrains.notes.note.HeaderSorterComparator;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.observer.ObserverNote;
@@ -108,6 +112,26 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
         if (getActivity() != null && getActivity().getApplication() != null) {
             List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+
+
+            //Сортировка
+            int textSortId = ((GlobalVariables) getActivity().getApplication()).getSortTypeId();
+            Comparator<Note> dateSorter = new DateSorterComparator();
+            Comparator<Note> headerSorter = new HeaderSorterComparator();
+            switch (textSortId) {
+                case (1):
+                    notes.sort(dateSorter);
+                    break;
+                case (0):
+                    notes.sort(dateSorter.reversed());
+                    break;
+                case (3):
+                    notes.sort(headerSorter);
+                    break;
+                case (2):
+                    notes.sort(headerSorter.reversed());
+                    break;
+            }
 
             for (int i = 0, notesSize = notes.size(); i < notesSize; i++) {
                 Note note = notes.get(i);

@@ -3,7 +3,6 @@ package ru.geekbrains.notes.note;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-
 public class Note implements Parcelable {
     private String value;
     private String header;
@@ -84,4 +83,5 @@ public class Note implements Parcelable {
         dest.writeInt(getID());
         dest.writeLong(getDate());
     }
+
 }
