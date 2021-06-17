@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,9 +37,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         setHasOptionsMenu(false);
         super.onCreate(savedInstanceState);
         Log.v("Debug1", "MainFragment onCreate");
-
     }
-
 
     // вызывается после создания макета фрагмента, здесь мы проинициализируем список
     @Override
@@ -55,11 +54,9 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         if (v.getId() == R.id.buttonAddNote) {
             EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(-1);
 
-            //FragmentManager fragmentManager = getFragmentManager();
             if (getActivity() != null) {
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                //fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
                 fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                 fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
                 fragmentTransaction.addToBackStack(null);

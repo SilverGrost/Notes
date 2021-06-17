@@ -2,6 +2,7 @@ package ru.geekbrains.notes;
 
 import android.app.Application;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ru.geekbrains.notes.note.Note;
@@ -44,6 +45,15 @@ public class GlobalVariables extends Application {
 
     public List<Note> getNotes() {
         return notes;
+    }
+
+    public List<Note> getNotesWithText(String query) {
+        List<Note> result = new ArrayList<>();
+        for (int i = 0; i < notes.size(); i++) {
+            if (notes.get(i).getValue().contains(query))
+                result.add(notes.get(i));
+        }
+        return result;
     }
 
     public void setNotes(List<Note> notes) {

@@ -1,5 +1,6 @@
 package ru.geekbrains.notes.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -23,6 +24,8 @@ import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.SharedPref;
 import ru.geekbrains.notes.note.Note;
+import ru.geekbrains.notes.observer.Publisher;
+import ru.geekbrains.notes.observer.PublisherHolder;
 
 import static ru.geekbrains.notes.Constant.MILISECOND;
 
@@ -31,6 +34,7 @@ public class DatepickerFragment extends Fragment {
 
     private static final String ARG = "NOTE_ID";
     private int noteId;
+    private Publisher publisher;
 
     public DatepickerFragment() {
         // Required empty public constructor
@@ -80,7 +84,7 @@ public class DatepickerFragment extends Fragment {
                     List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
                     new SharedPref(DatepickerFragment.this.getActivity()).saveNotes(notes);
 
-                    LinearLayout linearLayout = DatepickerFragment.this.getActivity().findViewById(R.id.linearLayoutIntoScrollViewIntoFragmentListNotes);
+                    /*LinearLayout linearLayout = DatepickerFragment.this.getActivity().findViewById(R.id.linearLayoutIntoScrollViewIntoFragmentListNotes);
                     TextView textViewTop = linearLayout.findViewWithTag(note.getID());
 
                     Log.v("Debug1", "DatepickerFragment onDateChanged into note.getID()=" + note.getID());
@@ -88,7 +92,11 @@ public class DatepickerFragment extends Fragment {
                     DateFormat f = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
                     String dateStr = f.format(newDate * MILISECOND);
 
-                    textViewTop.setText(dateStr);
+                    textViewTop.setText(dateStr);*/
+
+                    if (publisher != null) {
+                        publisher.notify(noteId);
+                    }
 
                     //FragmentManager fragmentManager = getFragmentManager();
                     if (getActivity() != null) {
@@ -117,5 +125,21 @@ public class DatepickerFragment extends Fragment {
             calendar.setTimeInMillis(date);
         }
 
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        Log.v("Debug1", "DatepickerFragment onAttach");
+        if (context instanceof PublisherHolder) {
+            publisher = ((PublisherHolder) context).getPublisher();
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.v("Debug1", "DatepickerFragment onDetach");
+        publisher = null;
     }
 }

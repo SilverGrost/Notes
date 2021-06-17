@@ -35,14 +35,13 @@ import ru.geekbrains.notes.note.NoteRepositoryImpl;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
-import ru.geekbrains.notes.ui.item.ViewNoteFragment;
-import ru.geekbrains.notes.ui.list.ListNotesFragment;
+
 import ru.geekbrains.notes.ui.list.SearchResultFragment;
 import ru.geekbrains.notes.ui.settings.AboutFragment;
 import ru.geekbrains.notes.ui.settings.SettingsFragment;
 
 
-public class MainActivity extends AppCompatActivity implements ListNotesFragment.OnNoteClicked, ListNotesFragment.onDateClicked, PublisherHolder, SearchView.OnQueryTextListener, SearchResultFragment.OnNoteClicked, SearchResultFragment.onDateClicked {
+public class MainActivity extends AppCompatActivity implements /*ListNotesFragment.OnNoteClicked, ListNotesFragment.onDateClicked, */PublisherHolder, SearchView.OnQueryTextListener/*, SearchResultFragment.OnNoteClicked, SearchResultFragment.onDateClicked */{
 
     private final Publisher publisher = new Publisher();
 
@@ -212,42 +211,7 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
         return super.onOptionsItemSelected(item);
     }
 
-    public void openNoteView(int noteId) {
-        Log.v("Debug1", "MainActivity openNoteView");
-        ViewNoteFragment viewNoteFragment = null;
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            viewNoteFragment = (ViewNoteFragment) getSupportFragmentManager().findFragmentById(R.id.activity_container_note_view);
-        } else {
-            MainFragment mainFragment = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.frame_container_main);
-            if (mainFragment != null) {
-                FragmentManager childFragmentManager = mainFragment.getChildFragmentManager();
-                viewNoteFragment = (ViewNoteFragment) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
-            }
-            //viewNoteFragment = (ViewNoteFragment) mainFragment.getChildFragmentManager().findFragmentById(R.id.activity_container_note_view);
-        }
-
-        if (viewNoteFragment == null) {
-            Log.v("Debug1", "MainActivity openNoteView viewNoteFragment == null");
-            viewNoteFragment = ViewNoteFragment.newInstance(noteId);
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            //fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
-            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragment");
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
-        } else {
-            Log.v("Debug1", "MainActivity openNoteView viewNoteFragment != null");
-            viewNoteFragment.fillViewNote(noteId, viewNoteFragment.getViewFragment());
-        }
-    }
-
-
-    @Override
-    public void onNoteClickedList(int noteId) {
-        Log.v("Debug1", "MainActivity onNoteClickedList noteId=" + noteId);
-        openNoteView(noteId);
-    }
+    /*
 
     @Override
     public void onNoteClickedSearchList(int noteId) {
@@ -261,8 +225,10 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
         fragmentTransaction.commit();
     }
 
-    public void openDatepicker(int noteId) {
-        Log.v("Debug1", "MainActivity openDatepicker");
+
+    @Override
+    public void onDateClickedSearchList(int noteId) {
+        Log.v("Debug1", "MainActivity onDateClickedSearchList");
         DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
         FragmentTransaction fragmentTransaction;
         fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -271,25 +237,7 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
-
-    @Override
-    public void onDateClickedSearchList(int noteId) {
-        Log.v("Debug1", "MainActivity onDateClickedSearchList");
-        openDatepicker(noteId);
-    }
-
-    @Override
-    public void onDateClickedList(int noteId) {
-        Log.v("Debug1", "MainActivity onDateClickedList");
-        openDatepicker(noteId);
-        /*DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
-        FragmentTransaction fragmentTransaction;
-        fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        fragmentTransaction.add(R.id.frame_container_main, datepickerFragment, "DatepickerFragment");
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();*/
-    }
+    }*/
 
     @Override
     public Publisher getPublisher() {
@@ -323,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         } else {
-            searchResultFragment.fillList(searchResultFragment.getViewFragment(), query);
+            searchResultFragment.initRecyclerViewSearchResult(searchResultFragment.getRecyclerView(), searchResultFragment.getNotes());
         }
         return true;
     }
