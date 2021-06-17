@@ -15,14 +15,20 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+
+import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.SharedPref;
+import ru.geekbrains.notes.observer.Publisher;
+import ru.geekbrains.notes.observer.PublisherHolder;
 
 public class SettingsFragment extends Fragment {
 
     Spinner spinnerSort;
     Spinner spinnerTextSize;
+
+    private Publisher publisher;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -51,8 +57,6 @@ public class SettingsFragment extends Fragment {
         if (getContext() != null)
             settings = (new SharedPref(getContext()).loadSettings());
 
-
-        //String[] textSize = getResources().getStringArray(R.array.text_size);
         spinnerTextSize = view.findViewById(R.id.spinnerTextSize);
         ArrayAdapter<CharSequence> adapterTextSize = ArrayAdapter.createFromResource(getContext(), R.array.text_size, android.R.layout.simple_spinner_item);
         spinnerTextSize.setAdapter(adapterTextSize);
@@ -65,6 +69,8 @@ public class SettingsFragment extends Fragment {
                                        int position, long id) {
                 // показываем позиция нажатого элемента
                 //Toast.makeText(getContext(), "Position=" + position + ", text=" + spinnerTextSize.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
+                if (getActivity() != null)
+                    ((GlobalVariables) getActivity().getApplication()).setTextSizeId(position);
             }
 
             @Override
@@ -85,6 +91,8 @@ public class SettingsFragment extends Fragment {
                                        int position, long id) {
                 // показываем позиция нажатого элемента
                 //Toast.makeText(getContext(), "Position=" + position + ", text=" + spinnerSort.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
+                if (getActivity() != null)
+                    ((GlobalVariables) getActivity().getApplication()).setSortTypeId(position);
             }
 
             @Override
@@ -124,6 +132,9 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        if (context instanceof PublisherHolder) {
+            publisher = ((PublisherHolder) context).getPublisher();
+        }
         Log.v("Debug1", "AboutFragment onAttach");
     }
 
@@ -132,6 +143,15 @@ public class SettingsFragment extends Fragment {
         Settings settings = new Settings(spinnerTextSize.getSelectedItemPosition(), spinnerSort.getSelectedItemPosition());
         if (getContext() != null)
             new SharedPref(getContext()).saveSettings(settings);
+
+        /*FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        ListNotesFragment listNotesFragment = fragmentManager.findFragmentByTag(fragmentTag);*/
+
+        if (publisher != null) {
+            publisher.notify(0);
+        }
+        publisher = null;
+
         super.onDetach();
         Log.v("Debug1", "AboutFragment onDetach");
     }

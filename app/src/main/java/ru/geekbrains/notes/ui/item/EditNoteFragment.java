@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,6 +94,12 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
             Log.v("Debug1", "EditNoteFragment onViewCreated getArguments() != null noteId=" + noteId);
             Note note = ((GlobalVariables) getActivity().getApplication()).getNoteById(noteId);
             editTextNoteValue = view.findViewById(R.id.editTextNoteValue);
+
+            String[] textSize = getResources().getStringArray(R.array.text_size);
+            int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
+            float textSizeFloat = Float.parseFloat(textSize[textSizeId]);
+            editTextNoteValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSizeFloat);
+
             editTextNoteValue.setText(note.getValue());
         }
     }

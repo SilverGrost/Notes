@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -122,6 +123,11 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
                 textViewNoteValue.setText(note.getValue());
             } else
                 textViewNoteValue.setText("");
+
+            String[] textSize = getResources().getStringArray(R.array.text_size);
+            int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
+            float textSizeFloat = Float.parseFloat(textSize[textSizeId]);
+            textViewNoteValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSizeFloat);
         }
     }
 

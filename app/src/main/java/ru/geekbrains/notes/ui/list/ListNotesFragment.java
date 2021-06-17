@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -166,9 +167,13 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                 Log.v("Debug1", "ListNotesFragment fillList textViewTop.getTag()=" + textViewTop.getTag());
 
                 TextView textViewBottom = viewBottom.findViewById(R.id.textViewBottom);
-                textViewBottom.setText(note.getHeader());
 
-                //textViewBottom.setPadding(0,0,0,50);
+                String[] textSize = getResources().getStringArray(R.array.text_size);
+                int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
+                float textSizeFloat = Float.parseFloat(textSize[textSizeId]);
+                textViewBottom.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSizeFloat);
+
+                textViewBottom.setText(note.getHeader());
 
                 linearLayoutIntoScrollView.addView(viewTop);
                 linearLayoutIntoScrollView.addView(viewBottom);

@@ -27,6 +27,8 @@ import java.util.List;
 import ru.geekbrains.notes.BuildConfig;
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
+import ru.geekbrains.notes.Settings;
+import ru.geekbrains.notes.SharedPref;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.note.NoteRepository;
 import ru.geekbrains.notes.note.NoteRepositoryImpl;
@@ -66,7 +68,11 @@ public class MainActivity extends AppCompatActivity implements ListNotesFragment
             List<Note> notes = noteRepository.getNotes(this);
 
             //Сохраняем заметки в глобальной переменной
-            ((GlobalVariables) this.getApplication()).setNotes(notes);
+            ((GlobalVariables) getApplication()).setNotes(notes);
+
+            Settings settings = (new SharedPref(this).loadSettings());
+            ((GlobalVariables) getApplication()).setTextSizeId(settings.getTextSize());
+            ((GlobalVariables) getApplication()).setSortTypeId(settings.getTextSize());
 
         } else {
             Log.v("Debug1", "MainActivity onCreate savedInstanceState != null");
