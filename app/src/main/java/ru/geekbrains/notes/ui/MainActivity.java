@@ -1,5 +1,6 @@
 package ru.geekbrains.notes.ui;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -36,14 +37,58 @@ import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
 
+import ru.geekbrains.notes.ui.item.ViewNoteFragment;
 import ru.geekbrains.notes.ui.list.SearchResultFragment;
 import ru.geekbrains.notes.ui.settings.AboutFragment;
 import ru.geekbrains.notes.ui.settings.SettingsFragment;
+
+import static ru.geekbrains.notes.Constant.VIEW_NOTE_FRAGMENT_PORTRAIT_ID_NOTE;
 
 
 public class MainActivity extends AppCompatActivity implements PublisherHolder, SearchView.OnQueryTextListener {
 
     private final Publisher publisher = new Publisher();
+
+    int fragmentViewNoteIdNote = -1;
+
+    // Сохранение данных
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle instanceState) {
+        super.onSaveInstanceState(instanceState);
+        Log.v("Debug1", "MainActivity onSaveInstanceState fragmentViewNoteIdNote=" + fragmentViewNoteIdNote);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Log.v("Debug1", "MainActivity onSaveInstanceState ORIENTATION_PORTRAIT");
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            Fragment viewNoteFragment = fragmentManager.findFragmentByTag("ViewNoteFragmentPortrait");
+            if (viewNoteFragment != null) {
+                fragmentViewNoteIdNote = ((ViewNoteFragment) viewNoteFragment).getNoteId();
+                instanceState.putInt(VIEW_NOTE_FRAGMENT_PORTRAIT_ID_NOTE, fragmentViewNoteIdNote);
+                Log.v("Debug1", "MainActivity onSaveInstanceState ORIENTATION_PORTRAIT viewNoteFragment != null fragmentViewNoteIdNote=" + fragmentViewNoteIdNote);
+            }
+        }
+    }
+
+    // Восстановление данных
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle instanceState) {
+        super.onRestoreInstanceState(instanceState);
+        Log.v("Debug1", "MainActivity onRestoreInstanceState");
+        //if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            fragmentViewNoteIdNote = instanceState.getInt(VIEW_NOTE_FRAGMENT_PORTRAIT_ID_NOTE);
+            Log.v("Debug1", "MainActivity onRestoreInstanceState ORIENTATION_PORTRAIT fragmentViewNoteIdNote=" + fragmentViewNoteIdNote);
+        //}
+
+    }
+
+    private void getAllFragment(FragmentManager fragmentManager) {
+        List<Fragment> fragments = fragmentManager.getFragments();
+        int countFragments = fragments.size();
+        Log.v("Debug1", "MainActivity getAllFragment countFragments=" + countFragments);
+        for (int i = countFragments - 1; i >= 0; i--) {
+            Fragment fragment = fragments.get(i);
+            Log.v("Debug1", "MainActivity getAllFragment fragment.getTag()=" + fragment.getTag() + ", fragment.getId()=" + fragment.getId());
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,14 +116,49 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder, 
 
             Settings settings = (new SharedPref(this).loadSettings());
             ((GlobalVariables) getApplication()).setTextSizeId(settings.getTextSize());
-            ((GlobalVariables) getApplication()).setSortTypeId(settings.getTextSize());
+            ((GlobalVariables) getApplication()).setSortTypeId(settings.getSortType());
 
         } else {
             Log.v("Debug1", "MainActivity onCreate savedInstanceState != null");
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 Log.v("Debug1", "MainActivity onCreate savedInstanceState != null ORIENTATION_LANDSCAPE");
+
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                Fragment viewNoteFragment = fragmentManager.findFragmentByTag("ViewNoteFragmentPortrait");
+                if (viewNoteFragment != null) {
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    fragmentTransaction.remove(viewNoteFragment);
+                    fragmentTransaction.commit();
+                }
+                getAllFragment(fragmentManager);
+
             } else {
-                Log.v("Debug1", "MainActivity onCreate savedInstanceState != null NOT_ORIENTATION_LANDSCAPE");
+                Log.v("Debug1", "MainActivity onCreate savedInstanceState != null ORIENTATION_PORTRAIT fragmentViewNoteIdNote=" + fragmentViewNoteIdNote);
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                getAllFragment(fragmentManager);
+
+
+                if (fragmentViewNoteIdNote != -1) {
+
+                    Fragment viewNoteFragment = fragmentManager.findFragmentByTag("ViewNoteFragmentPortrait");
+
+                    if (viewNoteFragment != null) {
+                        Log.v("Debug1", "MainActivity onCreate savedInstanceState != null ORIENTATION_PORTRAIT viewNoteFragment != null");
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
+                        fragmentTransaction.commit();
+                    } else {
+                        Log.v("Debug1", "MainActivity onCreate savedInstanceState != null ORIENTATION_PORTRAIT viewNoteFragment == null");
+                        viewNoteFragment = ViewNoteFragment.newInstance(fragmentViewNoteIdNote);
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
+                        fragmentTransaction.addToBackStack(null);
+                        fragmentTransaction.commit();
+                    }
+                }
             }
         }
     }

@@ -236,7 +236,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                    fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragment");
+                    fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
                     fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.commit();
                 } else {

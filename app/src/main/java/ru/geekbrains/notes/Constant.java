@@ -9,6 +9,7 @@ public class Constant {
     public static final String COUNTNOTES = "CountOfNotes";
     public static final String APPSETTINGSTEXTSIZE = "AppSettingsTextSize";
     public static final String APPSETTINGSSORTTYPE = "AppSettingsSortType";
+    public static final String VIEW_NOTE_FRAGMENT_PORTRAIT_ID_NOTE = "ViewNoteFragmentPortraitIdNote";
     public static final int DEFAULTTEXTSIZE = 0;
     public static final int DEFAULTSORTTYPE = 0;
 }

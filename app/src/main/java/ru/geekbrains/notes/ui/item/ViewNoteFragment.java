@@ -1,5 +1,6 @@
 package ru.geekbrains.notes.ui.item;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import ru.geekbrains.notes.observer.ObserverNote;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.SharedPref;
+import ru.geekbrains.notes.ui.MainActivity;
 import ru.geekbrains.notes.ui.list.SearchResultFragment;
 
 public class ViewNoteFragment extends Fragment implements View.OnClickListener, ObserverNote {
@@ -36,6 +38,10 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
     private int noteId = 0;
     private Publisher publisher;
     private Publisher publisher2;
+
+    public int getNoteId() {
+        return noteId;
+    }
 
     private View viewFragment;
 
@@ -71,7 +77,7 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        Log.v("Debug1", "ViewNoteFragment onAttach");
+        Log.v("Debug1", "ViewNoteFragment onAttach context=" + context);
 
         if (context instanceof PublisherHolder) {
             publisher = ((PublisherHolder) context).getPublisher();
@@ -107,7 +113,7 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
         Button button_delete = v.findViewById(R.id.button_delete);
         button_delete.setOnClickListener(this);
 
-        Log.v("Debug1", "ViewNoteFragment onCreateView getArguments() != null noteId=" + noteId);
+        Log.v("Debug1", "ViewNoteFragment onCreateView getArguments() != null noteId=" + noteId + ", container=" + container);
 
         return v;
     }
@@ -204,17 +210,10 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
                     if (publisher != null) {
                         publisher.notify(position);
                     }
-
+//TODO: Поправить!
                     if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-
-                        //FragmentManager fragmentManager = getFragmentManager();
                         if (getActivity() != null) {
-                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                            //fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
-                            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                            fragmentTransaction.remove(this);
-                            fragmentTransaction.commit();
+                            getActivity().getFragmentManager().popBackStack();
                         }
                     }
                 }
