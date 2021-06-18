@@ -45,9 +45,18 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
         this.dateClicked = dateClicked;
     }
 
+
+    @Override
+    public int getItemViewType(int position) {
+        Log.v("Debug1", "SearchResultAdapter getItemViewType position = " + position);
+
+        return 0;
+    }
+
     // Передаем в конструктор источник данных
     // В нашем случае это массив, но может быть и запросом к БД
-    public SearchResultAdapter(List<Note> notes, float textSize) {
+    public SearchResultAdapter(List<Note> notes, float textSize, String query) {
+        Log.v("Debug1", "SearchResultAdapter SearchResultAdapter query = " + query);
         this.notes = notes;
         this.textSize = textSize;
     }
@@ -61,7 +70,7 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
         // Через Inflater
         View v = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.item_note_by_rv, viewGroup, false);
-        Log.v("Debug1", "NotesListAdapter onCreateViewHolder");
+        Log.v("Debug1", "SearchResultAdapter onCreateViewHolder i = " + i);
         // Здесь можно установить всякие параметры
         return new SearchResultAdapter.ViewHolder(v);
     }
@@ -72,10 +81,9 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
     public void onBindViewHolder(@NonNull SearchResultAdapter.ViewHolder viewHolder, int i) {
         // Получить элемент из источника данных (БД, интернет...)
         // Вынести на экран используя ViewHolder
-        //Note note = ((GlobalVariables) getActivity().getApplication()).getNoteById(noteId);
-
+        Log.v("Debug1", "SearchResultAdapter onBindViewHolder i=" + i);
         viewHolder.setData(notes.get(i));
-        Log.v("Debug1", "NotesListAdapter onBindViewHolder i=" + i);
+
     }
 
     // Вернуть размер данных, вызывается менеджером
@@ -92,9 +100,10 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
         private final TextView textViewHeader;
         private final TextView textViewValuer;
 
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            Log.v("Debug1", "NotesListAdapter class ViewHolder ");
+            Log.v("Debug1", "SearchResultAdapter class ViewHolder ");
             textViewHeader = itemView.findViewById(R.id.textViewTopRV);
             itemView.setTag(getAdapterPosition());
             // Обработчик нажатий на заголовке
@@ -114,7 +123,7 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
         }
 
         public void setData(Note note) {
-            Log.v("Debug1", "NotesListAdapter class ViewHolder setData");
+            Log.v("Debug1", "SearchResultAdapter class ViewHolder setData");
             long date = note.getDate() * MILISECOND;
             DateFormat f = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
             String dateStr = f.format(date);

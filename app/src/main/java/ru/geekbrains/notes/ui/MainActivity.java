@@ -22,7 +22,6 @@ import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.Date;
 import java.util.List;
 
 import ru.geekbrains.notes.BuildConfig;
@@ -42,7 +41,7 @@ import ru.geekbrains.notes.ui.settings.AboutFragment;
 import ru.geekbrains.notes.ui.settings.SettingsFragment;
 
 
-public class MainActivity extends AppCompatActivity implements /*ListNotesFragment.OnNoteClicked, ListNotesFragment.onDateClicked, */PublisherHolder, SearchView.OnQueryTextListener/*, SearchResultFragment.OnNoteClicked, SearchResultFragment.onDateClicked */{
+public class MainActivity extends AppCompatActivity implements PublisherHolder, SearchView.OnQueryTextListener {
 
     private final Publisher publisher = new Publisher();
 
@@ -50,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements /*ListNotesFragme
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //setHasOptionsMenu(false);
 
         Log.v("Debug1", "MainActivity onCreate");
 
@@ -127,19 +125,6 @@ public class MainActivity extends AppCompatActivity implements /*ListNotesFragme
 
     }
 
-    /*private void getAllFragment(FragmentManager fragmentManager) {
-        Log.v("Debug1", "MainActivity getVisibleFragment");
-        List<Fragment> fragments = fragmentManager.getFragments();
-        int countFragments = fragments.size();
-        Log.v("Debug1", "MainActivity getVisibleFragment countFragments=" + countFragments);
-        for (int i = countFragments - 1; i >= 0; i--) {
-            Fragment fragment = fragments.get(i);
-            int fragmentId = fragment.getId();
-            String fragmentTag = fragment.getTag();
-            Log.v("Debug1", "MainActivity getVisibleFragment fragmentId=" + fragmentId + ", fragmentTag=" + fragmentTag);
-        }
-    }*/
-
     private void addFragment(int fragmentID) {
         Log.v("Debug1", "MainActivity addFragment fragmentID=" + fragmentID);
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -208,49 +193,9 @@ public class MainActivity extends AppCompatActivity implements /*ListNotesFragme
             fragmentTransaction.commit();
             return true;
         }
-        else
-            if (id == R.id.action_add_1000) {
-                List<Note> notes = ((GlobalVariables) getApplication()).getNotes();
-                int start = notes.size();
-                for (int i = start; i < 1000; i++) {
-                    Date date = new Date();
-                    Note note = new Note(("Заметка №" + i), (i * 2), date.toInstant().getEpochSecond());
-                    notes.add(note);
-                }
-                //Сохраняем заметки в глобальной переменной
-                ((GlobalVariables) getApplication()).setNotes(notes);
-                new SharedPref(this).saveNotes(notes);
-            }
+
         return super.onOptionsItemSelected(item);
     }
-
-    /*
-
-    @Override
-    public void onNoteClickedSearchList(int noteId) {
-        Log.v("Debug1", "MainActivity onNoteClickedSearchList noteId=" + noteId);
-        ViewNoteFragment viewNoteFragment = ViewNoteFragment.newInstance(noteId);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentFromSearch");
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
-    }
-
-
-    @Override
-    public void onDateClickedSearchList(int noteId) {
-        Log.v("Debug1", "MainActivity onDateClickedSearchList");
-        DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
-        FragmentTransaction fragmentTransaction;
-        fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        fragmentTransaction.add(R.id.frame_container_main, datepickerFragment, "DatepickerFragment");
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
-    }
-    }*/
 
     @Override
     public Publisher getPublisher() {
@@ -277,6 +222,7 @@ public class MainActivity extends AppCompatActivity implements /*ListNotesFragme
         SearchResultFragment searchResultFragment;
         searchResultFragment = (SearchResultFragment) fragmentManager.findFragmentByTag("SearchResultFragment");
         if (searchResultFragment == null) {
+            Log.v("Debug1", "MainActivity onQueryTextSubmit searchResultFragment == null");
             searchResultFragment = SearchResultFragment.newInstance(query);
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -284,7 +230,8 @@ public class MainActivity extends AppCompatActivity implements /*ListNotesFragme
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         } else {
-            searchResultFragment.initRecyclerViewSearchResult(searchResultFragment.getRecyclerView(), searchResultFragment.getNotes());
+            Log.v("Debug1", "MainActivity onQueryTextSubmit searchResultFragment != null");
+            searchResultFragment.initRecyclerViewSearchResult(searchResultFragment.getRecyclerView(), query);
         }
         return true;
     }

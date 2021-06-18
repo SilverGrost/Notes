@@ -13,13 +13,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 
+import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.SharedPref;
+import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 
@@ -27,6 +30,8 @@ public class SettingsFragment extends Fragment {
 
     Spinner spinnerSort;
     Spinner spinnerTextSize;
+
+    Button clearAllNotes;
 
     private Publisher publisher;
 
@@ -53,54 +58,60 @@ public class SettingsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "SettingsFragment onViewCreated");
 
-        Settings settings = new Settings();
-        if (getContext() != null)
+        Settings settings;
+        if (getContext() != null) {
             settings = (new SharedPref(getContext()).loadSettings());
 
-        spinnerTextSize = view.findViewById(R.id.spinnerTextSize);
-        ArrayAdapter<CharSequence> adapterTextSize = ArrayAdapter.createFromResource(getContext(), R.array.text_size, android.R.layout.simple_spinner_item);
-        spinnerTextSize.setAdapter(adapterTextSize);
+            clearAllNotes = view.findViewById(R.id.buttonClearAll);
+            clearAllNotes.setOnClickListener(v -> {
+                if (getActivity() != null) {
+                    List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+                    notes.clear();
+                    ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
+                    new SharedPref(getActivity()).saveNotes(notes);
+                }
+            });
 
-        spinnerTextSize.setSelection(settings.getTextSize());
+            spinnerTextSize = view.findViewById(R.id.spinnerTextSize);
+            ArrayAdapter<CharSequence> adapterTextSize = ArrayAdapter.createFromResource(getContext(), R.array.text_size, android.R.layout.simple_spinner_item);
+            spinnerTextSize.setAdapter(adapterTextSize);
+            spinnerTextSize.setSelection(settings.getTextSize());
+            spinnerTextSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view,
+                                           int position, long id) {
+                    // показываем позиция нажатого элемента
+                    if (getActivity() != null)
+                        ((GlobalVariables) getActivity().getApplication()).setTextSizeId(position);
+                }
 
-        spinnerTextSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view,
-                                       int position, long id) {
-                // показываем позиция нажатого элемента
-                //Toast.makeText(getContext(), "Position=" + position + ", text=" + spinnerTextSize.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
-                if (getActivity() != null)
-                    ((GlobalVariables) getActivity().getApplication()).setTextSizeId(position);
-            }
+                @Override
+                public void onNothingSelected(AdapterView<?> arg0) {
+                    //Toast.makeText(getContext(), "Position NothingSelected", Toast.LENGTH_SHORT).show();
+                }
+            });
 
-            @Override
-            public void onNothingSelected(AdapterView<?> arg0) {
-                //Toast.makeText(getContext(), "Position NothingSelected", Toast.LENGTH_SHORT).show();
-            }
-        });
+            spinnerSort = view.findViewById(R.id.spinnerSort);
+            ArrayAdapter<CharSequence> adapterSort = ArrayAdapter.createFromResource(getContext(), R.array.type_sort, android.R.layout.simple_spinner_item);
+            spinnerSort.setAdapter(adapterSort);
 
-        spinnerSort = view.findViewById(R.id.spinnerSort);
-        ArrayAdapter<CharSequence> adapterSort = ArrayAdapter.createFromResource(getContext(), R.array.type_sort, android.R.layout.simple_spinner_item);
-        spinnerSort.setAdapter(adapterSort);
+            spinnerSort.setSelection(settings.getSortType());
 
-        spinnerSort.setSelection(settings.getSortType());
+            spinnerSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view,
+                                           int position, long id) {
+                    // показываем позиция нажатого элемента
+                    if (getActivity() != null)
+                        ((GlobalVariables) getActivity().getApplication()).setSortTypeId(position);
+                }
 
-        spinnerSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view,
-                                       int position, long id) {
-                // показываем позиция нажатого элемента
-                //Toast.makeText(getContext(), "Position=" + position + ", text=" + spinnerSort.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
-                if (getActivity() != null)
-                    ((GlobalVariables) getActivity().getApplication()).setSortTypeId(position);
-            }
+                @Override
+                public void onNothingSelected(AdapterView<?> arg0) {
 
-            @Override
-            public void onNothingSelected(AdapterView<?> arg0) {
-                //Toast.makeText(getContext(), "Position NothingSelected", Toast.LENGTH_SHORT).show();
-            }
-        });
-
+                }
+            });
+        }
     }
 
     @Override

@@ -179,17 +179,18 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
 
         } else if (v.getId() == R.id.button_delete) {
             Log.v("Debug1", "ViewNoteFragment onClick button_delete");
-
             if (getActivity() != null && getActivity().getApplication() != null) {
                 List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
 
                 int prevID = 0;
+                int position = 0;
                 for (int i = 0; i < notes.size(); i++) {
                     if (notes.get(i).getID() == noteId) {
                         notes.remove(i);
                         break;
                     }
                     prevID = notes.get(i).getID();
+                    position = i;
                 }
 
                 Log.v("Debug1", "ViewNoteFragment onClick button_delete prevID=" + prevID);
@@ -201,7 +202,7 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
                     fillViewNote(prevID, viewFragment);
 
                     if (publisher != null) {
-                        publisher.notify(noteId);
+                        publisher.notify(position);
                     }
 
                     if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {

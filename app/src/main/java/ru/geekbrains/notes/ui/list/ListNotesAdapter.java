@@ -46,10 +46,10 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
         this.dateClicked = dateClicked;
     }
 
-
     // Передаем в конструктор источник данных
     // В нашем случае это массив, но может быть и запросом к БД
     public ListNotesAdapter(List<Note> notes, float textSize) {
+        Log.v("Debug1", "NotesListAdapter ListNotesAdapter notes.size()=" + notes.size());
         this.notes = notes;
         this.textSize = textSize;
     }
@@ -63,7 +63,7 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
         // Через Inflater
         View v = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.item_note_by_rv, viewGroup, false);
-        Log.v("Debug1", "NotesListAdapter onCreateViewHolder");
+        Log.v("Debug1", "NotesListAdapter onCreateViewHolder i=" + i);
         // Здесь можно установить всякие параметры
         return new ViewHolder(v);
     }

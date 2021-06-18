@@ -12,13 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
@@ -84,16 +80,6 @@ public class DatepickerFragment extends Fragment {
                     List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
                     new SharedPref(DatepickerFragment.this.getActivity()).saveNotes(notes);
 
-                    /*LinearLayout linearLayout = DatepickerFragment.this.getActivity().findViewById(R.id.linearLayoutIntoScrollViewIntoFragmentListNotes);
-                    TextView textViewTop = linearLayout.findViewWithTag(note.getID());
-
-                    Log.v("Debug1", "DatepickerFragment onDateChanged into note.getID()=" + note.getID());
-
-                    DateFormat f = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
-                    String dateStr = f.format(newDate * MILISECOND);
-
-                    textViewTop.setText(dateStr);*/
-
                     if (publisher != null) {
                         publisher.notify(noteId);
                     }
@@ -103,7 +89,6 @@ public class DatepickerFragment extends Fragment {
                         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                         fragmentManager.popBackStack();
                     }
-
                 }
             });
         }
@@ -124,7 +109,6 @@ public class DatepickerFragment extends Fragment {
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(date);
         }
-
     }
 
     @Override

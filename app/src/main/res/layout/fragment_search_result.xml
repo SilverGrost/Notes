@@ -13,4 +13,15 @@
         android:layout_height="match_parent"
         app:layoutManager="LinearLayoutManager"
         tools:listitem="@layout/item_note_by_rv"/>
+
+    <TextView
+        android:id="@+id/textViewNoSearchResultRV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_note_view"
+        android:gravity="center"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:textSize="@dimen/textSizeInterface"
+        tools:text="Нет результатов для ыдвмывм" />
 </FrameLayout>

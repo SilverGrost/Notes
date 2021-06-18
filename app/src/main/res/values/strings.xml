@@ -21,4 +21,8 @@
     <string name="textAbout">Умный и не особо текст о программе, лицензии, возможностях и чего-нибудь ещё</string>
     <string name="textViewNoSearchResult">"Нет результатов поиска для запроса: "</string>
     <string name="button_add_1000">1000</string>
+    <string name="ClearlListNotes">Очистить список заметок</string>
+    <string name="EmptyListNotes">Ещё нет ни одной заметки. Добавьте прямо сейчас</string>
+    <string name="ButtonAddNote">Добавить заметку</string>
+    <string name="ButtonAdd1000">Добавить 1000 заметок</string>
 </resources>

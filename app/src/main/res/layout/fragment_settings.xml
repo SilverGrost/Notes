@@ -40,7 +40,8 @@
         android:textSize="@dimen/textSizeInterface"
         app:layout_constraintEnd_toStartOf="@+id/spinnerSort"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTextSize" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewTextSize"
+        app:layout_constraintBottom_toTopOf="@+id/buttonClearAll"/>
 
     <Spinner
         android:id="@+id/spinnerSort"
@@ -49,7 +50,17 @@
         android:textSize="@dimen/textSizeInterface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textViewSort"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerTextSize"/>
+        app:layout_constraintTop_toBottomOf="@+id/spinnerTextSize"
+        app:layout_constraintBottom_toTopOf="@+id/buttonClearAll"/>
+
+    <Button
+        android:id="@+id/buttonClearAll"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/ClearlListNotes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSort" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 
 import java.util.Comparator;
@@ -40,6 +41,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
 
     private RecyclerView recyclerView;
     private List<Note> notes;
+    private View viewSearchResult;
 
     public RecyclerView getRecyclerView() {
         return recyclerView;
@@ -52,7 +54,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
     @Override
     public void updateNote(int noteID) {
         Log.v("Debug1", "SearchResultFragment updateNote noteID=" + noteID);
-        initRecyclerViewSearchResult(recyclerView, sortNotes(notes));
+        initRecyclerViewSearchResult(recyclerView, mParamQuery);
     }
 
     @Override
@@ -77,7 +79,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
 
     private static final String ARG_PARAM1 = "param1";
 
-    private String mParam1;
+    private String mParamQuery;
 
     public SearchResultFragment() {
         // Required empty public constructor
@@ -97,7 +99,9 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
         super.onCreate(savedInstanceState);
         Log.v("Debug1", "SearchResultFragment onCreate");
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParamQuery = getArguments().getString(ARG_PARAM1);
+            if (getActivity() != null)
+                notes = ((GlobalVariables) getActivity().getApplication()).getNotesWithText(mParamQuery);
         }
     }
 
@@ -124,100 +128,122 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
         return notes;
     }
 
+    public void setEmptyResultTextView(View view) {
+        Log.v("Debug1", "SearchResultFragment setEmptyResultTextView");
+        TextView textViewNoSearchResult = view.findViewById(R.id.textViewNoSearchResultRV);
+
+        if (textViewNoSearchResult != null) {
+            if (notes.size() != 0) {
+                textViewNoSearchResult.setVisibility(View.GONE);
+            } else {
+                textViewNoSearchResult.setVisibility(View.VISIBLE);
+                String strNoSearchResult = getResources().getString(R.string.textViewNoSearchResult) + mParamQuery;
+                textViewNoSearchResult.setText(strNoSearchResult);
+            }
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         Log.v("Debug1", "SearchResultFragment onCreateView");
         View view = inflater.inflate(R.layout.fragment_search_result, container, false);
-        if (getActivity() != null) {
-            notes = ((GlobalVariables) getActivity().getApplication()).getNotesWithText(mParam1);
-
-            recyclerView = view.findViewById(R.id.recycler_view_lines_search_result);
-            if (recyclerView != null)
-                initRecyclerViewSearchResult(recyclerView, sortNotes(notes));
+        viewSearchResult = view;
+        recyclerView = view.findViewById(R.id.recycler_view_lines_search_result);
+        //setEmptyResultTextView(viewSearchResult);
+        if (recyclerView != null) {
+            initRecyclerViewSearchResult(recyclerView, mParamQuery);
         }
         return view;
     }
 
-    public void initRecyclerViewSearchResult(RecyclerView recyclerView, List<Note> notes) {
+    public void initRecyclerViewSearchResult(RecyclerView recyclerView, String query) {
 
         Log.v("Debug1", "SearchResultFragment initRecyclerView");
 
-        // Эта установка служит для повышения производительности системы
-        recyclerView.setHasFixedSize(true);
-
-        // Будем работать со встроенным менеджером
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        recyclerView.setLayoutManager(layoutManager);
-
-        //Установим размер шрифта
-        String[] textSize = getResources().getStringArray(R.array.text_size);
-        float textSizeFloat = 0;
         if (getActivity() != null) {
-            int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
-            textSizeFloat = Float.parseFloat(textSize[textSizeId]);
+            notes = ((GlobalVariables) getActivity().getApplication()).getNotesWithText(query);
+
+            setEmptyResultTextView(viewSearchResult);
+
+            // Эта установка служит для повышения производительности системы
+            recyclerView.setHasFixedSize(true);
+
+            // Будем работать со встроенным менеджером
+            LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+            recyclerView.setLayoutManager(layoutManager);
+
+            //Установим размер шрифта
+            String[] textSize = getResources().getStringArray(R.array.text_size);
+            float textSizeFloat = 0;
+            if (getActivity() != null) {
+                int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
+                textSizeFloat = Float.parseFloat(textSize[textSizeId]);
+            }
+
+            // Установим адаптер
+            final SearchResultAdapter searchResultAdapter = new SearchResultAdapter(sortNotes(notes), textSizeFloat, query);
+            recyclerView.setAdapter(searchResultAdapter);
+
+            searchResultAdapter.notifyDataSetChanged();
+
+            // Добавим разделитель карточек
+            /*DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(),  LinearLayoutManager.VERTICAL);
+            itemDecoration.setDrawable(getResources().getDrawable(R.drawable.separator, null));
+            recyclerView.addItemDecoration(itemDecoration);*/
+
+            // Установим слушателя на текст
+            searchResultAdapter.SetOnNoteClicked((view, position) -> {
+                int noteId = (int) view.getTag();
+
+                Log.v("Debug1", "SearchResultFragment initRecyclerView onNoteClickedList noteId=" + noteId);
+
+                ViewNoteFragment viewNoteFragment = null;
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    if (getActivity() != null)
+                        viewNoteFragment = (ViewNoteFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.activity_container_note_view);
+                } else {
+                    MainFragment mainFragment = null;
+                    if (getActivity() != null)
+                        mainFragment = (MainFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.frame_container_main);
+                    if (mainFragment != null) {
+                        FragmentManager childFragmentManager = mainFragment.getChildFragmentManager();
+                        viewNoteFragment = (ViewNoteFragment) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
+                    }
+                }
+
+                if (viewNoteFragment == null) {
+                    Log.v("Debug1", "SearchResultFragment initRecyclerView viewNoteFragment == null");
+                    viewNoteFragment = ViewNoteFragment.newInstance(noteId);
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragment");
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
+                } else {
+                    Log.v("Debug1", "SearchResultFragment initRecyclerView viewNoteFragment != null");
+                    viewNoteFragment.fillViewNote(noteId, viewNoteFragment.getViewFragment());
+                }
+            });
+
+            // Установим слушателя на дату
+            searchResultAdapter.SetOnDateClicked((view, position) -> {
+                int noteId = (int) view.getTag();
+                Log.v("Debug1", "SearchResultFragment initRecyclerView onDateClickedList noteId=" + noteId);
+                DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
+                if (getActivity() != null) {
+                    FragmentTransaction fragmentTransaction;
+                    fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    fragmentTransaction.add(R.id.frame_container_main, datepickerFragment, "DatepickerFragment");
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
+                }
+            });
         }
 
-        // Установим адаптер
-        final SearchResultAdapter searchResultAdapter = new SearchResultAdapter(notes, textSizeFloat);
-        recyclerView.setAdapter(searchResultAdapter);
-
-        // Добавим разделитель карточек
-        /*DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(),  LinearLayoutManager.VERTICAL);
-        itemDecoration.setDrawable(getResources().getDrawable(R.drawable.separator, null));
-        recyclerView.addItemDecoration(itemDecoration);*/
-
-        // Установим слушателя на текст
-        searchResultAdapter.SetOnNoteClicked((view, position) -> {
-            int noteId = (int) view.getTag();
-
-            Log.v("Debug1", "SearchResultFragment initRecyclerView onNoteClickedList noteId=" + noteId);
-
-            ViewNoteFragment viewNoteFragment = null;
-            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                if (getActivity() != null)
-                    viewNoteFragment = (ViewNoteFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.activity_container_note_view);
-            } else {
-                MainFragment mainFragment = null;
-                if (getActivity() != null)
-                    mainFragment = (MainFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.frame_container_main);
-                if (mainFragment != null) {
-                    FragmentManager childFragmentManager = mainFragment.getChildFragmentManager();
-                    viewNoteFragment = (ViewNoteFragment) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
-                }
-            }
-
-            if (viewNoteFragment == null) {
-                Log.v("Debug1", "SearchResultFragment initRecyclerView viewNoteFragment == null");
-                viewNoteFragment = ViewNoteFragment.newInstance(noteId);
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                //fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
-                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragment");
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-            } else {
-                Log.v("Debug1", "SearchResultFragment initRecyclerView viewNoteFragment != null");
-                viewNoteFragment.fillViewNote(noteId, viewNoteFragment.getViewFragment());
-            }
-        });
-
-        // Установим слушателя на дату
-        searchResultAdapter.SetOnDateClicked((view, position) -> {
-            int noteId = (int) view.getTag();
-            Log.v("Debug1", "SearchResultFragment initRecyclerView onDateClickedList noteId=" + noteId);
-            DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
-            if (getActivity() != null) {
-                FragmentTransaction fragmentTransaction;
-                fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                fragmentTransaction.add(R.id.frame_container_main, datepickerFragment, "DatepickerFragment");
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-            }
-        });
     }
 
 
@@ -228,98 +254,10 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
         Log.v("Debug1", "SearchResultFragment onViewCreated");
     }
 
-    /*public void fillList(View view, String query) {
-        Log.v("Debug1", "SearchResultFragment fillList");
-        LinearLayout linearLayoutNotesList = view.findViewById(R.id.ListNotesFragment);
-        LinearLayout linearLayoutIntoScrollViewIntoFragmentSearchResult = view.findViewById(R.id.linearLayoutIntoScrollViewIntoFragmentSearchResult);
-
-        linearLayoutIntoScrollViewIntoFragmentSearchResult.removeAllViews();
-
-        if (getActivity() != null && getActivity().getApplication() != null) {
-            List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
-
-
-            //Сортировка
-            int textSortId = ((GlobalVariables) getActivity().getApplication()).getSortTypeId();
-            Comparator<Note> dateSorter = new DateSorterComparator();
-            Comparator<Note> headerSorter = new HeaderSorterComparator();
-            switch (textSortId) {
-                case (1):
-                    notes.sort(dateSorter);
-                    break;
-                case (0):
-                    notes.sort(dateSorter.reversed());
-                    break;
-                case (3):
-                    notes.sort(headerSorter);
-                    break;
-                case (2):
-                    notes.sort(headerSorter.reversed());
-                    break;
-            }
-
-            int countResults = 0;
-            for (int i = 0, notesSize = notes.size(); i < notesSize; i++) {
-                Note note = notes.get(i);
-                if (note.getValue().contains(query)) {
-                    countResults++;
-                    View viewTop = LayoutInflater.from(requireContext()).inflate(R.layout.view_item_note_top_textview, linearLayoutNotesList, false);
-                    View viewBottom = LayoutInflater.from(requireContext()).inflate(R.layout.view_item_note_bottom_textview, linearLayoutNotesList, false);
-
-                    viewTop.setOnClickListener(v -> {
-                        if (onDateClicked != null) {
-                            onDateClicked.onDateClickedSearchList(note.getID());
-                        }
-                    });
-
-                    viewBottom.setOnClickListener(v -> {
-                        if (noteClicked != null) {
-                            noteClicked.onNoteClickedSearchList(note.getID());
-                        }
-                    });
-
-                    TextView textViewTop = viewTop.findViewById(R.id.textViewTop);
-                    long date = note.getDate() * MILISECOND;
-
-                    DateFormat f = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
-                    String dateStr = f.format(date);
-
-                    //textViewTop.setPadding(0,50,0,0);
-
-                    textViewTop.setText(dateStr);
-                    textViewTop.setTag(note.getID());
-
-                    Log.v("Debug1", "SearchResultFragment fillList textViewTop.getTag()=" + textViewTop.getTag());
-
-                    TextView textViewBottom = viewBottom.findViewById(R.id.textViewBottom);
-
-                    String[] textSize = getResources().getStringArray(R.array.text_size);
-                    int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
-                    float textSizeFloat = Float.parseFloat(textSize[textSizeId]);
-                    textViewBottom.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSizeFloat);
-
-                    textViewBottom.setText(note.getValue());
-
-                    linearLayoutIntoScrollViewIntoFragmentSearchResult.addView(viewTop);
-                    linearLayoutIntoScrollViewIntoFragmentSearchResult.addView(viewBottom);
-                }
-            }
-            if (countResults == 0) {
-                //textViewNoSearchResult
-                View viewNoSearchResult = LayoutInflater.from(requireContext()).inflate(R.layout.view_nosearchresult_textview, linearLayoutNotesList, false);
-                TextView textViewNoSearchResult = viewNoSearchResult.findViewById(R.id.textViewNoSearchResult);
-                String strNoSearchResult = getResources().getString(R.string.textViewNoSearchResult) + query;
-                textViewNoSearchResult.setText(strNoSearchResult);
-                linearLayoutIntoScrollViewIntoFragmentSearchResult.addView(textViewNoSearchResult);
-            }
-        }
-    }*/
-
     @Override
     public void onStart() {
         super.onStart();
         Log.v("Debug1", "SearchResultFragment onStart");
-        //fillList(viewFragment, mParam1);
     }
 
     @Override

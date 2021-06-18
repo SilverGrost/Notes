@@ -50,7 +50,7 @@ public class GlobalVariables extends Application {
     public List<Note> getNotesWithText(String query) {
         List<Note> result = new ArrayList<>();
         for (int i = 0; i < notes.size(); i++) {
-            if (notes.get(i).getValue().contains(query))
+            if (notes.get(i).getValue().toUpperCase().contains(query.toUpperCase()))
                 result.add(notes.get(i));
         }
         return result;
