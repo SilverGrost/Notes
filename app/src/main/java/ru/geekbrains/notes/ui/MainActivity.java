@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.Date;
 import java.util.List;
 
 import ru.geekbrains.notes.BuildConfig;
@@ -103,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements /*ListNotesFragme
 
         // Обработка навигационного меню
         NavigationView navigationView = findViewById(R.id.nav_view);
-        //textView_version_menu
 
         // get header
         View navHeader = navigationView.getHeaderView(0);
@@ -208,6 +208,19 @@ public class MainActivity extends AppCompatActivity implements /*ListNotesFragme
             fragmentTransaction.commit();
             return true;
         }
+        else
+            if (id == R.id.action_add_1000) {
+                List<Note> notes = ((GlobalVariables) getApplication()).getNotes();
+                int start = notes.size();
+                for (int i = start; i < 1000; i++) {
+                    Date date = new Date();
+                    Note note = new Note(("Заметка №" + i), (i * 2), date.toInstant().getEpochSecond());
+                    notes.add(note);
+                }
+                //Сохраняем заметки в глобальной переменной
+                ((GlobalVariables) getApplication()).setNotes(notes);
+                new SharedPref(this).saveNotes(notes);
+            }
         return super.onOptionsItemSelected(item);
     }
 

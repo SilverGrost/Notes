@@ -16,10 +16,6 @@ public class Settings {
         return sortType;
     }
 
-    public void setSortType(int sortType) {
-        this.sortType = sortType;
-    }
-
     public int getTextSize() {
         return textSize;
     }

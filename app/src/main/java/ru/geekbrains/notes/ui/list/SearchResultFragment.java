@@ -36,7 +36,6 @@ import ru.geekbrains.notes.ui.item.ViewNoteFragment;
 
 public class SearchResultFragment extends Fragment implements ObserverNote {
 
-    private View viewFragment;
     private Publisher publisher;
 
     private RecyclerView recyclerView;
@@ -50,18 +49,11 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
         return notes;
     }
 
-    public View getViewFragment() {
-        return viewFragment;
-    }
-
-
-
     @Override
     public void updateNote(int noteID) {
         Log.v("Debug1", "SearchResultFragment updateNote noteID=" + noteID);
-        //fillList(viewFragment, mParam1);
+        initRecyclerViewSearchResult(recyclerView, sortNotes(notes));
     }
-
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -109,15 +101,8 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
         }
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        Log.v("Debug1", "SearchResultFragment onCreateView");
-        View view = inflater.inflate(R.layout.fragment_search_result, container, false);
+    public List<Note> sortNotes(List<Note> notes) {
         if (getActivity() != null) {
-            notes = ((GlobalVariables) getActivity().getApplication()).getNotesWithText(mParam1);
-
             int textSortId = ((GlobalVariables) getActivity().getApplication()).getSortTypeId();
             Comparator<Note> dateSorter = new DateSorterComparator();
             Comparator<Note> headerSorter = new HeaderSorterComparator();
@@ -135,10 +120,22 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
                     notes.sort(headerSorter.reversed());
                     break;
             }
+        }
+        return notes;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        Log.v("Debug1", "SearchResultFragment onCreateView");
+        View view = inflater.inflate(R.layout.fragment_search_result, container, false);
+        if (getActivity() != null) {
+            notes = ((GlobalVariables) getActivity().getApplication()).getNotesWithText(mParam1);
 
             recyclerView = view.findViewById(R.id.recycler_view_lines_search_result);
             if (recyclerView != null)
-                initRecyclerViewSearchResult(recyclerView, notes);
+                initRecyclerViewSearchResult(recyclerView, sortNotes(notes));
         }
         return view;
     }
@@ -154,9 +151,17 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
+        //Установим размер шрифта
+        String[] textSize = getResources().getStringArray(R.array.text_size);
+        float textSizeFloat = 0;
+        if (getActivity() != null) {
+            int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
+            textSizeFloat = Float.parseFloat(textSize[textSizeId]);
+        }
+
         // Установим адаптер
-        final ListNotesAdapter listNotesAdapter = new ListNotesAdapter(notes);
-        recyclerView.setAdapter(listNotesAdapter);
+        final SearchResultAdapter searchResultAdapter = new SearchResultAdapter(notes, textSizeFloat);
+        recyclerView.setAdapter(searchResultAdapter);
 
         // Добавим разделитель карточек
         /*DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(),  LinearLayoutManager.VERTICAL);
@@ -164,7 +169,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
         recyclerView.addItemDecoration(itemDecoration);*/
 
         // Установим слушателя на текст
-        listNotesAdapter.SetOnNoteClicked((view, position) -> {
+        searchResultAdapter.SetOnNoteClicked((view, position) -> {
             int noteId = (int) view.getTag();
 
             Log.v("Debug1", "SearchResultFragment initRecyclerView onNoteClickedList noteId=" + noteId);
@@ -200,7 +205,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
         });
 
         // Установим слушателя на дату
-        listNotesAdapter.SetOnDateClicked((view, position) -> {
+        searchResultAdapter.SetOnDateClicked((view, position) -> {
             int noteId = (int) view.getTag();
             Log.v("Debug1", "SearchResultFragment initRecyclerView onDateClickedList noteId=" + noteId);
             DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
@@ -221,7 +226,6 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "SearchResultFragment onViewCreated");
-        viewFragment = view;
     }
 
     /*public void fillList(View view, String query) {

@@ -42,8 +42,9 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     @Override
     public void updateNote(int noteID) {
         Log.v("Debug1", "ListNotesFragment updateNote noteID=" + noteID);
-        if (recyclerView != null)
-            initRecyclerViewListNotes(recyclerView, notes);
+        if (recyclerView != null) {
+            initRecyclerViewListNotes(recyclerView, sortNotes(notes));
+        }
     }
 
     @Override
@@ -67,16 +68,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         }
     }
 
-    // При создании фрагмента укажем его макет
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        Log.v("Debug1", "ListNotesFragment onCreateView");
-        View view = inflater.inflate(R.layout.fragment_list_notes, container, false);
-
+    public List<Note> sortNotes(List<Note> notes){
         if (getActivity() != null) {
-            notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
-
             int textSortId = ((GlobalVariables) getActivity().getApplication()).getSortTypeId();
             Comparator<Note> dateSorter = new DateSorterComparator();
             Comparator<Note> headerSorter = new HeaderSorterComparator();
@@ -94,6 +87,19 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                     notes.sort(headerSorter.reversed());
                     break;
             }
+        }
+        return notes;
+    }
+
+    // При создании фрагмента укажем его макет
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        Log.v("Debug1", "ListNotesFragment onCreateView");
+        View view = inflater.inflate(R.layout.fragment_list_notes, container, false);
+
+        if (getActivity() != null) {
+            notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
 
             recyclerView = view.findViewById(R.id.recycler_view_lines);
             if (recyclerView != null)
@@ -114,9 +120,20 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
+        //Установим размер шрифта
+        String[] textSize = getResources().getStringArray(R.array.text_size);
+        float textSizeFloat = 0;
+        if (getActivity() != null) {
+            int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
+            textSizeFloat = Float.parseFloat(textSize[textSizeId]);
+        }
+
         // Установим адаптер
-        final ListNotesAdapter listNotesAdapter = new ListNotesAdapter(notes);
+        final ListNotesAdapter listNotesAdapter = new ListNotesAdapter(notes, textSizeFloat);
         recyclerView.setAdapter(listNotesAdapter);
+
+
+        //listNotesAdapter.notifyDataSetChanged();
 
         // Добавим разделитель карточек
         /*DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(),  LinearLayoutManager.VERTICAL);

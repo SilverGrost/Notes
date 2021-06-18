@@ -106,27 +106,27 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        Log.v("Debug1", "AboutFragment onStop");
+        Log.v("Debug1", "SettingsFragment onStop");
     }
 
     public void onResume() {
         super.onResume();
-        Log.v("Debug1", "AboutFragment onResume");
+        Log.v("Debug1", "SettingsFragment onResume");
     }
 
     public void onPause() {
         super.onPause();
-        Log.v("Debug1", "AboutFragment onPause");
+        Log.v("Debug1", "SettingsFragment onPause");
     }
 
     public void onDestroyView() {
         super.onDestroyView();
-        Log.v("Debug1", "AboutFragment onDestroyView");
+        Log.v("Debug1", "SettingsFragment onDestroyView");
     }
 
     public void onDestroy() {
         super.onDestroy();
-        Log.v("Debug1", "AboutFragment onDestroy");
+        Log.v("Debug1", "SettingsFragment onDestroy");
     }
 
     @Override
@@ -135,7 +135,7 @@ public class SettingsFragment extends Fragment {
         if (context instanceof PublisherHolder) {
             publisher = ((PublisherHolder) context).getPublisher();
         }
-        Log.v("Debug1", "AboutFragment onAttach");
+        Log.v("Debug1", "SettingsFragment onAttach");
     }
 
     @Override
@@ -150,6 +150,6 @@ public class SettingsFragment extends Fragment {
         publisher = null;
 
         super.onDetach();
-        Log.v("Debug1", "AboutFragment onDetach");
+        Log.v("Debug1", "SettingsFragment onDetach");
     }
 }

@@ -1,6 +1,7 @@
 package ru.geekbrains.notes.ui.list;
 
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import static ru.geekbrains.notes.Constant.MILISECOND;
 public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.ViewHolder> {
 
     private final List<Note> notes;
+    private final float textSize;
 
     public interface OnNoteClicked {
         void onNoteClickedList(View view, int position);
@@ -47,8 +49,9 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
 
     // Передаем в конструктор источник данных
     // В нашем случае это массив, но может быть и запросом к БД
-    public ListNotesAdapter(List<Note> notes) {
+    public ListNotesAdapter(List<Note> notes, float textSize) {
         this.notes = notes;
+        this.textSize = textSize;
     }
 
     // Создать новый элемент пользовательского интерфейса
@@ -122,6 +125,8 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
             textViewHeader.setTag(note.getID());
             textViewValuer.setText(note.getValue());
             textViewValuer.setTag(note.getID());
+
+            textViewValuer.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
         }
     }
 }
