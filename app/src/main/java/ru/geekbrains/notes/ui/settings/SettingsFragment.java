@@ -147,7 +147,7 @@ public class SettingsFragment extends Fragment {
             new SharedPref(getContext()).saveSettings(settings);
 
         if (publisher != null) {
-            publisher.notify(0);//TODO: noteId
+            publisher.notify(-1);
         }
         publisher = null;
 

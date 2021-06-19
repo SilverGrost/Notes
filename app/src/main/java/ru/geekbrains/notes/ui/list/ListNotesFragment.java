@@ -47,7 +47,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     private RecyclerView recyclerView;
     private List<Note> notes;
     private View viewFragmenListNotes;
-    TextView textViewEmprtyListNotes;
+    private TextView textViewEmprtyListNotes;
+    int currentPositionRV;
 
     Button buttonAddOne;
     Button button1000;
@@ -179,7 +180,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
 
     private void initRecyclerViewListNotes(RecyclerView recyclerView, int noteIdForScrollPosition) {
-        Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes noteIdForScrollPosition=" + noteIdForScrollPosition);
+        Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes noteIdForScrollPosition=" + noteIdForScrollPosition + ", currentPositionRV=" + currentPositionRV);
+
         if (getActivity() != null) {
             List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
             // Эта установка служит для повышения производительности системы
@@ -188,8 +190,26 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
             // Будем работать со встроенным менеджером
             LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(layoutManager);
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    if (layoutManager.findFirstVisibleItemPosition() != -1)
+                        currentPositionRV = layoutManager.findFirstVisibleItemPosition();
+                    Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes currentPositionRV=" + currentPositionRV);
+                }
+            });
+
             notes = sortNotes(notes);
-            layoutManager.scrollToPosition(((GlobalVariables) getActivity().getApplication()).getScrollPositionByNoteId((noteIdForScrollPosition)));
+
+            int scrollPosition = 0;
+            Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes scrollPosition=" + scrollPosition + ", noteIdForScrollPosition=" + noteIdForScrollPosition);
+            if (noteIdForScrollPosition != -1)
+                scrollPosition = ((GlobalVariables) getActivity().getApplication()).getScrollPositionByNoteId((noteIdForScrollPosition));
+            else
+                scrollPosition = currentPositionRV;
+            layoutManager.scrollToPosition(scrollPosition);
+
             //Установим размер шрифта
             String[] textSize = getResources().getStringArray(R.array.text_size);
             float textSizeFloat = 0;

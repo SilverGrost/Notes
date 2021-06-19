@@ -1,5 +1,6 @@
 package ru.geekbrains.notes.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import ru.geekbrains.notes.R;
+import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
 
 public class MainFragment extends Fragment implements View.OnClickListener {
@@ -63,6 +65,40 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 fragmentTransaction.commit();
             }
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.v("Debug1", "MainFragment onStart");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.v("Debug1", "MainFragment onStop");
+    }
+
+    public void onResume() {
+        super.onResume();
+        Log.v("Debug1", "MainFragment onResume");
+    }
+
+    public void onPause() {
+        super.onPause();
+        Log.v("Debug1", "MainFragment onPause");
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        Log.v("Debug1", "MainFragment onAttach");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.v("Debug1", "MainFragment onDetach");
     }
 
 }
