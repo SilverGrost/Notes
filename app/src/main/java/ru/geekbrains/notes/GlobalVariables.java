@@ -14,6 +14,17 @@ public class GlobalVariables extends Application {
     private int currentNote;
     private int textSizeId;
     private int sortTypeId;
+    private boolean viewNoteFragmentState;
+
+    public boolean isViewNoteFragmentState() {
+        return viewNoteFragmentState;
+    }
+
+    public void setViewNoteFragmentState(boolean viewNoteFragmentState) {
+        this.viewNoteFragmentState = viewNoteFragmentState;
+    }
+
+
 
     public int getTextSizeId() {
         return textSizeId;
@@ -32,7 +43,7 @@ public class GlobalVariables extends Application {
     }
 
     public int getCurrentNote() {
-        Note note = getNoteById(currentNote);
+        Note note = getNoteByNoteId(currentNote);
         if (note.getID() != -1)
             return currentNote;
         else
@@ -60,13 +71,22 @@ public class GlobalVariables extends Application {
         this.notes = notes;
     }
 
-    public Note getNoteById(int noteId){
+    public Note getNoteByNoteId(int noteId){
         for (int i = 0; i < notes.size(); i++) {
             if (notes.get(i).getID() == noteId) {
                 return notes.get(i);
             }
         }
         return new Note();
+    }
+
+    public int getScrollPositionByNoteId(int noteId){
+        for (int i = 0; i < notes.size(); i++) {
+            if (notes.get(i).getID() == noteId) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     public int getNewId(){

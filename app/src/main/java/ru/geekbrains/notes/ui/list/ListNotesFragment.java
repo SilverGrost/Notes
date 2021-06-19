@@ -25,7 +25,8 @@ import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.SharedPref;
-import ru.geekbrains.notes.note.DateSorterComparator;
+import ru.geekbrains.notes.note.DateCreateSorterComparator;
+import ru.geekbrains.notes.note.DateEditSorterComparator;
 import ru.geekbrains.notes.note.HeaderSorterComparator;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.R;
@@ -36,6 +37,8 @@ import ru.geekbrains.notes.ui.DatepickerFragment;
 import ru.geekbrains.notes.ui.MainFragment;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
 import ru.geekbrains.notes.ui.item.ViewNoteFragment;
+
+import static ru.geekbrains.notes.Constant.*;
 
 
 public class ListNotesFragment extends Fragment implements ObserverNote {
@@ -81,19 +84,26 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     public List<Note> sortNotes(List<Note> notes) {
         if (getActivity() != null) {
             int textSortId = ((GlobalVariables) getActivity().getApplication()).getSortTypeId();
-            Comparator<Note> dateSorter = new DateSorterComparator();
+            Comparator<Note> dateSorter = new DateEditSorterComparator();
+            Comparator<Note> dateCreateSorter = new DateCreateSorterComparator();
             Comparator<Note> headerSorter = new HeaderSorterComparator();
             switch (textSortId) {
-                case (1):
+                case (ODREB_BY_DATE_EDIT):
                     notes.sort(dateSorter);
                     break;
-                case (0):
+                case (ODREB_BY_DATE_EDIT_DESC):
                     notes.sort(dateSorter.reversed());
                     break;
-                case (3):
+                case (ODREB_BY_DATE_CREATE):
+                    notes.sort(dateCreateSorter);
+                    break;
+                case (ODREB_BY_DATE_CREATE_DESC):
+                    notes.sort(dateCreateSorter.reversed());
+                    break;
+                case (ODREB_BY_DATE_VALUE):
                     notes.sort(headerSorter);
                     break;
-                case (2):
+                case (ODREB_BY_DATE_VALUE_DESC):
                     notes.sort(headerSorter.reversed());
                     break;
             }
@@ -104,14 +114,12 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     public void setEmptyResultTextView(View view) {
         Log.v("Debug1", "ListNotesFragment setEmptyResultTextView view.getTag()=" + view.getTag());
         textViewEmprtyListNotes = view.findViewById(R.id.textViewEmprtyListNotesRV);
-
         if (textViewEmprtyListNotes != null) {
             if (notes.size() != 0) {
                 recyclerView.setVisibility(View.VISIBLE);
                 textViewEmprtyListNotes.setVisibility(View.GONE);
                 buttonAddOne.setVisibility(View.GONE);
                 button1000.setVisibility(View.GONE);
-
             } else {
                 recyclerView.setVisibility(View.GONE);
                 textViewEmprtyListNotes.setVisibility(View.VISIBLE);
@@ -130,7 +138,6 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                         fragmentTransaction.commit();
                     }
                 });
-
                 Button button1000 = view.findViewById(R.id.button_addFirst1000);
                 button1000.setOnClickListener(v -> {
                     if (getActivity() != null) {
@@ -138,7 +145,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                         int start = notes.size();
                         for (int i = start; i < 1000; i++) {
                             Date date = new Date();
-                            Note note = new Note(("Заметка №" + i), (i * 2), date.toInstant().getEpochSecond());
+                            Note note = new Note(("Заметка №" + i), (i * 2), date.toInstant().getEpochSecond(), date.toInstant().getEpochSecond());
                             notes.add(note);
                         }
                         //Сохраняем заметки в глобальной переменной
@@ -159,63 +166,47 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         View view = inflater.inflate(R.layout.fragment_list_notes, container, false);
         Log.v("Debug1", "ListNotesFragment onCreateView view.getTag()=" + view.getTag());
         viewFragmenListNotes = view;
-
         if (getActivity() != null) {
             notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
         }
-
         textViewEmprtyListNotes = view.findViewById(R.id.textViewEmprtyListNotesRV);
         buttonAddOne = view.findViewById(R.id.button_addFirstNote);
         button1000 = view.findViewById(R.id.button_addFirst1000);
         recyclerView = view.findViewById(R.id.recycler_view_lines);
-
         initRecyclerViewListNotes(recyclerView, 0);
-
         return view;
     }
 
 
-    private void initRecyclerViewListNotes(RecyclerView recyclerView, int scrollPosition) {
-        Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes scrollPosition=" + scrollPosition);
-
+    private void initRecyclerViewListNotes(RecyclerView recyclerView, int noteIdForScrollPosition) {
+        Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes noteIdForScrollPosition=" + noteIdForScrollPosition);
         if (getActivity() != null) {
             List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
-
             // Эта установка служит для повышения производительности системы
             recyclerView.setHasFixedSize(true);
-
             setEmptyResultTextView(viewFragmenListNotes);
-
             // Будем работать со встроенным менеджером
             LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(layoutManager);
-
-            layoutManager.scrollToPosition(scrollPosition);
-
+            notes = sortNotes(notes);
+            layoutManager.scrollToPosition(((GlobalVariables) getActivity().getApplication()).getScrollPositionByNoteId((noteIdForScrollPosition)));
             //Установим размер шрифта
             String[] textSize = getResources().getStringArray(R.array.text_size);
             float textSizeFloat = 0;
+            int sortType = 0;
             if (getActivity() != null) {
                 int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
                 textSizeFloat = Float.parseFloat(textSize[textSizeId]);
+                sortType = ((GlobalVariables) getActivity().getApplication()).getSortTypeId();
             }
-
             // Установим адаптер
-            final ListNotesAdapter listNotesAdapter = new ListNotesAdapter(sortNotes(notes), textSizeFloat);
+            final ListNotesAdapter listNotesAdapter = new ListNotesAdapter(notes, textSizeFloat, sortType);
             recyclerView.setAdapter(listNotesAdapter);
-
             listNotesAdapter.notifyDataSetChanged();
-
-            // Добавим разделитель карточек
-            /*DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(),  LinearLayoutManager.VERTICAL);
-            itemDecoration.setDrawable(getResources().getDrawable(R.drawable.separator, null));
-            recyclerView.addItemDecoration(itemDecoration);*/
-
             // Установим слушателя на текст
             listNotesAdapter.SetOnNoteClicked((view, position) -> {
                 int noteId = (int) view.getTag();
                 Log.v("Debug1", "ListNotesFragment initRecyclerView onNoteClickedList noteId=" + noteId);
-
                 ViewNoteFragment viewNoteFragment = null;
                 if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                     if (getActivity() != null)
@@ -229,7 +220,6 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                         viewNoteFragment = (ViewNoteFragment) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
                     }
                 }
-
                 if (viewNoteFragment == null) {
                     Log.v("Debug1", "ListNotesFragment initRecyclerView viewNoteFragment == null");
                     viewNoteFragment = ViewNoteFragment.newInstance(noteId);
@@ -244,7 +234,6 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                     viewNoteFragment.fillViewNote(noteId, viewNoteFragment.getViewFragment());
                 }
             });
-
             // Установим слушателя на дату
             listNotesAdapter.SetOnDateClicked((view, position) -> {
                 int noteId = (int) view.getTag();

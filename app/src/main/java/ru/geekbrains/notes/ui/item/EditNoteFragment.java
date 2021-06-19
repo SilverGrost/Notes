@@ -90,14 +90,12 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
         if (getArguments() != null && getActivity() != null) {
             noteId = getArguments().getInt(ARG, 0);
             Log.v("Debug1", "EditNoteFragment onViewCreated getArguments() != null noteId=" + noteId);
-            Note note = ((GlobalVariables) getActivity().getApplication()).getNoteById(noteId);
+            Note note = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
             editTextNoteValue = view.findViewById(R.id.editTextNoteValue);
-
             String[] textSize = getResources().getStringArray(R.array.text_size);
             int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
             float textSizeFloat = Float.parseFloat(textSize[textSizeId]);
             editTextNoteValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSizeFloat);
-
             editTextNoteValue.setText(note.getValue());
         }
     }
@@ -112,11 +110,12 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
             Date date = new Date();
             if (getActivity() != null) {
                 List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
-                Note note = ((GlobalVariables) getActivity().getApplication()).getNoteById(noteId);
-                note.setDate(date.toInstant().getEpochSecond());
+                Note note = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
+                note.setDateEdit(date.toInstant().getEpochSecond());
                 note.setValue(value);
-
                 if (note.getID() == -1) {
+                    note.setDateCreate(date.toInstant().getEpochSecond());
+
                     note.setID(((GlobalVariables) getActivity().getApplication()).getNewId());
                     notes.add(note);
                 } else {

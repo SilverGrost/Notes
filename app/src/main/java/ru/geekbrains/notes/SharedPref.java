@@ -24,7 +24,8 @@ public class SharedPref {
         Note note = new Note();
         note.setValue(SharedPreferences.getString(NOTEVALUE + id, note.getValue()));
         note.setID(SharedPreferences.getInt(NOTEID + id, note.getID()));
-        note.setDate(SharedPreferences.getLong(NOTEDATE + id, note.getDate()));
+        note.setDateEdit(SharedPreferences.getLong(NOTEDATE + id, note.getDateEdit()));
+        note.setDateCreate(SharedPreferences.getLong(NOTEDATECREATE + id, note.getDateCreate()));
         return note;
     }
 
@@ -43,7 +44,9 @@ public class SharedPref {
         SharedPreferences.Editor editor = SharedPreferences.edit();
         editor.putString(NOTEVALUE + id, note.getValue());
         editor.putInt(NOTEID + id, note.getID());
-        editor.putLong(NOTEDATE + id, note.getDate());
+        editor.putLong(NOTEDATE + id, note.getDateEdit());
+        editor.putLong(NOTEDATECREATE + id, note.getDateCreate());
+
         editor.apply();
     }
 
@@ -59,7 +62,7 @@ public class SharedPref {
 
     // Чтение настроек
     public Settings loadSettings() {
-        return new Settings(SharedPreferences.getInt(APPSETTINGSTEXTSIZE, DEFAULTTEXTSIZE), SharedPreferences.getInt(APPSETTINGSSORTTYPE, DEFAULTSORTTYPE));
+        return new Settings(SharedPreferences.getInt(APPSETTINGSTEXTSIZE, DEFAULTTEXTSIZEID), SharedPreferences.getInt(APPSETTINGSSORTTYPE, DEFAULTSORTTYPEID));
     }
 
     // Сохранение настроек

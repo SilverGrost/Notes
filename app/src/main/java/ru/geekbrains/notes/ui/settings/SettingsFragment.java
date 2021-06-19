@@ -57,11 +57,9 @@ public class SettingsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "SettingsFragment onViewCreated");
-
         Settings settings;
         if (getContext() != null) {
             settings = (new SharedPref(getContext()).loadSettings());
-
             clearAllNotes = view.findViewById(R.id.buttonClearAll);
             clearAllNotes.setOnClickListener(v -> {
                 if (getActivity() != null) {
@@ -71,7 +69,6 @@ public class SettingsFragment extends Fragment {
                     new SharedPref(getActivity()).saveNotes(notes);
                 }
             });
-
             spinnerTextSize = view.findViewById(R.id.spinnerTextSize);
             ArrayAdapter<CharSequence> adapterTextSize = ArrayAdapter.createFromResource(getContext(), R.array.text_size, android.R.layout.simple_spinner_item);
             spinnerTextSize.setAdapter(adapterTextSize);
@@ -84,19 +81,15 @@ public class SettingsFragment extends Fragment {
                     if (getActivity() != null)
                         ((GlobalVariables) getActivity().getApplication()).setTextSizeId(position);
                 }
-
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0) {
                     //Toast.makeText(getContext(), "Position NothingSelected", Toast.LENGTH_SHORT).show();
                 }
             });
-
             spinnerSort = view.findViewById(R.id.spinnerSort);
             ArrayAdapter<CharSequence> adapterSort = ArrayAdapter.createFromResource(getContext(), R.array.type_sort, android.R.layout.simple_spinner_item);
             spinnerSort.setAdapter(adapterSort);
-
             spinnerSort.setSelection(settings.getSortType());
-
             spinnerSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view,
@@ -105,10 +98,8 @@ public class SettingsFragment extends Fragment {
                     if (getActivity() != null)
                         ((GlobalVariables) getActivity().getApplication()).setSortTypeId(position);
                 }
-
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0) {
-
                 }
             });
         }
@@ -156,7 +147,7 @@ public class SettingsFragment extends Fragment {
             new SharedPref(getContext()).saveSettings(settings);
 
         if (publisher != null) {
-            publisher.notify(0);
+            publisher.notify(0);//TODO: noteId
         }
         publisher = null;
 

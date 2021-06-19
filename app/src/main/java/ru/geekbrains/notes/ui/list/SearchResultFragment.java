@@ -24,7 +24,8 @@ import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
-import ru.geekbrains.notes.note.DateSorterComparator;
+import ru.geekbrains.notes.note.DateCreateSorterComparator;
+import ru.geekbrains.notes.note.DateEditSorterComparator;
 import ru.geekbrains.notes.note.HeaderSorterComparator;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.observer.ObserverNote;
@@ -33,6 +34,13 @@ import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.ui.DatepickerFragment;
 import ru.geekbrains.notes.ui.MainFragment;
 import ru.geekbrains.notes.ui.item.ViewNoteFragment;
+
+import static ru.geekbrains.notes.Constant.ODREB_BY_DATE_CREATE;
+import static ru.geekbrains.notes.Constant.ODREB_BY_DATE_CREATE_DESC;
+import static ru.geekbrains.notes.Constant.ODREB_BY_DATE_EDIT;
+import static ru.geekbrains.notes.Constant.ODREB_BY_DATE_EDIT_DESC;
+import static ru.geekbrains.notes.Constant.ODREB_BY_DATE_VALUE;
+import static ru.geekbrains.notes.Constant.ODREB_BY_DATE_VALUE_DESC;
 
 
 public class SearchResultFragment extends Fragment implements ObserverNote {
@@ -61,7 +69,6 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         Log.v("Debug1", "SearchResultFragment onAttach");
-
         if (context instanceof PublisherHolder) {
             publisher = ((PublisherHolder) context).getPublisher();
             publisher.subscribe(this);
@@ -108,19 +115,26 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
     public List<Note> sortNotes(List<Note> notes) {
         if (getActivity() != null) {
             int textSortId = ((GlobalVariables) getActivity().getApplication()).getSortTypeId();
-            Comparator<Note> dateSorter = new DateSorterComparator();
+            Comparator<Note> dateSorter = new DateEditSorterComparator();
+            Comparator<Note> dateCreateSorter = new DateCreateSorterComparator();
             Comparator<Note> headerSorter = new HeaderSorterComparator();
             switch (textSortId) {
-                case (1):
+                case (ODREB_BY_DATE_EDIT):
                     notes.sort(dateSorter);
                     break;
-                case (0):
+                case (ODREB_BY_DATE_EDIT_DESC):
                     notes.sort(dateSorter.reversed());
                     break;
-                case (3):
+                case (ODREB_BY_DATE_CREATE):
+                    notes.sort(dateCreateSorter);
+                    break;
+                case (ODREB_BY_DATE_CREATE_DESC):
+                    notes.sort(dateCreateSorter.reversed());
+                    break;
+                case (ODREB_BY_DATE_VALUE):
                     notes.sort(headerSorter);
                     break;
-                case (2):
+                case (ODREB_BY_DATE_VALUE_DESC):
                     notes.sort(headerSorter.reversed());
                     break;
             }
@@ -131,7 +145,6 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
     public void setEmptyResultTextView(View view) {
         Log.v("Debug1", "SearchResultFragment setEmptyResultTextView");
         TextView textViewNoSearchResult = view.findViewById(R.id.textViewNoSearchResultRV);
-
         if (textViewNoSearchResult != null) {
             if (notes.size() != 0) {
                 textViewNoSearchResult.setVisibility(View.GONE);
@@ -159,46 +172,32 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
     }
 
     public void initRecyclerViewSearchResult(RecyclerView recyclerView, String query) {
-
         Log.v("Debug1", "SearchResultFragment initRecyclerView");
-
         if (getActivity() != null) {
             notes = ((GlobalVariables) getActivity().getApplication()).getNotesWithText(query);
-
             setEmptyResultTextView(viewSearchResult);
-
             // Эта установка служит для повышения производительности системы
             recyclerView.setHasFixedSize(true);
-
             // Будем работать со встроенным менеджером
             LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(layoutManager);
-
             //Установим размер шрифта
             String[] textSize = getResources().getStringArray(R.array.text_size);
             float textSizeFloat = 0;
+            int sortType = 0;
             if (getActivity() != null) {
                 int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
                 textSizeFloat = Float.parseFloat(textSize[textSizeId]);
+                sortType = ((GlobalVariables) getActivity().getApplication()).getSortTypeId();
             }
-
             // Установим адаптер
-            final SearchResultAdapter searchResultAdapter = new SearchResultAdapter(sortNotes(notes), textSizeFloat, query);
+            final SearchResultAdapter searchResultAdapter = new SearchResultAdapter(sortNotes(notes), textSizeFloat, query, sortType);
             recyclerView.setAdapter(searchResultAdapter);
-
             searchResultAdapter.notifyDataSetChanged();
-
-            // Добавим разделитель карточек
-            /*DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(),  LinearLayoutManager.VERTICAL);
-            itemDecoration.setDrawable(getResources().getDrawable(R.drawable.separator, null));
-            recyclerView.addItemDecoration(itemDecoration);*/
-
             // Установим слушателя на текст
             searchResultAdapter.SetOnNoteClicked((view, position) -> {
                 int noteId = (int) view.getTag();
-
                 Log.v("Debug1", "SearchResultFragment initRecyclerView onNoteClickedList noteId=" + noteId);
-
                 ViewNoteFragment viewNoteFragment = null;
                 if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                     if (getActivity() != null)
@@ -212,7 +211,6 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
                         viewNoteFragment = (ViewNoteFragment) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
                     }
                 }
-
                 if (viewNoteFragment == null) {
                     Log.v("Debug1", "SearchResultFragment initRecyclerView viewNoteFragment == null");
                     viewNoteFragment = ViewNoteFragment.newInstance(noteId);
@@ -227,7 +225,6 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
                     viewNoteFragment.fillViewNote(noteId, viewNoteFragment.getViewFragment());
                 }
             });
-
             // Установим слушателя на дату
             searchResultAdapter.SetOnDateClicked((view, position) -> {
                 int noteId = (int) view.getTag();
@@ -243,7 +240,6 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
                 }
             });
         }
-
     }
 
 

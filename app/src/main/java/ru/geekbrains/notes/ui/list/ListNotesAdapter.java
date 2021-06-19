@@ -24,6 +24,7 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
 
     private final List<Note> notes;
     private final float textSize;
+    private final int sortType;
 
     public interface OnNoteClicked {
         void onNoteClickedList(View view, int position);
@@ -48,10 +49,11 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
 
     // Передаем в конструктор источник данных
     // В нашем случае это массив, но может быть и запросом к БД
-    public ListNotesAdapter(List<Note> notes, float textSize) {
+    public ListNotesAdapter(List<Note> notes, float textSize, int sortType) {
         Log.v("Debug1", "NotesListAdapter ListNotesAdapter notes.size()=" + notes.size());
         this.notes = notes;
         this.textSize = textSize;
+        this.sortType = sortType;
     }
 
     // Создать новый элемент пользовательского интерфейса
@@ -74,8 +76,6 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
     public void onBindViewHolder(@NonNull ListNotesAdapter.ViewHolder viewHolder, int i) {
         // Получить элемент из источника данных (БД, интернет...)
         // Вынести на экран используя ViewHolder
-        //Note note = ((GlobalVariables) getActivity().getApplication()).getNoteById(noteId);
-
         viewHolder.setData(notes.get(i));
         Log.v("Debug1", "NotesListAdapter onBindViewHolder i=" + i + ", notes.get(i).getID()=" + notes.get(i).getID());
     }
@@ -105,8 +105,6 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
                     dateClicked.onDateClickedList(v, getAdapterPosition());
                 }
             });
-
-
             textViewValuer = itemView.findViewById(R.id.textViewBottomRV);
             // Обработчик нажатий на тексте
             textViewValuer.setOnClickListener(v -> {
@@ -117,15 +115,18 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
         }
 
         public void setData(Note note) {
-            Log.v("Debug1", "NotesListAdapter class ViewHolder setData");
-            long date = note.getDate() * MILISECOND;
+            Log.v("Debug1", "NotesListAdapter class ViewHolder setData sortType=" + sortType);
+            long date = 0;
+            if (sortType == 0 | sortType == 1)
+                date = note.getDateEdit() * MILISECOND;
+            else if (sortType == 2 | sortType == 3)
+                date = note.getDateCreate() * MILISECOND;
             DateFormat f = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
             String dateStr = f.format(date);
             textViewHeader.setText(dateStr);
             textViewHeader.setTag(note.getID());
             textViewValuer.setText(note.getValue());
             textViewValuer.setTag(note.getID());
-
             textViewValuer.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
         }
     }

@@ -17,10 +17,12 @@
     </string-array>
 
     <string-array name="type_sort">
-        <item>По дате по убыванию</item>
-        <item>По дате по возростанию</item>
-        <item>По Содержанию по убыванию</item>
+        <item>По дате правки по возростанию</item>
+        <item>По дате правки по убыванию</item>
+        <item>По дате создания по возростанию</item>
+        <item>По дате создания по убыванию</item>
         <item>По Содержанию по возростанию</item>
+        <item>По Содержанию по убыванию</item>
     </string-array>
 
 </resources>

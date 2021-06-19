@@ -23,6 +23,7 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
 
     private final List<Note> notes;
     private final float textSize;
+    private final int sortType;
 
     public interface OnNoteClicked {
         void onNoteClickedList(View view, int position);
@@ -34,7 +35,6 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
         this.noteClicked = noteClicked;
     }
 
-
     public interface OnDateClicked {
         void onDateClickedList(View view, int position);
     }
@@ -45,20 +45,19 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
         this.dateClicked = dateClicked;
     }
 
-
     @Override
     public int getItemViewType(int position) {
         Log.v("Debug1", "SearchResultAdapter getItemViewType position = " + position);
-
         return 0;
     }
 
     // Передаем в конструктор источник данных
     // В нашем случае это массив, но может быть и запросом к БД
-    public SearchResultAdapter(List<Note> notes, float textSize, String query) {
+    public SearchResultAdapter(List<Note> notes, float textSize, String query, int sortType) {
         Log.v("Debug1", "SearchResultAdapter SearchResultAdapter query = " + query);
         this.notes = notes;
         this.textSize = textSize;
+        this.sortType = sortType;
     }
 
     // Создать новый элемент пользовательского интерфейса
@@ -96,10 +95,8 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
     // Сложные данные могут потребовать несколько View на
     // один пункт списка
     public class ViewHolder extends RecyclerView.ViewHolder {
-
         private final TextView textViewHeader;
         private final TextView textViewValuer;
-
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -112,7 +109,6 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
                     dateClicked.onDateClickedList(v, getAdapterPosition());
                 }
             });
-
             textViewValuer = itemView.findViewById(R.id.textViewBottomRV);
             // Обработчик нажатий на тексте
             textViewValuer.setOnClickListener(v -> {
@@ -124,14 +120,17 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
 
         public void setData(Note note) {
             Log.v("Debug1", "SearchResultAdapter class ViewHolder setData");
-            long date = note.getDate() * MILISECOND;
+            long date = 0;
+            if (sortType == 0 | sortType == 1)
+                date = note.getDateEdit() * MILISECOND;
+            else if (sortType == 2 | sortType == 3)
+                date = note.getDateCreate() * MILISECOND;
             DateFormat f = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
             String dateStr = f.format(date);
             textViewHeader.setText(dateStr);
             textViewHeader.setTag(note.getID());
             textViewValuer.setText(note.getValue());
             textViewValuer.setTag(note.getID());
-
             textViewValuer.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
         }
     }

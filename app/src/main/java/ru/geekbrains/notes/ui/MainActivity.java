@@ -42,29 +42,20 @@ import ru.geekbrains.notes.ui.list.SearchResultFragment;
 import ru.geekbrains.notes.ui.settings.AboutFragment;
 import ru.geekbrains.notes.ui.settings.SettingsFragment;
 
-import static ru.geekbrains.notes.Constant.VIEW_NOTE_FRAGMENT_PORTRAIT_ID_NOTE;
-
 
 public class MainActivity extends AppCompatActivity implements PublisherHolder, SearchView.OnQueryTextListener {
 
     private final Publisher publisher = new Publisher();
 
-    int fragmentViewNoteIdNote = -1;
-
     // Сохранение данных
     @Override
     public void onSaveInstanceState(@NonNull Bundle instanceState) {
         super.onSaveInstanceState(instanceState);
-        Log.v("Debug1", "MainActivity onSaveInstanceState fragmentViewNoteIdNote=" + fragmentViewNoteIdNote);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             Log.v("Debug1", "MainActivity onSaveInstanceState ORIENTATION_PORTRAIT");
             FragmentManager fragmentManager = getSupportFragmentManager();
             Fragment viewNoteFragment = fragmentManager.findFragmentByTag("ViewNoteFragmentPortrait");
-            if (viewNoteFragment != null) {
-                fragmentViewNoteIdNote = ((ViewNoteFragment) viewNoteFragment).getNoteId();
-                instanceState.putInt(VIEW_NOTE_FRAGMENT_PORTRAIT_ID_NOTE, fragmentViewNoteIdNote);
-                Log.v("Debug1", "MainActivity onSaveInstanceState ORIENTATION_PORTRAIT viewNoteFragment != null fragmentViewNoteIdNote=" + fragmentViewNoteIdNote);
-            }
+            ((GlobalVariables) getApplication()).setViewNoteFragmentState(viewNoteFragment != null);
         }
     }
 
@@ -73,11 +64,6 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder, 
     protected void onRestoreInstanceState(@NonNull Bundle instanceState) {
         super.onRestoreInstanceState(instanceState);
         Log.v("Debug1", "MainActivity onRestoreInstanceState");
-        //if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            fragmentViewNoteIdNote = instanceState.getInt(VIEW_NOTE_FRAGMENT_PORTRAIT_ID_NOTE);
-            Log.v("Debug1", "MainActivity onRestoreInstanceState ORIENTATION_PORTRAIT fragmentViewNoteIdNote=" + fragmentViewNoteIdNote);
-        //}
-
     }
 
     private void getAllFragment(FragmentManager fragmentManager) {
@@ -120,44 +106,36 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder, 
 
         } else {
             Log.v("Debug1", "MainActivity onCreate savedInstanceState != null");
+
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 Log.v("Debug1", "MainActivity onCreate savedInstanceState != null ORIENTATION_LANDSCAPE");
-
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 Fragment viewNoteFragment = fragmentManager.findFragmentByTag("ViewNoteFragmentPortrait");
                 if (viewNoteFragment != null) {
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                    fragmentTransaction.remove(viewNoteFragment);
+                    //fragmentTransaction.remove(viewNoteFragment);
+                    fragmentManager.popBackStack();
                     fragmentTransaction.commit();
                 }
                 getAllFragment(fragmentManager);
-
             } else {
-                Log.v("Debug1", "MainActivity onCreate savedInstanceState != null ORIENTATION_PORTRAIT fragmentViewNoteIdNote=" + fragmentViewNoteIdNote);
+                Log.v("Debug1", "MainActivity onCreate savedInstanceState != null ORIENTATION_PORTRAIT");
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 getAllFragment(fragmentManager);
-
-
-                if (fragmentViewNoteIdNote != -1) {
-
+                if (((GlobalVariables) getApplication()).isViewNoteFragmentState()) {
                     Fragment viewNoteFragment = fragmentManager.findFragmentByTag("ViewNoteFragmentPortrait");
-
                     if (viewNoteFragment != null) {
                         Log.v("Debug1", "MainActivity onCreate savedInstanceState != null ORIENTATION_PORTRAIT viewNoteFragment != null");
-                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                        fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
-                        fragmentTransaction.commit();
                     } else {
                         Log.v("Debug1", "MainActivity onCreate savedInstanceState != null ORIENTATION_PORTRAIT viewNoteFragment == null");
-                        viewNoteFragment = ViewNoteFragment.newInstance(fragmentViewNoteIdNote);
-                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                        fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
-                        fragmentTransaction.addToBackStack(null);
-                        fragmentTransaction.commit();
+                        viewNoteFragment = ViewNoteFragment.newInstance(((GlobalVariables) getApplication()).getCurrentNote());
                     }
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
                 }
             }
         }
@@ -225,7 +203,6 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder, 
             }
             Log.v("Debug1", "MainActivity addFragment fragmentTag=" + fragmentTag);
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            //fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             fragmentTransaction.add(R.id.frame_container_main, fragment, fragmentTag);
             fragmentTransaction.addToBackStack(null);
@@ -259,7 +236,6 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder, 
         Log.v("Debug1", "MainActivity onOptionsItemSelected");
         // Обработка выбора пункта меню приложения (активити)
         int id = item.getItemId();
-
         if (id == R.id.action_search) {//addFragment(new SettingsFragment());
             Toast.makeText(MainActivity.this, "action_search", Toast.LENGTH_SHORT).show();
             return true;
@@ -273,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder, 
             fragmentTransaction.commit();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 

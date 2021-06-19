@@ -6,22 +6,33 @@ import android.os.Parcelable;
 public class Note implements Parcelable {
     private String value;
     private int id;
-    private long date;
+    private long dateEdit;
+    private long dateCreate;
 
     public Note() {
         this.id = -1;
     }
 
-    public Note(String value, int id, long date) {
+    public long getDateCreate() {
+        return dateCreate;
+    }
+
+    public void setDateCreate(long dateCreate) {
+        this.dateCreate = dateCreate;
+    }
+
+    public Note(String value, int id, long dateEdit, long dateCreate) {
         this.value = value;
         this.id = id;
-        this.date = date;
+        this.dateEdit = dateEdit;
+        this.dateCreate = dateCreate;
     }
 
     protected Note(Parcel in) {
         value = in.readString();
         id = in.readInt();
-        date = in.readLong();
+        dateEdit = in.readLong();
+        dateCreate = in.readLong();
     }
 
     public static final Creator<Note> CREATOR = new Creator<Note>() {
@@ -52,12 +63,12 @@ public class Note implements Parcelable {
         this.id = category;
     }
 
-    public long getDate() {
-        return date;
+    public long getDateEdit() {
+        return dateEdit;
     }
 
-    public void setDate(long date) {
-        this.date = date;
+    public void setDateEdit(long dateEdit) {
+        this.dateEdit = dateEdit;
     }
 
     @Override
@@ -69,7 +80,8 @@ public class Note implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getValue());
         dest.writeInt(getID());
-        dest.writeLong(getDate());
+        dest.writeLong(getDateEdit());
+        dest.writeLong(getDateCreate());
     }
 
 }
