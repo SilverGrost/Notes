@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
+import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.observer.Publisher;
@@ -92,10 +93,13 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
             Log.v("Debug1", "EditNoteFragment onViewCreated getArguments() != null noteId=" + noteId);
             Note note = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
             editTextNoteValue = view.findViewById(R.id.editTextNoteValue);
-            String[] textSize = getResources().getStringArray(R.array.text_size);
-            int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
-            float textSizeFloat = Float.parseFloat(textSize[textSizeId]);
-            editTextNoteValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSizeFloat);
+
+            Settings settings = new Settings();
+            if (getActivity() != null) {
+                settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+            }
+
+            editTextNoteValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, settings.getTextSize());
             editTextNoteValue.setText(note.getValue());
         }
     }

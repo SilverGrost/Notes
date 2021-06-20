@@ -12,8 +12,6 @@ public class GlobalVariables extends Application {
     private List<Note> notes;
 
     private int currentNote;
-    private int textSizeId;
-    private int sortTypeId;
 
     private boolean viewNoteFragmentState;
     private Settings settings;
@@ -32,14 +30,6 @@ public class GlobalVariables extends Application {
 
     public void setViewNoteFragmentState(boolean viewNoteFragmentState) {
         this.viewNoteFragmentState = viewNoteFragmentState;
-    }
-
-    public int getTextSizeId() {
-        return textSizeId;
-    }
-
-    public int getSortTypeId() {
-        return sortTypeId;
     }
 
     public int getCurrentNote() {

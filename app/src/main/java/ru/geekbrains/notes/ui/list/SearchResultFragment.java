@@ -175,6 +175,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
 
     public void initRecyclerViewSearchResult(RecyclerView recyclerView, String query) {
         Log.v("Debug1", "SearchResultFragment initRecyclerView");
+
         if (getActivity() != null) {
             notes = ((GlobalVariables) getActivity().getApplication()).getNotesWithText(query);
             setEmptyResultTextView(viewSearchResult);
@@ -183,34 +184,20 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
             // Будем работать со встроенным менеджером
             LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(layoutManager);
-            //Установим размер шрифта
-            /*String[] textSize = getResources().getStringArray(R.array.text_size);
-            float textSizeFloat = 0;
-            int sortType = 0;
-            if (getActivity() != null) {
-                int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
-                textSizeFloat = Float.parseFloat(textSize[textSizeId]);
-                sortType = ((GlobalVariables) getActivity().getApplication()).getSortTypeId();
-            }*/
 
+            notes = sortNotes(notes);
             Settings settings = new Settings();
             if (getActivity() != null) {
                 settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
             }
 
             // Установим адаптер
-            /*final SearchResultAdapter searchResultAdapter = new SearchResultAdapter(sortNotes(notes), textSizeFloat, query, sortType);
-            recyclerView.setAdapter(searchResultAdapter);
-            searchResultAdapter.notifyDataSetChanged();*/
-
-            notes = sortNotes(notes);
-
-            final ListNotesAdapter listNotesAdapter = new ListNotesAdapter(notes, settings);
-            recyclerView.setAdapter(listNotesAdapter);
-            listNotesAdapter.notifyDataSetChanged();
+            final RVAdapter RVAdapter = new RVAdapter(notes, settings);
+            recyclerView.setAdapter(RVAdapter);
+            RVAdapter.notifyDataSetChanged();
 
             // Установим слушателя на текст
-            listNotesAdapter.SetOnNoteClicked((view, position) -> {
+            RVAdapter.SetOnNoteClicked((view, position) -> {
                 int noteId = (int) view.getTag();
                 Log.v("Debug1", "SearchResultFragment initRecyclerView onNoteClickedList noteId=" + noteId);
                 ViewNoteFragment viewNoteFragment = null;
@@ -241,7 +228,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
                 }
             });
             // Установим слушателя на дату
-            listNotesAdapter.SetOnDateClicked((view, position) -> {
+            RVAdapter.SetOnDateClicked((view, position) -> {
                 int noteId = (int) view.getTag();
                 Log.v("Debug1", "SearchResultFragment initRecyclerView onDateClickedList noteId=" + noteId);
                 DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);

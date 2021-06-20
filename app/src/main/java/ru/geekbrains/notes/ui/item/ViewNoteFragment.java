@@ -21,6 +21,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
+import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.observer.ObserverNote;
@@ -36,10 +37,6 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
     private int noteId = 0;
     private Publisher publisher;
     private Publisher publisher2;
-
-    public int getNoteId() {
-        return noteId;
-    }
 
     private View viewFragment;
 
@@ -123,10 +120,12 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
             } else
                 textViewNoteValue.setText("");
 
-            String[] textSize = getResources().getStringArray(R.array.text_size);
-            int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
-            float textSizeFloat = Float.parseFloat(textSize[textSizeId]);
-            textViewNoteValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSizeFloat);
+            Settings settings = new Settings();
+            if (getActivity() != null) {
+                settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+            }
+
+            textViewNoteValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, settings.getTextSize());
         }
     }
 

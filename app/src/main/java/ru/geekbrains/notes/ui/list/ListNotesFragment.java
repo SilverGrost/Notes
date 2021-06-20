@@ -235,12 +235,12 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                 settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
             }
             // Установим адаптер
-            final ListNotesAdapter listNotesAdapter = new ListNotesAdapter(notes, settings);
-            recyclerView.setAdapter(listNotesAdapter);
-            listNotesAdapter.notifyDataSetChanged();
+            final RVAdapter RVAdapter = new RVAdapter(notes, settings);
+            recyclerView.setAdapter(RVAdapter);
+            RVAdapter.notifyDataSetChanged();
 
             // Установим слушателя на текст
-            listNotesAdapter.SetOnNoteClicked((view, position) -> {
+            RVAdapter.SetOnNoteClicked((view, position) -> {
                 int noteId = (int) view.getTag();
                 Log.v("Debug1", "ListNotesFragment initRecyclerView onNoteClickedList noteId=" + noteId);
                 ViewNoteFragment viewNoteFragment = null;
@@ -271,7 +271,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                 }
             });
             // Установим слушателя на дату
-            listNotesAdapter.SetOnDateClicked((view, position) -> {
+            RVAdapter.SetOnDateClicked((view, position) -> {
                 int noteId = (int) view.getTag();
                 Log.v("Debug1", "ListNotesFragment initRecyclerView onDateClickedList noteId=" + noteId);
                 DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);

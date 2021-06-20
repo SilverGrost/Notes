@@ -14,7 +14,6 @@ import java.text.DateFormat;
 import java.util.List;
 import java.util.Locale;
 
-import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.note.Note;
 
@@ -22,7 +21,7 @@ import ru.geekbrains.notes.R;
 
 import static ru.geekbrains.notes.Constant.MILISECOND;
 
-public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.ViewHolder> {
+public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
 
     private final List<Note> notes;
     private final float textSize;
@@ -52,7 +51,7 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
 
     // Передаем в конструктор источник данных
     // В нашем случае это массив, но может быть и запросом к БД
-    public ListNotesAdapter(List<Note> notes, Settings settings) {
+    public RVAdapter(List<Note> notes, Settings settings) {
         Log.v("Debug1", "NotesListAdapter ListNotesAdapter notes.size()=" + notes.size());
         this.notes = notes;
         this.textSize = settings.getTextSize();
@@ -64,7 +63,7 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
     // Запускается менеджером
     @NonNull
     @Override
-    public ListNotesAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public RVAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         // Создаем новый элемент пользовательского интерфейса
         // Через Inflater
         View v = LayoutInflater.from(viewGroup.getContext())
@@ -77,7 +76,7 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
     // Заменить данные в пользовательском интерфейсе
     // Вызывается менеджером
     @Override
-    public void onBindViewHolder(@NonNull ListNotesAdapter.ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NonNull RVAdapter.ViewHolder viewHolder, int i) {
         // Получить элемент из источника данных (БД, интернет...)
         // Вынести на экран используя ViewHolder
         viewHolder.setData(notes.get(i));
