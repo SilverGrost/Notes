@@ -25,4 +25,5 @@
     <string name="EmptyListNotes">Ещё нет ни одной заметки. Добавьте прямо сейчас</string>
     <string name="ButtonAddNote">Добавить заметку</string>
     <string name="ButtonAdd1000">Добавить 1000 заметок</string>
+    <string name="MaxCountLines">Кол-во строк в списке</string>
 </resources>

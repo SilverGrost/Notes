@@ -62,14 +62,21 @@ public class SharedPref {
 
     // Чтение настроек
     public Settings loadSettings() {
-        return new Settings(SharedPreferences.getInt(APPSETTINGSTEXTSIZE, DEFAULTTEXTSIZEID), SharedPreferences.getInt(APPSETTINGSSORTTYPE, DEFAULTSORTTYPEID));
+        Settings settings = new Settings();
+        settings.setSortType(SharedPreferences.getInt(APPSETTINGSSORTTYPE, DEFAULTSORTTYPEID));
+        settings.setTextSizeId(SharedPreferences.getInt(APPSETTINGSTEXTSIZE, DEFAULTTEXTSIZEID));
+        settings.setMaxCountLinesId(SharedPreferences.getInt(APPSETTINGSMAXCOUNTLINES, DEFAULTLMAXCOUNTLINESID));
+        settings.setCurrentPosition(SharedPreferences.getInt(APPSETTINGSCURRENTPOSITION, DEFAULTCURRENTPOSITION));
+        return settings;
     }
 
     // Сохранение настроек
     public void saveSettings(Settings settings) {
         SharedPreferences.Editor editor = SharedPreferences.edit();
-        editor.putInt(APPSETTINGSTEXTSIZE, settings.getTextSize());
+        editor.putInt(APPSETTINGSTEXTSIZE, settings.getTextSizeId());
         editor.putInt(APPSETTINGSSORTTYPE, settings.getSortType());
+        editor.putInt(APPSETTINGSMAXCOUNTLINES, settings.getMaxCountLinesId());
+        editor.putInt(APPSETTINGSCURRENTPOSITION, settings.getCurrentPosition());
         editor.apply();
     }
 }

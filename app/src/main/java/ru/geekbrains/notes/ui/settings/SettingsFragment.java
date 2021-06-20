@@ -30,6 +30,7 @@ public class SettingsFragment extends Fragment {
 
     Spinner spinnerSort;
     Spinner spinnerTextSize;
+    Spinner spinnerMaxCountLines;
 
     Button clearAllNotes;
 
@@ -59,7 +60,9 @@ public class SettingsFragment extends Fragment {
         Log.v("Debug1", "SettingsFragment onViewCreated");
         Settings settings;
         if (getContext() != null) {
+
             settings = (new SharedPref(getContext()).loadSettings());
+
             clearAllNotes = view.findViewById(R.id.buttonClearAll);
             clearAllNotes.setOnClickListener(v -> {
                 if (getActivity() != null) {
@@ -69,23 +72,26 @@ public class SettingsFragment extends Fragment {
                     new SharedPref(getActivity()).saveNotes(notes);
                 }
             });
+
             spinnerTextSize = view.findViewById(R.id.spinnerTextSize);
+
             ArrayAdapter<CharSequence> adapterTextSize = ArrayAdapter.createFromResource(getContext(), R.array.text_size, android.R.layout.simple_spinner_item);
             spinnerTextSize.setAdapter(adapterTextSize);
-            spinnerTextSize.setSelection(settings.getTextSize());
+            spinnerTextSize.setSelection(settings.getTextSizeId());
             spinnerTextSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view,
                                            int position, long id) {
                     // показываем позиция нажатого элемента
-                    if (getActivity() != null)
-                        ((GlobalVariables) getActivity().getApplication()).setTextSizeId(position);
+                    /*if (getActivity() != null)
+                        ((GlobalVariables) getActivity().getApplication()).setTextSizeId(position);*/
                 }
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0) {
                     //Toast.makeText(getContext(), "Position NothingSelected", Toast.LENGTH_SHORT).show();
                 }
             });
+
             spinnerSort = view.findViewById(R.id.spinnerSort);
             ArrayAdapter<CharSequence> adapterSort = ArrayAdapter.createFromResource(getContext(), R.array.type_sort, android.R.layout.simple_spinner_item);
             spinnerSort.setAdapter(adapterSort);
@@ -95,8 +101,25 @@ public class SettingsFragment extends Fragment {
                 public void onItemSelected(AdapterView<?> parent, View view,
                                            int position, long id) {
                     // показываем позиция нажатого элемента
-                    if (getActivity() != null)
-                        ((GlobalVariables) getActivity().getApplication()).setSortTypeId(position);
+                    /*if (getActivity() != null)
+                        ((GlobalVariables) getActivity().getApplication()).setSortTypeId(position);*/
+                }
+                @Override
+                public void onNothingSelected(AdapterView<?> arg0) {
+                }
+            });
+
+            spinnerMaxCountLines = view.findViewById(R.id.spinnerMaxCountLines);
+            ArrayAdapter<CharSequence> adapterMaxCountLines = ArrayAdapter.createFromResource(getContext(), R.array.MaxCountLines, android.R.layout.simple_spinner_item);
+            spinnerMaxCountLines.setAdapter(adapterMaxCountLines);
+            spinnerMaxCountLines.setSelection(settings.getMaxCountLinesId());
+            spinnerMaxCountLines.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view,
+                                           int position, long id) {
+                    // показываем позиция нажатого элемента
+                    /*if (getActivity() != null)
+                        ((GlobalVariables) getActivity().getApplication()).setMaxCountLinesId(position);*/
                 }
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0) {
@@ -142,9 +165,27 @@ public class SettingsFragment extends Fragment {
 
     @Override
     public void onDetach() {
-        Settings settings = new Settings(spinnerTextSize.getSelectedItemPosition(), spinnerSort.getSelectedItemPosition());
-        if (getContext() != null)
+        Settings settings = new Settings(spinnerSort.getSelectedItemPosition(), spinnerTextSize.getSelectedItemPosition(), spinnerMaxCountLines.getSelectedItemPosition());
+
+        String[] textSizeArray = getResources().getStringArray(R.array.text_size);
+        int textSizeId = settings.getTextSizeId();
+        float textSizeFloat = Float.parseFloat(textSizeArray[textSizeId]);
+        settings.setTextSize(textSizeFloat);
+
+        String[] maxCountLinesArray = getResources().getStringArray(R.array.MaxCountLines);
+        int maxCountLinesId = settings.getMaxCountLinesId();
+        int maxCountLines;
+        if (maxCountLinesId != 0)
+            maxCountLines = Integer.parseInt(maxCountLinesArray[maxCountLinesId]);
+        else
+            maxCountLines = 0;
+        settings.setMaxCountLines(maxCountLines);
+
+        if (getContext() != null) {
+            if (getActivity() != null)
+                ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
             new SharedPref(getContext()).saveSettings(settings);
+        }
 
         if (publisher != null) {
             publisher.notify(-1);

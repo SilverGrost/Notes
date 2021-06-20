@@ -14,7 +14,17 @@ public class GlobalVariables extends Application {
     private int currentNote;
     private int textSizeId;
     private int sortTypeId;
+
     private boolean viewNoteFragmentState;
+    private Settings settings;
+
+    public Settings getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Settings settings) {
+        this.settings = settings;
+    }
 
     public boolean isViewNoteFragmentState() {
         return viewNoteFragmentState;
@@ -24,22 +34,12 @@ public class GlobalVariables extends Application {
         this.viewNoteFragmentState = viewNoteFragmentState;
     }
 
-
-
     public int getTextSizeId() {
         return textSizeId;
     }
 
-    public void setTextSizeId(int textSizeId) {
-        this.textSizeId = textSizeId;
-    }
-
     public int getSortTypeId() {
         return sortTypeId;
-    }
-
-    public void setSortTypeId(int sortTypeId) {
-        this.sortTypeId = sortTypeId;
     }
 
     public int getCurrentNote() {
@@ -110,5 +110,8 @@ public class GlobalVariables extends Application {
             }
         }
     }
+
+
+
 
 }

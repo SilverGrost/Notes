@@ -24,6 +24,7 @@ import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
+import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.note.DateCreateSorterComparator;
 import ru.geekbrains.notes.note.DateEditSorterComparator;
 import ru.geekbrains.notes.note.HeaderSorterComparator;
@@ -113,8 +114,9 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
     }
 
     public List<Note> sortNotes(List<Note> notes) {
+        Log.v("Debug1", "ListNotesFragment sortNotes");
         if (getActivity() != null) {
-            int textSortId = ((GlobalVariables) getActivity().getApplication()).getSortTypeId();
+            int textSortId = ((GlobalVariables) getActivity().getApplication()).getSettings().getSortType();
             Comparator<Note> dateSorter = new DateEditSorterComparator();
             Comparator<Note> dateCreateSorter = new DateCreateSorterComparator();
             Comparator<Note> headerSorter = new HeaderSorterComparator();
@@ -182,20 +184,33 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
             LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(layoutManager);
             //Установим размер шрифта
-            String[] textSize = getResources().getStringArray(R.array.text_size);
+            /*String[] textSize = getResources().getStringArray(R.array.text_size);
             float textSizeFloat = 0;
             int sortType = 0;
             if (getActivity() != null) {
                 int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
                 textSizeFloat = Float.parseFloat(textSize[textSizeId]);
                 sortType = ((GlobalVariables) getActivity().getApplication()).getSortTypeId();
+            }*/
+
+            Settings settings = new Settings();
+            if (getActivity() != null) {
+                settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
             }
+
             // Установим адаптер
-            final SearchResultAdapter searchResultAdapter = new SearchResultAdapter(sortNotes(notes), textSizeFloat, query, sortType);
+            /*final SearchResultAdapter searchResultAdapter = new SearchResultAdapter(sortNotes(notes), textSizeFloat, query, sortType);
             recyclerView.setAdapter(searchResultAdapter);
-            searchResultAdapter.notifyDataSetChanged();
+            searchResultAdapter.notifyDataSetChanged();*/
+
+            notes = sortNotes(notes);
+
+            final ListNotesAdapter listNotesAdapter = new ListNotesAdapter(notes, settings);
+            recyclerView.setAdapter(listNotesAdapter);
+            listNotesAdapter.notifyDataSetChanged();
+
             // Установим слушателя на текст
-            searchResultAdapter.SetOnNoteClicked((view, position) -> {
+            listNotesAdapter.SetOnNoteClicked((view, position) -> {
                 int noteId = (int) view.getTag();
                 Log.v("Debug1", "SearchResultFragment initRecyclerView onNoteClickedList noteId=" + noteId);
                 ViewNoteFragment viewNoteFragment = null;
@@ -226,7 +241,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
                 }
             });
             // Установим слушателя на дату
-            searchResultAdapter.SetOnDateClicked((view, position) -> {
+            listNotesAdapter.SetOnDateClicked((view, position) -> {
                 int noteId = (int) view.getTag();
                 Log.v("Debug1", "SearchResultFragment initRecyclerView onDateClickedList noteId=" + noteId);
                 DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);

@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
+import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.SharedPref;
 import ru.geekbrains.notes.note.DateCreateSorterComparator;
 import ru.geekbrains.notes.note.DateEditSorterComparator;
@@ -77,14 +78,27 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         super.onDetach();
         Log.v("Debug1", "ListNotesFragment onDetach");
 
+        Settings settings = new Settings();
+        if (getActivity() != null)
+            settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+
+        Log.v("Debug1", "ListNotesFragment onDetach currentPositionRV=" + currentPositionRV);
+        settings.setCurrentPosition(currentPositionRV);
+
+        if (getContext() != null) {
+            new SharedPref(getContext()).saveSettings(settings);
+            ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+        }
+
         if (publisher != null) {
             publisher.unsubscribe(this);
         }
     }
 
     public List<Note> sortNotes(List<Note> notes) {
+        Log.v("Debug1", "ListNotesFragment sortNotes");
         if (getActivity() != null) {
-            int textSortId = ((GlobalVariables) getActivity().getApplication()).getSortTypeId();
+            int textSortId = ((GlobalVariables) getActivity().getApplication()).getSettings().getSortType();
             Comparator<Note> dateSorter = new DateEditSorterComparator();
             Comparator<Note> dateCreateSorter = new DateCreateSorterComparator();
             Comparator<Note> headerSorter = new HeaderSorterComparator();
@@ -144,7 +158,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                     if (getActivity() != null) {
                         List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
                         int start = notes.size();
-                        for (int i = start; i < 1000; i++) {
+                        for (int i = start; i < COUNTDEMONOTES; i++) {
                             Date date = new Date();
                             Note note = new Note(("Заметка №" + i), (i * 2), date.toInstant().getEpochSecond(), date.toInstant().getEpochSecond());
                             notes.add(note);
@@ -174,7 +188,12 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         buttonAddOne = view.findViewById(R.id.button_addFirstNote);
         button1000 = view.findViewById(R.id.button_addFirst1000);
         recyclerView = view.findViewById(R.id.recycler_view_lines);
-        initRecyclerViewListNotes(recyclerView, 0);
+
+        Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+        currentPositionRV = settings.getCurrentPosition();
+
+        initRecyclerViewListNotes(recyclerView, -1);
+
         return view;
     }
 
@@ -202,27 +221,23 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
             notes = sortNotes(notes);
 
-
             int scrollPosition = 0;
             Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes scrollPosition=" + scrollPosition + ", noteIdForScrollPosition=" + noteIdForScrollPosition);
             if (noteIdForScrollPosition != -1)
                 scrollPosition = ((GlobalVariables) getActivity().getApplication()).getScrollPositionByNoteId((noteIdForScrollPosition));
             else
                 scrollPosition = currentPositionRV;
+
             layoutManager.scrollToPosition(scrollPosition);
 
-            //Установим размер шрифта
-            String[] textSize = getResources().getStringArray(R.array.text_size);
-            float textSizeFloat = 0;
-            int sortType = 0;
+            Settings settings = new Settings();
             if (getActivity() != null) {
-                int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
-                textSizeFloat = Float.parseFloat(textSize[textSizeId]);
-                sortType = ((GlobalVariables) getActivity().getApplication()).getSortTypeId();
+                settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
             }
             // Установим адаптер
-            final ListNotesAdapter listNotesAdapter = new ListNotesAdapter(notes, textSizeFloat, sortType);
+            final ListNotesAdapter listNotesAdapter = new ListNotesAdapter(notes, settings);
             recyclerView.setAdapter(listNotesAdapter);
+            listNotesAdapter.notifyDataSetChanged();
 
             // Установим слушателя на текст
             listNotesAdapter.SetOnNoteClicked((view, position) -> {

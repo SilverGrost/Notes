@@ -14,6 +14,8 @@ import java.text.DateFormat;
 import java.util.List;
 import java.util.Locale;
 
+import ru.geekbrains.notes.GlobalVariables;
+import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.note.Note;
 
 import ru.geekbrains.notes.R;
@@ -25,6 +27,7 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
     private final List<Note> notes;
     private final float textSize;
     private final int sortType;
+    private final int maxCountLines;
 
     public interface OnNoteClicked {
         void onNoteClickedList(View view, int position);
@@ -49,11 +52,12 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
 
     // Передаем в конструктор источник данных
     // В нашем случае это массив, но может быть и запросом к БД
-    public ListNotesAdapter(List<Note> notes, float textSize, int sortType) {
+    public ListNotesAdapter(List<Note> notes, Settings settings) {
         Log.v("Debug1", "NotesListAdapter ListNotesAdapter notes.size()=" + notes.size());
         this.notes = notes;
-        this.textSize = textSize;
-        this.sortType = sortType;
+        this.textSize = settings.getTextSize();
+        this.sortType = settings.getSortType();
+        this.maxCountLines = settings.getMaxCountLines();
     }
 
     // Создать новый элемент пользовательского интерфейса
@@ -126,6 +130,11 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
             textViewValuer.setText(note.getValue());
             textViewValuer.setTag(note.getID());
             textViewValuer.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+            if (maxCountLines != 0)
+                textViewValuer.setMaxLines(maxCountLines);
+            else
+                textViewValuer.setMaxLines(Integer.MAX_VALUE);
+
         }
     }
 }

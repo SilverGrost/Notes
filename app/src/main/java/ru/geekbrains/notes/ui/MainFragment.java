@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import ru.geekbrains.notes.R;
-import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
 
 public class MainFragment extends Fragment implements View.OnClickListener {

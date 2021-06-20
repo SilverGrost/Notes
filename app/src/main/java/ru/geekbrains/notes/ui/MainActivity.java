@@ -101,8 +101,22 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder, 
             ((GlobalVariables) getApplication()).setNotes(notes);
 
             Settings settings = (new SharedPref(this).loadSettings());
-            ((GlobalVariables) getApplication()).setTextSizeId(settings.getTextSize());
-            ((GlobalVariables) getApplication()).setSortTypeId(settings.getSortType());
+            ((GlobalVariables) getApplication()).setSettings(settings);
+
+            String[] textSizeArray = getResources().getStringArray(R.array.text_size);
+            int textSizeId = settings.getTextSizeId();
+            float textSizeFloat = Float.parseFloat(textSizeArray[textSizeId]);
+            settings.setTextSize(textSizeFloat);
+
+            String[] maxCountLinesArray = getResources().getStringArray(R.array.MaxCountLines);
+            int maxCountLinesId = settings.getMaxCountLinesId();
+            int maxCountLines;
+            if (maxCountLinesId != 0)
+                maxCountLines = Integer.parseInt(maxCountLinesArray[maxCountLinesId]);
+            else
+                maxCountLines = 0;
+            settings.setMaxCountLines(maxCountLines);
+
 
         } else {
             Log.v("Debug1", "MainActivity onCreate savedInstanceState != null");
