@@ -46,8 +46,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     private Publisher publisher;
     private RecyclerView recyclerView;
     private List<Note> notes;
-    private View viewFragmenListNotes;
-    private TextView textViewEmprtyListNotes;
+    private View viewFragmentListNotes;
+    private TextView textViewEmptyListNotes;
     int currentPositionRV;
 
     Button buttonAddOne;
@@ -114,16 +114,16 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
     public void setEmptyResultTextView(View view) {
         Log.v("Debug1", "ListNotesFragment setEmptyResultTextView view.getTag()=" + view.getTag());
-        textViewEmprtyListNotes = view.findViewById(R.id.textViewEmprtyListNotesRV);
-        if (textViewEmprtyListNotes != null) {
+        textViewEmptyListNotes = view.findViewById(R.id.textViewEmprtyListNotesRV);
+        if (textViewEmptyListNotes != null) {
             if (notes.size() != 0) {
                 recyclerView.setVisibility(View.VISIBLE);
-                textViewEmprtyListNotes.setVisibility(View.GONE);
+                textViewEmptyListNotes.setVisibility(View.GONE);
                 buttonAddOne.setVisibility(View.GONE);
                 button1000.setVisibility(View.GONE);
             } else {
                 recyclerView.setVisibility(View.GONE);
-                textViewEmprtyListNotes.setVisibility(View.VISIBLE);
+                textViewEmptyListNotes.setVisibility(View.VISIBLE);
                 buttonAddOne.setVisibility(View.VISIBLE);
                 button1000.setVisibility(View.VISIBLE);
 
@@ -166,11 +166,11 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         Log.v("Debug1", "ListNotesFragment onCreateView");
         View view = inflater.inflate(R.layout.fragment_list_notes, container, false);
         Log.v("Debug1", "ListNotesFragment onCreateView view.getTag()=" + view.getTag());
-        viewFragmenListNotes = view;
+        viewFragmentListNotes = view;
         if (getActivity() != null) {
             notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
         }
-        textViewEmprtyListNotes = view.findViewById(R.id.textViewEmprtyListNotesRV);
+        textViewEmptyListNotes = view.findViewById(R.id.textViewEmprtyListNotesRV);
         buttonAddOne = view.findViewById(R.id.button_addFirstNote);
         button1000 = view.findViewById(R.id.button_addFirst1000);
         recyclerView = view.findViewById(R.id.recycler_view_lines);
@@ -186,7 +186,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
             List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
             // Эта установка служит для повышения производительности системы
             recyclerView.setHasFixedSize(true);
-            setEmptyResultTextView(viewFragmenListNotes);
+            setEmptyResultTextView(viewFragmentListNotes);
             // Будем работать со встроенным менеджером
             LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(layoutManager);
@@ -201,6 +201,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
             });
 
             notes = sortNotes(notes);
+
 
             int scrollPosition = 0;
             Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes scrollPosition=" + scrollPosition + ", noteIdForScrollPosition=" + noteIdForScrollPosition);
@@ -222,7 +223,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
             // Установим адаптер
             final ListNotesAdapter listNotesAdapter = new ListNotesAdapter(notes, textSizeFloat, sortType);
             recyclerView.setAdapter(listNotesAdapter);
-            listNotesAdapter.notifyDataSetChanged();
+
             // Установим слушателя на текст
             listNotesAdapter.SetOnNoteClicked((view, position) -> {
                 int noteId = (int) view.getTag();
