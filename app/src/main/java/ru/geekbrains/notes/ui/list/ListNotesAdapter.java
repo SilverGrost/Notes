@@ -116,11 +116,9 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.View
 
         public void setData(Note note) {
             Log.v("Debug1", "NotesListAdapter class ViewHolder setData sortType=" + sortType);
-            long date = 0;
+            long date = note.getDateCreate() * MILISECOND;
             if (sortType == 0 | sortType == 1)
                 date = note.getDateEdit() * MILISECOND;
-            else if (sortType == 2 | sortType == 3)
-                date = note.getDateCreate() * MILISECOND;
             DateFormat f = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
             String dateStr = f.format(date);
             textViewHeader.setText(dateStr);
