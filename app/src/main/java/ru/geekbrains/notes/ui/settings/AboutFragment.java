@@ -35,9 +35,8 @@ public class AboutFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_about, container, false);
         Log.v("Debug1", "AboutFragment onCreateView");
         TextView textView = v.findViewById(R.id.textView2);
-        int versionCode = BuildConfig.VERSION_CODE;
-        String versionName = BuildConfig.VERSION_NAME;
-        String strAbout = versionCode + " " + versionName;
+        //int versionCode = BuildConfig.VERSION_CODE;
+        String strAbout = BuildConfig.VERSION_NAME;
         textView.setText(strAbout);
         return v;
     }

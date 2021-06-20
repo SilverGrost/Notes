@@ -34,7 +34,7 @@ android {
         versionProps.store(versionPropsFile.newWriter(), null)
 
         // 1: change major and minor version here
-        mVersionName = "v1.0.${versionProps['VERSION_PATCH']}"
+        mVersionName = "v0.${versionProps['VERSION_PATCH']}"
         // 2: change AppName for your app name
         mFileName = "AppName-${mVersionName}.apk"
 
