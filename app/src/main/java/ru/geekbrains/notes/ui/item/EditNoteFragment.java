@@ -79,6 +79,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.v("Debug1", "EditNoteFragment onCreateView");
+        setHasOptionsMenu(false);
         View v = inflater.inflate(R.layout.fragment_edit_note, container, false);
         Button button_ok = v.findViewById(R.id.button_ok);
         button_ok.setOnClickListener(this);

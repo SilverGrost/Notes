@@ -54,8 +54,17 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.view_note_fragment, menu);
 
-        /*MenuItem item = menu.findItem(R.id.main);
-        item.setVisible(false);*/
+        //Убираем меню главного фрагмента в портретной орииентации
+        if (getActivity() != null) {
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                MenuItem item_action_search = menu.findItem(R.id.action_search);
+                if (item_action_search != null)
+                    item_action_search.setVisible(false);
+                MenuItem item_action_add = menu.findItem(R.id.action_add);
+                if (item_action_add != null)
+                    item_action_add.setVisible(false);
+            }
+        }
     }
 
     @Override
@@ -70,6 +79,7 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
             buttonDeleteAction();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -200,8 +210,8 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
                 }
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
-            //fragmentTransaction.replace(R.id.frame_container_main, editNoteFragment);
+            //fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
+            fragmentTransaction.replace(R.id.frame_container_main, editNoteFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
