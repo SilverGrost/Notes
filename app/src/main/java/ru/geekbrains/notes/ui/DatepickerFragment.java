@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.DatePicker;
 
 import java.util.Calendar;
@@ -31,6 +32,9 @@ public class DatepickerFragment extends Fragment {
     private static final String ARG = "NOTE_ID";
     private int noteId;
     private Publisher publisher;
+    int yearFromDP = 0;
+    int monthOfYearFromDP = 0;
+    int dayOfMonthFromDP = 0;
 
     public DatepickerFragment() {
         // Required empty public constructor
@@ -52,7 +56,7 @@ public class DatepickerFragment extends Fragment {
         if (getArguments() != null && getActivity() != null) {
             noteId = getArguments().getInt(ARG, 0);
             Log.v("Debug1", "DatepickerFragment onCreateView noteId=" + noteId);
-            DatePicker datePicker = v.findViewById(R.id.datepicker);
+
             Note note = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
             long date = note.getDateEdit() * MILISECOND;
             Calendar calendar = Calendar.getInstance();
@@ -60,24 +64,42 @@ public class DatepickerFragment extends Fragment {
             int year = calendar.get(Calendar.YEAR);
             int month = calendar.get(Calendar.MONTH);
             int day = calendar.get(Calendar.DAY_OF_MONTH);
-            datePicker.init(year, month, day, (view, year1, monthOfYear, dayOfMonth) -> {
-                Log.v("Debug1", "DatepickerFragment onDateChanged into");
+
+            Button button_ok = v.findViewById(R.id.button_dp_ok);
+            button_ok.setOnClickListener(v1 -> {
+                Log.v("Debug1", "DatepickerFragment button_ok");
                 Calendar calendarNew = Calendar.getInstance();
-                calendarNew.set(year1, monthOfYear, dayOfMonth);
+                calendarNew.set(yearFromDP, monthOfYearFromDP, dayOfMonthFromDP);
                 long newDate = calendarNew.getTimeInMillis() / MILISECOND;
                 if (DatepickerFragment.this.getActivity() != null) {
                     note.setDateEdit(newDate);
-                    ((GlobalVariables) getActivity().getApplication()).setNoteById(noteId, note);
-                    List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+                    ((GlobalVariables) DatepickerFragment.this.getActivity().getApplication()).setNoteById(noteId, note);
+                    List<Note> notes = ((GlobalVariables) DatepickerFragment.this.getActivity().getApplication()).getNotes();
                     new SharedPref(DatepickerFragment.this.getActivity()).saveNotes(notes);
                     if (publisher != null) {
                         publisher.notify(noteId, 3);
                     }
-                    if (getActivity() != null) {
-                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    if (DatepickerFragment.this.getActivity() != null) {
+                        FragmentManager fragmentManager = DatepickerFragment.this.getActivity().getSupportFragmentManager();
                         fragmentManager.popBackStack();
                     }
                 }
+            });
+
+            Button button_cancel = v.findViewById(R.id.button_dp_cancel);
+            button_cancel.setOnClickListener(v12 -> {
+                if (DatepickerFragment.this.getActivity() != null) {
+                    FragmentManager fragmentManager = DatepickerFragment.this.getActivity().getSupportFragmentManager();
+                    fragmentManager.popBackStack();
+                }
+            });
+
+            DatePicker datePicker = v.findViewById(R.id.datepicker);
+            datePicker.init(year, month, day, (view, year1, monthOfYear, dayOfMonth) -> {
+                Log.v("Debug1", "DatepickerFragment onDateChanged into");
+                yearFromDP = year1;
+                monthOfYearFromDP = monthOfYear;
+                dayOfMonthFromDP = dayOfMonth;
             });
         }
         return v;

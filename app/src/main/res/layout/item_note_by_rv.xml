@@ -7,33 +7,55 @@
     app:cardCornerRadius="15dp"
     app:cardElevation="3dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:id="@+id/linearLayout">
+        android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/textViewTopRV"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/round_top_textview"
+            android:background="@drawable/round_top_textview2"
             android:paddingStart="5dp"
             android:paddingEnd="0dp"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/textViewBottomRV"
+            app:layout_constraintEnd_toStartOf="@+id/imageFprPopupMenu"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
             tools:text="19.03.2021 15:36" />
 
+
+        <ImageView
+            android:id="@+id/imageFprPopupMenu"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/round_top_texview_for_menu"
+            app:layout_constraintBottom_toTopOf="@+id/textViewBottomRV"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textViewTopRV"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/ic_menu_more"
+            android:contentDescription="@string/ImageViewDescriptionMenu" />
 
         <TextView
             android:id="@+id/textViewBottomRV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/round_bottom_textview"
+            android:ellipsize="end"
+            android:gravity="top|start"
             android:maxLines="2"
             android:paddingStart="5dp"
             android:paddingEnd="0dp"
-            android:ellipsize="end"
             android:textSize="@dimen/textview_viewnote_textsize"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewTopRV"
             tools:text="Текст заметки начинается тут" />
 
-    </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
