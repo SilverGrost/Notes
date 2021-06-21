@@ -1,13 +1,16 @@
 package ru.geekbrains.notes.ui.list;
 
+import android.content.res.Configuration;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.DateFormat;
@@ -27,13 +30,13 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
     private final float textSize;
     private final int sortType;
     private final int maxCountLines;
+    private final int orientation;
+    private final Fragment fragment;
 
     public interface OnNoteClicked {
         void onNoteClickedList(View view, int position);
     }
-
     private OnNoteClicked noteClicked;
-
     public void SetOnNoteClicked(OnNoteClicked noteClicked) {
         this.noteClicked = noteClicked;
     }
@@ -42,21 +45,27 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
     public interface OnDateClicked {
         void onDateClickedList(View view, int position);
     }
-
     private OnDateClicked dateClicked;
-
     public void SetOnDateClicked(OnDateClicked dateClicked) {
         this.dateClicked = dateClicked;
     }
 
+    private int menuPosition;
+    public int getMenuPosition() {
+        return menuPosition;
+    }
+
+
     // Передаем в конструктор источник данных
     // В нашем случае это массив, но может быть и запросом к БД
-    public RVAdapter(List<Note> notes, Settings settings) {
+    public RVAdapter(List<Note> notes, Settings settings, Fragment fragment, int orientation) {
         Log.v("Debug1", "NotesListAdapter ListNotesAdapter notes.size()=" + notes.size());
         this.notes = notes;
         this.textSize = settings.getTextSize();
         this.sortType = settings.getSortType();
         this.maxCountLines = settings.getMaxCountLines();
+        this.orientation = orientation;
+        this.fragment = fragment;
     }
 
     // Создать новый элемент пользовательского интерфейса
@@ -96,6 +105,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
 
         private final TextView textViewHeader;
         private final TextView textViewValuer;
+        private final ImageView imageForPopupMenu;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -112,9 +122,23 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
             // Обработчик нажатий на тексте
             textViewValuer.setOnClickListener(v -> {
                 if (noteClicked != null) {
-                    noteClicked.onNoteClickedList(v, getAdapterPosition());
+                    noteClicked.onNoteClickedList(v, ViewHolder.this.getAdapterPosition());
                 }
             });
+
+            imageForPopupMenu = ((ImageView) itemView.findViewById(R.id.imageRVForPopupMenu));
+            if (imageForPopupMenu != null)
+                registerContextMenu(imageForPopupMenu);
+        }
+
+        private void registerContextMenu(@NonNull View itemView) {
+            if (fragment != null){
+                imageForPopupMenu.setOnClickListener(v -> {
+                    imageForPopupMenu.showContextMenu(0, 0);
+                    menuPosition = (int)imageForPopupMenu.getTag();
+                });
+                fragment.registerForContextMenu(itemView);
+            }
         }
 
         public void setData(Note note) {
@@ -124,15 +148,25 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                 date = note.getDateEdit() * MILISECOND;
             DateFormat f = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
             String dateStr = f.format(date);
+
             textViewHeader.setText(dateStr);
             textViewHeader.setTag(note.getID());
+
             textViewValuer.setText(note.getValue());
             textViewValuer.setTag(note.getID());
             textViewValuer.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
-            if (maxCountLines != 0)
-                textViewValuer.setMaxLines(maxCountLines);
+
+            if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+                if (maxCountLines != 0)
+                    textViewValuer.setMaxLines(maxCountLines);
+                else
+                    textViewValuer.setMaxLines(Integer.MAX_VALUE);
+            }
             else
-                textViewValuer.setMaxLines(Integer.MAX_VALUE);
+                textViewValuer.setMaxLines(1);
+
+            if (imageForPopupMenu != null)
+                imageForPopupMenu.setTag(note.getID());
 
         }
     }

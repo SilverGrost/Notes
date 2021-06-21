@@ -21,7 +21,7 @@
             android:paddingEnd="0dp"
             android:textSize="16sp"
             app:layout_constraintBottom_toTopOf="@+id/textViewBottomRV"
-            app:layout_constraintEnd_toStartOf="@+id/imageFprPopupMenu"
+            app:layout_constraintEnd_toStartOf="@+id/imageRVForPopupMenu"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed"
@@ -29,7 +29,7 @@
 
 
         <ImageView
-            android:id="@+id/imageFprPopupMenu"
+            android:id="@+id/imageRVForPopupMenu"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:background="@drawable/round_top_texview_for_menu"

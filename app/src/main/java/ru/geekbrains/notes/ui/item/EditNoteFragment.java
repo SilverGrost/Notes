@@ -40,6 +40,12 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
 
     private Publisher publisher;
 
+    private View editFragment;
+
+    public View getEditFragment() {
+        return editFragment;
+    }
+
     public static EditNoteFragment newInstance(int noteId) {
         Log.v("Debug1", "EditNoteFragment newInstance noteId=" + noteId);
         EditNoteFragment fragment = new EditNoteFragment();
@@ -92,9 +98,14 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "EditNoteFragment onViewCreated");
+        fillEditNote(view);
+    }
+
+    public void fillEditNote(View view) {
+        Log.v("Debug1", "EditNoteFragment fillEditNote");
         if (getArguments() != null && getActivity() != null) {
-            noteId = getArguments().getInt(ARG, 0);
-            Log.v("Debug1", "EditNoteFragment onViewCreated getArguments() != null noteId=" + noteId);
+            int noteId = getArguments().getInt(ARG, 0);
+            Log.v("Debug1", "EditNoteFragment fillEditNote getArguments() != null noteId=" + noteId);
             Note note = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
             editTextNoteValue = view.findViewById(R.id.editTextNoteValue);
 

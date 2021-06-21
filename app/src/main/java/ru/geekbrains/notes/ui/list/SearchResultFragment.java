@@ -13,7 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -25,6 +28,7 @@ import java.util.List;
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.Settings;
+import ru.geekbrains.notes.SharedPref;
 import ru.geekbrains.notes.note.DateCreateSorterComparator;
 import ru.geekbrains.notes.note.DateEditSorterComparator;
 import ru.geekbrains.notes.note.HeaderSorterComparator;
@@ -34,6 +38,7 @@ import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.ui.DatepickerFragment;
 import ru.geekbrains.notes.ui.MainFragment;
+import ru.geekbrains.notes.ui.item.EditNoteFragment;
 import ru.geekbrains.notes.ui.item.ViewNoteFragment;
 
 import static ru.geekbrains.notes.Constant.ODREB_BY_DATE_CREATE;
@@ -42,6 +47,7 @@ import static ru.geekbrains.notes.Constant.ODREB_BY_DATE_EDIT;
 import static ru.geekbrains.notes.Constant.ODREB_BY_DATE_EDIT_DESC;
 import static ru.geekbrains.notes.Constant.ODREB_BY_DATE_VALUE;
 import static ru.geekbrains.notes.Constant.ODREB_BY_DATE_VALUE_DESC;
+import static ru.geekbrains.notes.Constant.TYPE_EVENT_DELETE_NOTE;
 
 
 public class SearchResultFragment extends Fragment implements ObserverNote {
@@ -51,6 +57,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
     private RecyclerView recyclerView;
     private List<Note> notes;
     private View viewSearchResult;
+    private RVAdapter rvAdapter;
 
     public RecyclerView getRecyclerView() {
         return recyclerView;
@@ -63,7 +70,9 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
     @Override
     public void updateNote(int noteID, int typeEvent) {
         Log.v("Debug1", "SearchResultFragment updateNote noteID=" + noteID);
-        initRecyclerViewSearchResult(recyclerView, mParamQuery);
+        if (recyclerView != null) {
+            initRecyclerViewSearchResult(recyclerView, mParamQuery);
+        }
     }
 
     @Override
@@ -192,12 +201,24 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
             }
 
             // Установим адаптер
-            final RVAdapter RVAdapter = new RVAdapter(notes, settings);
-            recyclerView.setAdapter(RVAdapter);
-            RVAdapter.notifyDataSetChanged();
+            rvAdapter = new RVAdapter(notes, settings, this, getResources().getConfiguration().orientation);
+            recyclerView.setAdapter(rvAdapter);
+            rvAdapter.notifyDataSetChanged();
+
+            /*switch (typeEvent) {
+                case (TYPE_EVENT_CHANGE_SETTINGS):
+                    rvAdapter.notifyDataSetChanged();
+                    break;
+                case (TYPE_EVENT_DELETE_NOTE):
+                    rvAdapter.notifyItemRemoved(((GlobalVariables) getActivity().getApplication()).getScrollPositionByNoteId((noteIdForScrollPosition)));
+                    break;
+                default:
+                    rvAdapter.notifyItemChanged(((GlobalVariables) getActivity().getApplication()).getScrollPositionByNoteId((noteIdForScrollPosition)));
+                    break;
+            }*/
 
             // Установим слушателя на текст
-            RVAdapter.SetOnNoteClicked((view, position) -> {
+            rvAdapter.SetOnNoteClicked((view, position) -> {
                 int noteId = (int) view.getTag();
                 Log.v("Debug1", "SearchResultFragment initRecyclerView onNoteClickedList noteId=" + noteId);
                 ViewNoteFragment viewNoteFragment = null;
@@ -228,7 +249,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
                 }
             });
             // Установим слушателя на дату
-            RVAdapter.SetOnDateClicked((view, position) -> {
+            rvAdapter.SetOnDateClicked((view, position) -> {
                 int noteId = (int) view.getTag();
                 Log.v("Debug1", "SearchResultFragment initRecyclerView onDateClickedList noteId=" + noteId);
                 DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
@@ -272,6 +293,126 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
     public void onPause() {
         super.onPause();
         Log.v("Debug1", "SearchResultFragment onPause");
+    }
+
+    @Override
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, @Nullable ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = requireActivity().getMenuInflater();
+        inflater.inflate(R.menu.popup, menu);
+    }
+
+    private void viewNote(int noteId){
+        ViewNoteFragment viewNoteFragment = null;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            if (getActivity() != null)
+                viewNoteFragment = (ViewNoteFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.activity_container_note_view);
+        } else {
+            MainFragment mainFragment = null;
+            if (getActivity() != null)
+                mainFragment = (MainFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.frame_container_main);
+            if (mainFragment != null) {
+                FragmentManager childFragmentManager = mainFragment.getChildFragmentManager();
+                viewNoteFragment = (ViewNoteFragment) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
+            }
+        }
+        if (viewNoteFragment == null) {
+            Log.v("Debug1", "ListNotesFragment viewNote viewNoteFragment == null");
+            viewNoteFragment = ViewNoteFragment.newInstance(noteId);
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
+            //fragmentTransaction.replace(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        } else {
+            Log.v("Debug1", "ListNotesFragment viewNote viewNoteFragment != null");
+            viewNoteFragment.fillViewNote(noteId, viewNoteFragment.getViewFragment());
+        }
+    }
+
+    private void editNote(int noteId){
+        EditNoteFragment editNoteFragment = null;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            if (getActivity() != null)
+                editNoteFragment = (EditNoteFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.activity_container_note_view);
+        } else {
+            MainFragment mainFragment = null;
+            if (getActivity() != null)
+                mainFragment = (MainFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.frame_container_main);
+            if (mainFragment != null) {
+                FragmentManager childFragmentManager = mainFragment.getChildFragmentManager();
+                editNoteFragment = (EditNoteFragment) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
+            }
+        }
+        if (editNoteFragment == null) {
+            Log.v("Debug1", "ListNotesFragment editNote viewNoteFragment == null");
+            editNoteFragment = EditNoteFragment.newInstance(noteId);
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            fragmentTransaction.add(R.id.frame_container_main, editNoteFragment, "EditNoteFragmentPortrait");
+            //fragmentTransaction.replace(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        } else {
+            Log.v("Debug1", "ListNotesFragment editNote viewNoteFragment != null");
+            editNoteFragment.fillEditNote(editNoteFragment.getEditFragment());
+        }
+    }
+
+    private void deleteNote(int noteId){
+        if (getActivity() != null && getActivity().getApplication() != null) {
+            List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+            int prevID = 0;
+            int position = 0;
+            for (int i = 0; i < notes.size(); i++) {
+                if (notes.get(i).getID() == noteId) {
+                    notes.remove(i);
+                    break;
+                }
+                prevID = notes.get(i).getID();
+                position = i;
+            }
+            Log.v("Debug1", "ViewNoteFragment onClick button_delete prevID=" + prevID);
+            ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
+            if (getContext() != null) {
+                new SharedPref(getContext()).saveNotes(notes);
+                if (publisher != null) {
+                    Log.v("Debug1", "ViewNoteFragment onClick button_delete notify");
+                    publisher.notify(position, TYPE_EVENT_DELETE_NOTE);
+                }
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    if (getActivity() != null) {
+                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentManager.popBackStack();
+                        fragmentTransaction.commit();
+                    }
+                } /*else {
+                    fillViewNote(prevID, viewFragment);
+                }*/
+            }
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+
+        int itemId = item.getItemId();
+        int noteId = rvAdapter.getMenuPosition();
+        if (itemId == R.id.popup_view) {
+            viewNote(noteId);
+            return true;
+        } else if (itemId == R.id.popup_edit) {
+            editNote(noteId);
+            return true;
+        } else if (itemId == R.id.popup_delete) {
+            deleteNote(noteId);
+            return true;
+        }
+        return super.onContextItemSelected(item);
     }
 
 }
