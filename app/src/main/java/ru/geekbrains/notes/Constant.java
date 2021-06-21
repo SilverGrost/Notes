@@ -23,4 +23,8 @@ public class Constant {
     public static final int ODREB_BY_DATE_CREATE_DESC = 3;
     public static final int ODREB_BY_DATE_VALUE = 4;
     public static final int ODREB_BY_DATE_VALUE_DESC = 5;
+    public static final int TYPE_EVENT_ADD_NOTE = 0;
+    public static final int TYPE_EVENT_EDIT_NOTE = 1;
+    public static final int TYPE_EVENT_VIEW_NOTE = 2;
+    public static final int TYPE_EVENT_DELETE_NOTE = 3;
 }

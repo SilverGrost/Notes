@@ -55,10 +55,10 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     Button button1000;
 
     @Override
-    public void updateNote(int noteID) {
-        Log.v("Debug1", "ListNotesFragment updateNote noteID=" + noteID);
+    public void updateNote(int noteID, int typeEvent) {
+        Log.v("Debug1", "ListNotesFragment updateNote noteID=" + noteID + ", typeEvent=" + typeEvent);
         if (recyclerView != null) {
-            initRecyclerViewListNotes(recyclerView, -1);
+            initRecyclerViewListNotes(recyclerView, noteID, typeEvent);
         }
     }
 
@@ -171,7 +171,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                         //Сохраняем заметки в глобальной переменной
                         ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
                         new SharedPref(getActivity()).saveNotes(notes);
-                        initRecyclerViewListNotes(recyclerView, 0);
+                        initRecyclerViewListNotes(recyclerView, 0, 0);
                     }
                 });
             }
@@ -197,14 +197,14 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
         currentPositionRV = settings.getCurrentPosition();
 
-        initRecyclerViewListNotes(recyclerView, -1);
+        initRecyclerViewListNotes(recyclerView, -1, 0);
 
         return view;
     }
 
 
-    private void initRecyclerViewListNotes(RecyclerView recyclerView, int noteIdForScrollPosition) {
-        Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes noteIdForScrollPosition=" + noteIdForScrollPosition + ", currentPositionRV=" + currentPositionRV);
+    private void initRecyclerViewListNotes(RecyclerView recyclerView, int noteIdForScrollPosition, int typeEvent) {
+        Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes noteIdForScrollPosition=" + noteIdForScrollPosition + ", currentPositionRV=" + currentPositionRV + ", typeEvent=" + typeEvent);
 
         if (getActivity() != null) {
             List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
@@ -228,10 +228,13 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
             int scrollPosition = 0;
             Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes scrollPosition=" + scrollPosition + ", noteIdForScrollPosition=" + noteIdForScrollPosition);
-            if (noteIdForScrollPosition != -1)
+            if (typeEvent == TYPE_EVENT_ADD_NOTE) {
                 scrollPosition = ((GlobalVariables) getActivity().getApplication()).getScrollPositionByNoteId((noteIdForScrollPosition));
-            else
+                Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes typeEvent == TYPE_EVENT_ADD_NOTE scrollPosition=" + scrollPosition);
+            } else if (typeEvent == TYPE_EVENT_DELETE_NOTE) {
                 scrollPosition = currentPositionRV;
+                Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes typeEvent == TYPE_EVENT_DELETE_NOTE scrollPosition=" + scrollPosition);
+            }
 
             layoutManager.scrollToPosition(scrollPosition);
 

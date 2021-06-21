@@ -26,9 +26,9 @@ public class Publisher {
     }
 
     // Разослать событие
-    public void notify(int noteID) {
+    public void notify(int noteID, int typeEvent) {
         for (ObserverNote observer: observers) {
-            observer.updateNote(noteID);
+            observer.updateNote(noteID, typeEvent);
         }
     }
 }

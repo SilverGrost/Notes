@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -32,8 +31,9 @@ import ru.geekbrains.notes.observer.ObserverNote;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.SharedPref;
-import ru.geekbrains.notes.ui.MainActivity;
 import ru.geekbrains.notes.ui.list.SearchResultFragment;
+
+import static ru.geekbrains.notes.Constant.TYPE_EVENT_DELETE_NOTE;
 
 public class ViewNoteFragment extends Fragment implements View.OnClickListener, ObserverNote {
 
@@ -128,7 +128,17 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_view_note, container, false);
-        setHasOptionsMenu(true);
+
+        if (getActivity() != null) {
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                setHasOptionsMenu(true);
+            } else {
+                Fragment parentFragment = getParentFragment();
+                if (parentFragment == null) {
+                    setHasOptionsMenu(getActivity() != null);
+                }
+            }
+        }
         Button button_edit = v.findViewById(R.id.button_edit);
         button_edit.setOnClickListener(this);
         Button button_delete = v.findViewById(R.id.button_delete);
@@ -180,14 +190,12 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
             SearchResultFragment searchResultFragment = (SearchResultFragment) fragmentManager.findFragmentByTag("SearchResultFragment");
             if (searchResultFragment == null)
                 if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    if (getActivity() != null)
-                        fragmentManager = getActivity().getSupportFragmentManager();
+                    fragmentManager = getActivity().getSupportFragmentManager();
                 } else {
                     fragmentManager = getActivity().getSupportFragmentManager();
                     Fragment parentFragment = getParentFragment();
                     if (parentFragment != null) {
-                        if (getActivity() != null)
-                            fragmentManager = parentFragment.getActivity().getSupportFragmentManager();
+                        fragmentManager = parentFragment.getActivity().getSupportFragmentManager();
                     }
                 }
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -218,7 +226,8 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
             if (getContext() != null) {
                 new SharedPref(getContext()).saveNotes(notes);
                 if (publisher != null) {
-                    publisher.notify(position);
+                    Log.v("Debug1", "ViewNoteFragment onClick button_delete notify");
+                    publisher.notify(position, TYPE_EVENT_DELETE_NOTE);
                 }
                 if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                     if (getActivity() != null) {
@@ -227,8 +236,7 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
                         fragmentManager.popBackStack();
                         fragmentTransaction.commit();
                     }
-                }
-                else {
+                } else {
                     fillViewNote(prevID, viewFragment);
                 }
             }
@@ -261,7 +269,7 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
     }
 
     @Override
-    public void updateNote(int noteID) {
+    public void updateNote(int noteID, int typeEvent) {
         Log.v("Debug1", "ViewNoteFragment updateNote noteId=" + noteId);
         fillViewNote(noteId, viewFragment);
     }

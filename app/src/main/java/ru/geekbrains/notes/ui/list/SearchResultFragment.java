@@ -61,7 +61,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
     }
 
     @Override
-    public void updateNote(int noteID) {
+    public void updateNote(int noteID, int typeEvent) {
         Log.v("Debug1", "SearchResultFragment updateNote noteID=" + noteID);
         initRecyclerViewSearchResult(recyclerView, mParamQuery);
     }

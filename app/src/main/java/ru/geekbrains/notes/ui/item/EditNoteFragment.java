@@ -27,6 +27,9 @@ import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.SharedPref;
 
+import static ru.geekbrains.notes.Constant.TYPE_EVENT_ADD_NOTE;
+import static ru.geekbrains.notes.Constant.TYPE_EVENT_EDIT_NOTE;
+
 
 public class EditNoteFragment extends Fragment implements View.OnClickListener {
 
@@ -109,6 +112,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
         Log.v("Debug1", "EditNoteFragment onClick");
 
         if (v.getId() == R.id.button_ok) {
+            int newNoteId = -1;
             Log.v("Debug1", "EditNoteFragment onClick button_ok");
             String value = editTextNoteValue.getText().toString();
             Date date = new Date();
@@ -120,7 +124,9 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
                 if (note.getID() == -1) {
                     note.setDateCreate(date.toInstant().getEpochSecond());
 
-                    note.setID(((GlobalVariables) getActivity().getApplication()).getNewId());
+                    newNoteId = ((GlobalVariables) getActivity().getApplication()).getNewId();
+
+                    note.setID(newNoteId);
                     notes.add(note);
                 } else {
                     ((GlobalVariables) getActivity().getApplication()).setNoteById(noteId, note);
@@ -131,7 +137,11 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
                     new SharedPref(getContext()).saveNotes(notes);
 
                 if (publisher != null) {
-                    publisher.notify(noteId);
+                    Log.v("Debug1", "EditNoteFragment onClick button_ok notify");
+                    if (noteId == -1)
+                        publisher.notify(newNoteId, TYPE_EVENT_ADD_NOTE);
+                    else
+                        publisher.notify(noteId, TYPE_EVENT_EDIT_NOTE);
                 }
             }
         } else if (v.getId() == R.id.button_cancel) {

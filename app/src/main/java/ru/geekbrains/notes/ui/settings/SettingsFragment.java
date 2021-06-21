@@ -188,7 +188,8 @@ public class SettingsFragment extends Fragment {
         }
 
         if (publisher != null) {
-            publisher.notify(-1);
+            Log.v("Debug1", "SettingsFragment onClick onDetach notify");
+            publisher.notify(-1, 4);
         }
         publisher = null;
 

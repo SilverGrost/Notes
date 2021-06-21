@@ -71,7 +71,7 @@ public class DatepickerFragment extends Fragment {
                     List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
                     new SharedPref(DatepickerFragment.this.getActivity()).saveNotes(notes);
                     if (publisher != null) {
-                        publisher.notify(noteId);
+                        publisher.notify(noteId, 3);
                     }
                     if (getActivity() != null) {
                         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();

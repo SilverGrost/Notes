@@ -43,7 +43,6 @@ public class MainFragment extends Fragment implements View.OnClickListener, Sear
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setHasOptionsMenu(false);
         super.onCreate(savedInstanceState);
         Log.v("Debug1", "MainFragment onCreate");
     }
@@ -65,6 +64,8 @@ public class MainFragment extends Fragment implements View.OnClickListener, Sear
         Log.v("Debug1", "MainFragment onViewCreated");
         Button buttonAddNote = view.findViewById(R.id.buttonAddNote);
         buttonAddNote.setOnClickListener(this);
+
+
     }
 
     @Override
