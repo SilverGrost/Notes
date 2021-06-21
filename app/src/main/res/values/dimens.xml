@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="textview_viewnote_textsize">34sp</dimen>
+    <dimen name="textview_viewnote_textsize">30sp</dimen>
+    <dimen name="settings_dimen">30sp</dimen>
+    <dimen name="fragment_dimen">40sp</dimen>
+    <dimen name="nav_header_height">200dp</dimen>
+    <dimen name="nav_header_dimen">20sp</dimen>
+    <dimen name="textSizeInterface">18sp</dimen>
 </resources>

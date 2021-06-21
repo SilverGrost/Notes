@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayoutSettingsFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bottom_textview_color"
+    android:clickable="true"
+    tools:context=".ui.settings.SettingsFragment">
+
+    <TextView
+        android:id="@+id/textViewTextSize"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/textViewTextSize"
+        android:textSize="@dimen/textSizeInterface"
+        app:layout_constraintBottom_toTopOf="@+id/textViewSort"
+        app:layout_constraintEnd_toStartOf="@+id/spinnerTextSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Spinner
+        android:id="@+id/spinnerTextSize"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:foregroundGravity="right"
+        android:textSize="@dimen/textSizeInterface"
+        app:layout_constraintBottom_toTopOf="@+id/spinnerSort"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textViewTextSize"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/textViewSort"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/textViewSortType"
+        android:textSize="@dimen/textSizeInterface"
+        app:layout_constraintEnd_toStartOf="@+id/spinnerSort"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTextSize" />
+
+    <Spinner
+        android:id="@+id/spinnerSort"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/textSizeInterface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textViewSort"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerTextSize"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

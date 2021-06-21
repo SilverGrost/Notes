@@ -4,13 +4,31 @@ import android.app.Application;
 
 import java.util.List;
 
-import ru.geekbrains.notes.domain.note.Note;
+import ru.geekbrains.notes.note.Note;
 
 public class GlobalVariables extends Application {
 
     private List<Note> notes;
 
     private int currentNote;
+    private int textSizeId;
+    private int sortTypeId;
+
+    public int getTextSizeId() {
+        return textSizeId;
+    }
+
+    public void setTextSizeId(int textSizeId) {
+        this.textSizeId = textSizeId;
+    }
+
+    public int getSortTypeId() {
+        return sortTypeId;
+    }
+
+    public void setSortTypeId(int sortTypeId) {
+        this.sortTypeId = sortTypeId;
+    }
 
     public int getCurrentNote() {
         Note note = getNoteById(currentNote);

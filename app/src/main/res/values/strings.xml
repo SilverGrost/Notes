@@ -5,4 +5,19 @@
     <string name="button_cancel">Отмена</string>
     <string name="button_edit">Правка</string>
     <string name="button_delete">Удалить</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="version">Версия: </string>
+    <string name="menu_string">"Заметки: "</string>
+    <string name="menu_settings_item">Настройки</string>
+    <string name="menu_about_item">О программе</string>
+    <string name="Search">Поиск</string>
+    <string name="popup_menu_view">Просмотр</string>
+    <string name="popup_menu_edit">Правка</string>
+    <string name="popup_menu_delete">Удалить</string>
+    <string name="logo">Logo</string>
+    <string name="textViewTextSize">Размер шрифта</string>
+    <string name="textViewSortType">Сортировка заметок</string>
+    <string name="textAbout">Умный и не особо текст о программе, лицензии, возможностях и чего-нибудь ещё</string>
+    <string name="textViewNoSearchResult">"Нет результатов поиска для запроса: "</string>
 </resources>
