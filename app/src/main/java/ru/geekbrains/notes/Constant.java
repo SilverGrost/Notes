@@ -13,7 +13,7 @@ public class Constant {
     public static final String APPSETTINGSSORTTYPE = "AppSettingsSortType";
     public static final String APPSETTINGSMAXCOUNTLINES = "AppSettingsMaxCountLines";
     public static final String APPSETTINGSCURRENTPOSITION = "AppSettingsCurrentPosition";
-    public static final int DEFAULTTEXTSIZEID = 100;
+    public static final int DEFAULTTEXTSIZEID = 5;
     public static final int DEFAULTSORTTYPEID = 0;
     public static final int DEFAULTLMAXCOUNTLINESID = 0;
     public static final int DEFAULTCURRENTPOSITION = 0;

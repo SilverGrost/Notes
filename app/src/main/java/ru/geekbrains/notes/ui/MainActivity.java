@@ -41,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
 
     private final Publisher publisher = new Publisher();
 
+    private ActionBarDrawerToggle toggle;
+
     // Сохранение данных
     @Override
     public void onSaveInstanceState(@NonNull Bundle instanceState) {
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         Log.v("Debug1", "MainActivity onCreate");
 
@@ -159,10 +162,29 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
     private void initDrawer(Toolbar toolbar) {
         Log.v("Debug1", "MainActivity initDrawer");
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar,
-                R.string.navigation_drawer_open,
-                R.string.navigation_drawer_close);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        toggle = new ActionBarDrawerToggle(this, drawer, toolbar,0,0) {
+
+            @Override
+            public void onDrawerClosed(View view) {
+                syncActionBarArrowState();
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                toggle.setDrawerIndicatorEnabled(true);
+            }
+        };
+
+        toggle.setToolbarNavigationClickListener(v -> onBackPressed());
+
+        getSupportFragmentManager().addOnBackStackChangedListener(mOnBackStackChangedListener);
+
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -184,7 +206,16 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
             int id = item.getItemId();
             if (navigateFragment(id)) {
                 drawer.closeDrawer(GravityCompat.START);
-                return true;
+
+                if (toggle.isDrawerIndicatorEnabled() &&
+                        toggle.onOptionsItemSelected(item)) {
+                    return true;
+                } else if (item.getItemId() == android.R.id.home &&
+                        getSupportFragmentManager().popBackStackImmediate()) {
+                    return true;
+                } else {
+                    return super.onOptionsItemSelected(item);
+                }
             }
             return false;
         });
@@ -239,32 +270,24 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
         return toolbar;
     }
 
-    /*@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Log.v("Debug1", "MainActivity onOptionsItemSelected");
-        // Обработка выбора пункта меню приложения (активити)
-        int id = item.getItemId();
-        if (id == R.id.action_search) {//addFragment(new SettingsFragment());
-            Toast.makeText(MainActivity.this, "action_search", Toast.LENGTH_SHORT).show();
-            return true;
-        } else if (id == R.id.action_add) {
-            EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(-1);
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }*/
-
     @Override
     public Publisher getPublisher() {
         Log.v("Debug1", "MainActivity getPublisher");
         return publisher;
     }
 
+    private final FragmentManager.OnBackStackChangedListener
+            mOnBackStackChangedListener = this::syncActionBarArrowState;
+
+    @Override
+    protected void onDestroy() {
+        getSupportFragmentManager().removeOnBackStackChangedListener(mOnBackStackChangedListener);
+        super.onDestroy();
+    }
+
+    private void syncActionBarArrowState() {
+        int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+        toggle.setDrawerIndicatorEnabled(backStackEntryCount == 0);
+    }
 
 }

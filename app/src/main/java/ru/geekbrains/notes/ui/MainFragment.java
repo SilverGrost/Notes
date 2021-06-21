@@ -64,8 +64,6 @@ public class MainFragment extends Fragment implements View.OnClickListener, Sear
         Log.v("Debug1", "MainFragment onViewCreated");
         Button buttonAddNote = view.findViewById(R.id.buttonAddNote);
         buttonAddNote.setOnClickListener(this);
-
-
     }
 
     @Override
