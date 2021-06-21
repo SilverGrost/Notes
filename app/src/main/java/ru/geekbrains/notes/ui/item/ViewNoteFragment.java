@@ -13,10 +13,14 @@ import androidx.fragment.app.FragmentTransaction;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -28,6 +32,7 @@ import ru.geekbrains.notes.observer.ObserverNote;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.SharedPref;
+import ru.geekbrains.notes.ui.MainActivity;
 import ru.geekbrains.notes.ui.list.SearchResultFragment;
 
 public class ViewNoteFragment extends Fragment implements View.OnClickListener, ObserverNote {
@@ -43,6 +48,31 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
     public View getViewFragment() {
         return viewFragment;
     }
+
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.view_note_fragment, menu);
+
+        /*MenuItem item = menu.findItem(R.id.main);
+        item.setVisible(false);*/
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Log.v("Debug1", "MainActivity onOptionsItemSelected");
+        // Обработка выбора пункта меню приложения (активити)
+        int id = item.getItemId();
+        if (id == R.id.action_edit) {
+            buttonEditAction();
+            return true;
+        } else if (id == R.id.action_delete) {
+            buttonDeleteAction();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     public static ViewNoteFragment newInstance(int noteID) {
         Log.v("Debug1", "ViewNoteFragment newInstance noteID=" + noteID);
@@ -94,11 +124,11 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_view_note, container, false);
+        setHasOptionsMenu(true);
         Button button_edit = v.findViewById(R.id.button_edit);
         button_edit.setOnClickListener(this);
         Button button_delete = v.findViewById(R.id.button_delete);
@@ -142,63 +172,78 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
         }
     }
 
+    private void buttonEditAction() {
+        Log.v("Debug1", "ViewNoteFragment buttonEditAction");
+        EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(noteId);
+        if (getActivity() != null) {
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            SearchResultFragment searchResultFragment = (SearchResultFragment) fragmentManager.findFragmentByTag("SearchResultFragment");
+            if (searchResultFragment == null)
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    if (getActivity() != null)
+                        fragmentManager = getActivity().getSupportFragmentManager();
+                } else {
+                    fragmentManager = getActivity().getSupportFragmentManager();
+                    Fragment parentFragment = getParentFragment();
+                    if (parentFragment != null) {
+                        if (getActivity() != null)
+                            fragmentManager = parentFragment.getActivity().getSupportFragmentManager();
+                    }
+                }
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            //fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
+            fragmentTransaction.replace(R.id.frame_container_main, editNoteFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        }
+    }
+
+    private void buttonDeleteAction() {
+        Log.v("Debug1", "ViewNoteFragment buttonDeleteAction");
+        if (getActivity() != null && getActivity().getApplication() != null) {
+            List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+            int prevID = 0;
+            int position = 0;
+            for (int i = 0; i < notes.size(); i++) {
+                if (notes.get(i).getID() == noteId) {
+                    notes.remove(i);
+                    break;
+                }
+                prevID = notes.get(i).getID();
+                position = i;
+            }
+            Log.v("Debug1", "ViewNoteFragment onClick button_delete prevID=" + prevID);
+            ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
+            if (getContext() != null) {
+                new SharedPref(getContext()).saveNotes(notes);
+                if (publisher != null) {
+                    publisher.notify(position);
+                }
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    if (getActivity() != null) {
+                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentManager.popBackStack();
+                        fragmentTransaction.commit();
+                    }
+                }
+                else {
+                    fillViewNote(prevID, viewFragment);
+                }
+            }
+        }
+    }
+
     @Override
     public void onClick(View v) {
         Log.v("Debug1", "ViewNoteFragment onClick noteId=" + noteId);
         if (v.getId() == R.id.button_edit) {
             Log.v("Debug1", "ViewNoteFragment onClick button_edit");
-            EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(noteId);
-            if (getActivity() != null) {
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                SearchResultFragment searchResultFragment = (SearchResultFragment) fragmentManager.findFragmentByTag("SearchResultFragment");
-                if (searchResultFragment == null)
-                    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        if (getActivity() != null)
-                            fragmentManager = getActivity().getSupportFragmentManager();
-                    } else {
-                        fragmentManager = getActivity().getSupportFragmentManager();
-                        Fragment parentFragment = getParentFragment();
-                        if (parentFragment != null) {
-                            if (getActivity() != null)
-                                fragmentManager = parentFragment.getActivity().getSupportFragmentManager();
-                        }
-                    }
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-            }
-
+            buttonEditAction();
         } else if (v.getId() == R.id.button_delete) {
             Log.v("Debug1", "ViewNoteFragment onClick button_delete");
-            if (getActivity() != null && getActivity().getApplication() != null) {
-                List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
-                int prevID = 0;
-                int position = 0;
-                for (int i = 0; i < notes.size(); i++) {
-                    if (notes.get(i).getID() == noteId) {
-                        notes.remove(i);
-                        break;
-                    }
-                    prevID = notes.get(i).getID();
-                    position = i;
-                }
-                Log.v("Debug1", "ViewNoteFragment onClick button_delete prevID=" + prevID);
-                ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
-                if (getContext() != null) {
-                    new SharedPref(getContext()).saveNotes(notes);
-                    fillViewNote(prevID, viewFragment);
-                    if (publisher != null) {
-                        publisher.notify(position);
-                    }
-                    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        if (getActivity() != null) {
-                            getActivity().getFragmentManager().popBackStack();
-                        }
-                    }
-                }
-            }
+            buttonDeleteAction();
         }
     }
 

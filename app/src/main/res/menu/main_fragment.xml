@@ -8,14 +8,14 @@
         android:icon="@android:drawable/ic_menu_search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         android:id="@+id/action_search"
-        android:orderInCategory="5"
+        android:orderInCategory="2"
         tools:ignore="AlwaysShowAction" />
 
     <item android:title="@string/button_add"
         app:showAsAction="always"
         android:icon="@android:drawable/ic_menu_add"
         android:id="@+id/action_add"
-        android:orderInCategory="4"
+        android:orderInCategory="1"
         tools:ignore="AlwaysShowAction"/>
 
 </menu>

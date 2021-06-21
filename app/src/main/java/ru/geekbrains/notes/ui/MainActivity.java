@@ -3,7 +3,6 @@ package ru.geekbrains.notes.ui;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -14,12 +13,9 @@ import androidx.fragment.app.FragmentTransaction;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -35,15 +31,13 @@ import ru.geekbrains.notes.note.NoteRepository;
 import ru.geekbrains.notes.note.NoteRepositoryImpl;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
-import ru.geekbrains.notes.ui.item.EditNoteFragment;
 
 import ru.geekbrains.notes.ui.item.ViewNoteFragment;
-import ru.geekbrains.notes.ui.list.SearchResultFragment;
 import ru.geekbrains.notes.ui.settings.AboutFragment;
 import ru.geekbrains.notes.ui.settings.SettingsFragment;
 
 
-public class MainActivity extends AppCompatActivity implements PublisherHolder, SearchView.OnQueryTextListener {
+public class MainActivity extends AppCompatActivity implements PublisherHolder {
 
     private final Publisher publisher = new Publisher();
 
@@ -245,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder, 
         return toolbar;
     }
 
-    @Override
+    /*@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.v("Debug1", "MainActivity onOptionsItemSelected");
         // Обработка выбора пункта меню приложения (активити)
@@ -264,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder, 
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
     @Override
     public Publisher getPublisher() {
@@ -272,43 +266,5 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder, 
         return publisher;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Здесь определяем меню приложения (активити)
-        Log.v("Debug1", "MainActivity onCreateOptionsMenu");
-        getMenuInflater().inflate(R.menu.main, menu);
-        MenuItem search = menu.findItem(R.id.action_search); // поиск пункта меню поиска
-        SearchView searchText = (SearchView) search.getActionView(); // строка поиска
-        searchText.clearFocus();
-        searchText.setOnQueryTextListener(this);
-        return true;
-    }
-
-    @Override
-    public boolean onQueryTextSubmit(String query) {
-        Log.v("Debug1", "MainActivity onQueryTextSubmit query=" + query);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        SearchResultFragment searchResultFragment;
-        searchResultFragment = (SearchResultFragment) fragmentManager.findFragmentByTag("SearchResultFragment");
-        if (searchResultFragment == null) {
-            Log.v("Debug1", "MainActivity onQueryTextSubmit searchResultFragment == null");
-            searchResultFragment = SearchResultFragment.newInstance(query);
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            fragmentTransaction.add(R.id.frame_container_main, searchResultFragment, "SearchResultFragment");
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
-        } else {
-            Log.v("Debug1", "MainActivity onQueryTextSubmit searchResultFragment != null");
-            searchResultFragment.initRecyclerViewSearchResult(searchResultFragment.getRecyclerView(), query);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onQueryTextChange(String newText) {
-        Log.v("Debug1", "MainActivity onQueryTextChange");
-        return true;
-    }
 
 }

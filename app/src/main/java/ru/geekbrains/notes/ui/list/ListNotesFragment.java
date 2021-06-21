@@ -58,7 +58,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     public void updateNote(int noteID) {
         Log.v("Debug1", "ListNotesFragment updateNote noteID=" + noteID);
         if (recyclerView != null) {
-            initRecyclerViewListNotes(recyclerView, noteID);
+            initRecyclerViewListNotes(recyclerView, -1);
         }
     }
 
@@ -162,6 +162,11 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                             Date date = new Date();
                             Note note = new Note(("Заметка №" + i), (i * 2), date.toInstant().getEpochSecond(), date.toInstant().getEpochSecond());
                             notes.add(note);
+                            try {
+                                Thread.sleep(1000); //Приостанавливает поток на 1 секунду
+                            } catch (Exception ignored) {
+
+                            }
                         }
                         //Сохраняем заметки в глобальной переменной
                         ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
@@ -262,7 +267,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                    fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
+                    //fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
+                    fragmentTransaction.replace(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
                     fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.commit();
                 } else {
