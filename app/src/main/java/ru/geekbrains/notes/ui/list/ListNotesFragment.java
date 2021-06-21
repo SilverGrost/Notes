@@ -162,11 +162,11 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                             Date date = new Date();
                             Note note = new Note(("Заметка №" + i), (i * 2), date.toInstant().getEpochSecond(), date.toInstant().getEpochSecond());
                             notes.add(note);
-                            try {
+                            /*try {
                                 Thread.sleep(1000); //Приостанавливает поток на 1 секунду
                             } catch (Exception ignored) {
 
-                            }
+                            }*/
                         }
                         //Сохраняем заметки в глобальной переменной
                         ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
@@ -228,7 +228,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
             int scrollPosition = 0;
             Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes scrollPosition=" + scrollPosition + ", noteIdForScrollPosition=" + noteIdForScrollPosition);
-            if (typeEvent == TYPE_EVENT_ADD_NOTE) {
+            if (typeEvent == TYPE_EVENT_ADD_NOTE | typeEvent == TYPE_EVENT_EDIT_NOTE) {
                 scrollPosition = ((GlobalVariables) getActivity().getApplication()).getScrollPositionByNoteId((noteIdForScrollPosition));
                 Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes typeEvent == TYPE_EVENT_ADD_NOTE scrollPosition=" + scrollPosition);
             } else if (typeEvent == TYPE_EVENT_DELETE_NOTE) {
@@ -245,7 +245,18 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
             // Установим адаптер
             final RVAdapter RVAdapter = new RVAdapter(notes, settings);
             recyclerView.setAdapter(RVAdapter);
-            RVAdapter.notifyDataSetChanged();
+
+            switch (typeEvent) {
+                case (TYPE_EVENT_CHANGE_SETTINGS):
+                    RVAdapter.notifyDataSetChanged();
+                break;
+                case (TYPE_EVENT_DELETE_NOTE):
+                    RVAdapter.notifyItemRemoved(((GlobalVariables) getActivity().getApplication()).getScrollPositionByNoteId((noteIdForScrollPosition)));
+                    break;
+                default:
+                    RVAdapter.notifyItemChanged(((GlobalVariables) getActivity().getApplication()).getScrollPositionByNoteId((noteIdForScrollPosition)));
+                    break;
+            }
 
             // Установим слушателя на текст
             RVAdapter.SetOnNoteClicked((view, position) -> {
@@ -270,8 +281,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                    //fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
-                    fragmentTransaction.replace(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
+                    fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
+                    //fragmentTransaction.replace(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
                     fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.commit();
                 } else {

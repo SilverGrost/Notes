@@ -26,6 +26,8 @@ import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 
+import static ru.geekbrains.notes.Constant.TYPE_EVENT_CHANGE_SETTINGS;
+
 public class SettingsFragment extends Fragment {
 
     Spinner spinnerSort;
@@ -189,7 +191,7 @@ public class SettingsFragment extends Fragment {
 
         if (publisher != null) {
             Log.v("Debug1", "SettingsFragment onClick onDetach notify");
-            publisher.notify(-1, 4);
+            publisher.notify(-1, TYPE_EVENT_CHANGE_SETTINGS);
         }
         publisher = null;
 

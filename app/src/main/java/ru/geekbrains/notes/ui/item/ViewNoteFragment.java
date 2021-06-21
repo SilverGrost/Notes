@@ -200,8 +200,8 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
                 }
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            //fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
-            fragmentTransaction.replace(R.id.frame_container_main, editNoteFragment);
+            fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
+            //fragmentTransaction.replace(R.id.frame_container_main, editNoteFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
