@@ -30,15 +30,15 @@
 
         <ImageView
             android:id="@+id/imageFprPopupMenu"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:background="@drawable/round_top_texview_for_menu"
+            android:contentDescription="@string/ImageViewDescriptionMenu"
             app:layout_constraintBottom_toTopOf="@+id/textViewBottomRV"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textViewTopRV"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@android:drawable/ic_menu_more"
-            android:contentDescription="@string/ImageViewDescriptionMenu" />
+            app:srcCompat="@android:drawable/ic_menu_more" />
 
         <TextView
             android:id="@+id/textViewBottomRV"
