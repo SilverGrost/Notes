@@ -7,16 +7,28 @@
     android:layout_gravity="center"
     android:background="@drawable/round_datepicker_container">
 
-    <DatePicker
-        android:id="@+id/datepicker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <ScrollView
+        android:id="@+id/scrollViewDP"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:background="@drawable/round_datepicker"
         app:layout_constraintBottom_toTopOf="@+id/button_dp_ok"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <DatePicker
+                android:id="@+id/datepicker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/round_datepicker" />
+        </LinearLayout>
+    </ScrollView>
 
     <Button
         android:id="@+id/button_dp_ok"
@@ -26,7 +38,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/button_dp_cancel"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/datepicker" />
+        app:layout_constraintTop_toBottomOf="@+id/scrollViewDP" />
 
     <Button
         android:id="@+id/button_dp_cancel"
@@ -36,6 +48,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/button_dp_ok"
-        app:layout_constraintTop_toBottomOf="@+id/datepicker" />
+        app:layout_constraintTop_toBottomOf="@+id/scrollViewDP" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
