@@ -97,7 +97,7 @@ public class SettingsFragment extends Fragment {
             spinnerSort = view.findViewById(R.id.spinnerSort);
             ArrayAdapter<CharSequence> adapterSort = ArrayAdapter.createFromResource(getContext(), R.array.type_sort, android.R.layout.simple_spinner_item);
             spinnerSort.setAdapter(adapterSort);
-            spinnerSort.setSelection(settings.getSortType());
+            spinnerSort.setSelection(settings.getOrderType());
             spinnerSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view,

@@ -62,7 +62,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
         Log.v("Debug1", "NotesListAdapter ListNotesAdapter notes.size()=" + notes.size());
         this.notes = notes;
         this.textSize = settings.getTextSize();
-        this.sortType = settings.getSortType();
+        this.sortType = settings.getOrderType();
         this.maxCountLines = settings.getMaxCountLines();
         this.orientation = orientation;
         this.fragment = fragment;

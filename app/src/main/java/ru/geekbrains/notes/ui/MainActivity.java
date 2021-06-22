@@ -77,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         Log.v("Debug1", "MainActivity onCreate");
 
         initView();
@@ -125,7 +124,6 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
                 if (viewNoteFragment != null) {
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                    //fragmentTransaction.remove(viewNoteFragment);
                     fragmentManager.popBackStack();
                     fragmentTransaction.commit();
                 }
@@ -237,8 +235,6 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
             fragment = new SettingsFragment();
             if (fragmentID == R.id.frameLayoutAboutFragment) {
                 fragment = new AboutFragment();
-            } else if (fragmentID == R.id.frameLayoutSettingsFragment) {
-                fragment = new SettingsFragment();
             }
             Log.v("Debug1", "MainActivity addFragment fragmentTag=" + fragmentTag);
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

@@ -30,9 +30,9 @@ import java.util.List;
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.SharedPref;
-import ru.geekbrains.notes.note.DateCreateSorterComparator;
-import ru.geekbrains.notes.note.DateEditSorterComparator;
-import ru.geekbrains.notes.note.HeaderSorterComparator;
+import ru.geekbrains.notes.note.comparator.DateCreateSorterComparator;
+import ru.geekbrains.notes.note.comparator.DateEditSorterComparator;
+import ru.geekbrains.notes.note.comparator.HeaderSorterComparator;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.observer.ObserverNote;
@@ -103,27 +103,27 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     public List<Note> sortNotes(List<Note> notes) {
         Log.v("Debug1", "ListNotesFragment sortNotes");
         if (getActivity() != null) {
-            int textSortId = ((GlobalVariables) getActivity().getApplication()).getSettings().getSortType();
+            int textSortId = ((GlobalVariables) getActivity().getApplication()).getSettings().getOrderType();
             Comparator<Note> dateSorter = new DateEditSorterComparator();
             Comparator<Note> dateCreateSorter = new DateCreateSorterComparator();
             Comparator<Note> headerSorter = new HeaderSorterComparator();
             switch (textSortId) {
-                case (ODREB_BY_DATE_EDIT):
+                case (ORDER_BY_DATE_EDIT):
                     notes.sort(dateSorter);
                     break;
-                case (ODREB_BY_DATE_EDIT_DESC):
+                case (ORDER_BY_DATE_EDIT_DESC):
                     notes.sort(dateSorter.reversed());
                     break;
-                case (ODREB_BY_DATE_CREATE):
+                case (ORDER_BY_DATE_CREATE):
                     notes.sort(dateCreateSorter);
                     break;
-                case (ODREB_BY_DATE_CREATE_DESC):
+                case (ORDER_BY_DATE_CREATE_DESC):
                     notes.sort(dateCreateSorter.reversed());
                     break;
-                case (ODREB_BY_DATE_VALUE):
+                case (ORDER_BY_DATE_VALUE):
                     notes.sort(headerSorter);
                     break;
-                case (ODREB_BY_DATE_VALUE_DESC):
+                case (ORDER_BY_DATE_VALUE_DESC):
                     notes.sort(headerSorter.reversed());
                     break;
             }
@@ -295,9 +295,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                         fragmentManager.popBackStack();
                         fragmentTransaction.commit();
                     }
-                } /*else {
-                    fillViewNote(prevID, viewFragment);
-                }*/
+                }
             }
         }
     }
@@ -436,8 +434,5 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         }
         return super.onContextItemSelected(item);
     }
-
-
-
 
 }

@@ -1,6 +1,8 @@
-package ru.geekbrains.notes.note;
+package ru.geekbrains.notes.note.comparator;
 
 import java.util.Comparator;
+
+import ru.geekbrains.notes.note.Note;
 
 public class DateCreateSorterComparator implements Comparator<Note> {
     @Override
