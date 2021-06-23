@@ -22,6 +22,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
 import ru.geekbrains.notes.ui.list.SearchResultFragment;
@@ -62,6 +64,7 @@ public class MainFragment extends Fragment implements View.OnClickListener, Sear
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "MainFragment onViewCreated");
+        //FloatingActionButton buttonAddNote = view.findViewById(R.id.buttonAddNote);
         Button buttonAddNote = view.findViewById(R.id.buttonAddNote);
         buttonAddNote.setOnClickListener(this);
     }

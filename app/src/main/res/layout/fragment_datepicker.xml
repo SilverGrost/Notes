@@ -2,15 +2,17 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_container_datepicker"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:layout_gravity="center"
-    android:background="@drawable/round_datepicker_container">
+    android:background="@drawable/round_datepicker_container"
+    android:clickable="true"
+    >
 
     <ScrollView
         android:id="@+id/scrollViewDP"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:background="@drawable/round_datepicker"
         app:layout_constraintBottom_toTopOf="@+id/button_dp_ok"
         app:layout_constraintEnd_toEndOf="parent"

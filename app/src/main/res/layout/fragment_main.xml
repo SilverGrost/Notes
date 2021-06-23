@@ -22,6 +22,12 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:layout="@layout/fragment_list_notes" />
     <!--android:name="ru.geekbrains.notes.ui.list.ListNotesFragment"-->
+
+
+
+
+
+
     <Button
         android:id="@+id/buttonAddNote"
         android:layout_width="match_parent"
