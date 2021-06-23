@@ -107,10 +107,17 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
             String[] maxCountLinesArray = getResources().getStringArray(R.array.MaxCountLines);
             int maxCountLinesId = settings.getMaxCountLinesId();
             int maxCountLines;
-            if (maxCountLinesId != 0)
-                maxCountLines = Integer.parseInt(maxCountLinesArray[maxCountLinesId]);
-            else
-                maxCountLines = 0;
+            switch (maxCountLinesId){
+                case (0) :
+                    maxCountLines = 0;
+                    break;
+                case (1):
+                    maxCountLines = 1;
+                    break;
+                default:
+                    maxCountLines = Integer.parseInt(maxCountLinesArray[maxCountLinesId]) - 1;
+                    break;
+            }
             settings.setMaxCountLines(maxCountLines);
 
 

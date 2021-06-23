@@ -36,7 +36,9 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
     public interface OnNoteClicked {
         void onNoteClickedList(View view, int position);
     }
+
     private OnNoteClicked noteClicked;
+
     public void SetOnNoteClicked(OnNoteClicked noteClicked) {
         this.noteClicked = noteClicked;
     }
@@ -45,12 +47,15 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
     public interface OnDateClicked {
         void onDateClickedList(View view, int position);
     }
+
     private OnDateClicked dateClicked;
+
     public void SetOnDateClicked(OnDateClicked dateClicked) {
         this.dateClicked = dateClicked;
     }
 
     private int menuPosition;
+
     public int getMenuPosition() {
         return menuPosition;
     }
@@ -122,20 +127,32 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
             // Обработчик нажатий на тексте
             textViewValuer.setOnClickListener(v -> {
                 if (noteClicked != null) {
-                    noteClicked.onNoteClickedList(v, ViewHolder.this.getAdapterPosition());
+                    //noteClicked.onNoteClickedList(v, ViewHolder.this.getAdapterPosition());
+
+                    if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        if (maxCountLines == 1)
+                            if (textViewValuer.getMaxLines() == Integer.MAX_VALUE) {
+                                textViewValuer.setMaxLines(1);
+                            }
+                            else {
+                                textViewValuer.setMaxLines(Integer.MAX_VALUE);
+                            }
+                    } else
+                        textViewValuer.setMaxLines(1);
                 }
             });
 
-            imageForPopupMenu = ((ImageView) itemView.findViewById(R.id.imageRVForPopupMenu));
+            // Обработчик нажатий на иконке меню
+            imageForPopupMenu = ( itemView.findViewById(R.id.imageRVForPopupMenu));
             if (imageForPopupMenu != null)
                 registerContextMenu(imageForPopupMenu);
         }
 
         private void registerContextMenu(@NonNull View itemView) {
-            if (fragment != null){
+            if (fragment != null) {
                 imageForPopupMenu.setOnClickListener(v -> {
                     imageForPopupMenu.showContextMenu(0, 0);
-                    menuPosition = (int)imageForPopupMenu.getTag();
+                    menuPosition = (int) imageForPopupMenu.getTag();
                 });
                 fragment.registerForContextMenu(itemView);
             }
@@ -157,10 +174,10 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
             textViewValuer.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
 
             if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                if (maxCountLines != 0)
+                if (maxCountLines != 0 & maxCountLines != 1)
                     textViewValuer.setMaxLines(maxCountLines);
                 else
-                    textViewValuer.setMaxLines(Integer.MAX_VALUE);
+                    textViewValuer.setMaxLines(1);
             }
             else
                 textViewValuer.setMaxLines(1);
