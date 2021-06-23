@@ -130,15 +130,20 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                     //noteClicked.onNoteClickedList(v, ViewHolder.this.getAdapterPosition());
 
                     if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        if (maxCountLines == 1)
+                        if (maxCountLines == 1) {
                             if (textViewValuer.getMaxLines() == Integer.MAX_VALUE) {
                                 textViewValuer.setMaxLines(1);
-                            }
-                            else {
+                            } else {
                                 textViewValuer.setMaxLines(Integer.MAX_VALUE);
                             }
-                    } else
-                        textViewValuer.setMaxLines(1);
+                        }
+                        else
+                            noteClicked.onNoteClickedList(v, ViewHolder.this.getAdapterPosition());
+                    }else
+                        noteClicked.onNoteClickedList(v, ViewHolder.this.getAdapterPosition());
+
+                    /*else
+                        textViewValuer.setMaxLines(1);*/
                 }
             });
 
