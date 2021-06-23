@@ -5,7 +5,7 @@
     android:id="@+id/frameViewNote"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/round_note_view"
+    android:background="@color/BottomTextView_center"
     tools:context=".ui.item.ViewNoteFragment"
     android:clickable="true">
 
@@ -47,7 +47,7 @@
                 android:id="@+id/viewTextNoteValue"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#FFEB3B"
+                android:background="@color/BottomTextView_center"
                 android:ems="10"
                 android:gravity="start|top"
                 android:singleLine="false"

@@ -72,16 +72,19 @@ public class MainFragment extends Fragment implements View.OnClickListener, Sear
     public void onClick(View v) {
         Log.v("Debug1", "MainFragment onClick");
         if (v.getId() == R.id.buttonAddNote) {
-            EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(-1);
+            addButtonProcess();
+        }
+    }
 
-            if (getActivity() != null) {
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-            }
+    private void addButtonProcess(){
+        EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(-1);
+        if (getActivity() != null) {
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            fragmentTransaction.replace(R.id.frame_container_main, editNoteFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
         }
     }
 
@@ -132,7 +135,6 @@ public class MainFragment extends Fragment implements View.OnClickListener, Sear
                 searchResultFragment = SearchResultFragment.newInstance(query);
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                //fragmentTransaction.add(R.id.frame_container_main, searchResultFragment, "SearchResultFragment");
                 fragmentTransaction.replace(R.id.frame_container_main, searchResultFragment, "SearchResultFragment");
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
@@ -159,16 +161,7 @@ public class MainFragment extends Fragment implements View.OnClickListener, Sear
             Toast.makeText(getActivity(), "action_search", Toast.LENGTH_SHORT).show();
             return true;
         } else if (id == R.id.action_add) {
-            EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(-1);
-            if (getActivity() != null) {
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                //fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
-                fragmentTransaction.replace(R.id.frame_container_main, editNoteFragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-            }
+            addButtonProcess();
             return true;
         }
         return super.onOptionsItemSelected(item);

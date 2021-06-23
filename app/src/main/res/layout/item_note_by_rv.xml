@@ -14,31 +14,18 @@
 
         <TextView
             android:id="@+id/textViewTopRV"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/round_top_textview2"
             android:paddingStart="5dp"
             android:paddingEnd="0dp"
             android:textSize="16sp"
             app:layout_constraintBottom_toTopOf="@+id/textViewBottomRV"
-            app:layout_constraintEnd_toStartOf="@+id/imageRVForPopupMenu"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed"
             tools:text="19.03.2021 15:36" />
-
-
-        <ImageView
-            android:id="@+id/imageRVForPopupMenu"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:background="@drawable/round_top_texview_for_menu"
-            android:contentDescription="@string/ImageViewDescriptionMenu"
-            app:layout_constraintBottom_toTopOf="@+id/textViewBottomRV"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/textViewTopRV"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@android:drawable/ic_menu_more" />
 
         <TextView
             android:id="@+id/textViewBottomRV"
@@ -49,12 +36,25 @@
             android:gravity="top|start"
             android:maxLines="2"
             android:paddingStart="5dp"
-            android:paddingEnd="0dp"
+            android:paddingEnd="20dp"
             android:textSize="@dimen/textview_viewnote_textsize"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textViewTopRV"
             tools:text="Текст заметки начинается тут" />
+
+
+        <ImageView
+            android:id="@+id/imageRVForPopupMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+
+            android:contentDescription="@string/ImageViewDescriptionMenu"
+            app:layout_constraintBottom_toBottomOf="@+id/textViewBottomRV"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            app:layout_constraintTop_toTopOf="@+id/textViewBottomRV"
+            app:srcCompat="@drawable/ic_baseline_more_vert_24" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

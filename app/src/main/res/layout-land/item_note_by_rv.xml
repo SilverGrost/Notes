@@ -17,7 +17,7 @@
             android:id="@+id/textViewTopRV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/round_top_textview"
+            android:background="@drawable/round_top_textview2"
             android:paddingStart="5dp"
             android:paddingEnd="0dp"
             tools:text="19.03.2021 15:36" />

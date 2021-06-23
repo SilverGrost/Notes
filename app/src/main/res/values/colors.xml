@@ -12,4 +12,10 @@
     <color name="top_textview_color">#FFC107</color>
     <color name="bottom_textview_color">#FFEB3B</color>
     <color name="note_edit_color">#fcff74</color>
+    <color name="TopTextView_center">#f7e47b</color>
+    <color name="TopTextView_end">#fbf08b</color>
+    <color name="TopTextView_start">#f5dc6f</color>
+    <color name="BottomTextView_end">#faf18c</color>
+    <color name="BottomTextView_start">#f7ec85</color>
+    <color name="BottomTextView_center">#faf18c</color>
 </resources>
