@@ -10,9 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import ru.geekbrains.notes.BuildConfig;
 import ru.geekbrains.notes.R;
 
 
@@ -33,14 +31,8 @@ public class AboutFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_about, container, false);
-
         Log.v("Debug1", "AboutFragment onCreateView");
-        TextView textView = v.findViewById(R.id.textView2);
-        int versionCode = BuildConfig.VERSION_CODE;
-        String versionName = BuildConfig.VERSION_NAME;
-        String strAbout = versionCode + " " + versionName;
-        textView.setText(strAbout);
-
+        //getActivity().en
         return v;
     }
 

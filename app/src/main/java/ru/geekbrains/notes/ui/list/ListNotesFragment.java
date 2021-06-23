@@ -1,73 +1,71 @@
 package ru.geekbrains.notes.ui.list;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.Button;
 import android.widget.TextView;
 
-import java.text.DateFormat;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import ru.geekbrains.notes.GlobalVariables;
-import ru.geekbrains.notes.note.DateSorterComparator;
+import ru.geekbrains.notes.Settings;
+import ru.geekbrains.notes.SharedPref;
+import ru.geekbrains.notes.note.DateCreateSorterComparator;
+import ru.geekbrains.notes.note.DateEditSorterComparator;
 import ru.geekbrains.notes.note.HeaderSorterComparator;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.observer.ObserverNote;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
+import ru.geekbrains.notes.ui.DatepickerFragment;
+import ru.geekbrains.notes.ui.MainFragment;
+import ru.geekbrains.notes.ui.item.EditNoteFragment;
+import ru.geekbrains.notes.ui.item.ViewNoteFragment;
 
-import static ru.geekbrains.notes.Constant.MILISECOND;
+import static ru.geekbrains.notes.Constant.*;
 
 
 public class ListNotesFragment extends Fragment implements ObserverNote {
 
-    private View viewFragment;
     private Publisher publisher;
+    private RecyclerView recyclerView;
+    private List<Note> notes;
+    private View viewFragmentListNotes;
+    private TextView textViewEmptyListNotes;
+    int currentPositionRV;
+
+    Button buttonAddOne;
+    Button button1000;
 
     @Override
-    public void updateNote(int noteID) {
-        Log.v("Debug1", "ListNotesFragment updateNote noteID=" + noteID);
-        fillList(viewFragment);
+    public void updateNote(int noteID, int typeEvent) {
+        Log.v("Debug1", "ListNotesFragment updateNote noteID=" + noteID + ", typeEvent=" + typeEvent);
+        if (recyclerView != null) {
+            initRecyclerViewListNotes(recyclerView, noteID, typeEvent);
+        }
     }
-
-    public interface OnNoteClicked {
-        void onNoteClickedList(int noteID);
-    }
-
-    private OnNoteClicked noteClicked;
-
-    public interface onDateClicked {
-        void onDateClickedList(int noteID);
-    }
-
-    private ListNotesFragment.onDateClicked dateClicked;
-
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         Log.v("Debug1", "ListNotesFragment onAttach");
-
-        if (context instanceof OnNoteClicked) {
-            noteClicked = (OnNoteClicked) context;
-        }
-
-        if (context instanceof ListNotesFragment.onDateClicked) {
-            dateClicked = (onDateClicked) context;
-        }
 
         if (context instanceof PublisherHolder) {
             publisher = ((PublisherHolder) context).getPublisher();
@@ -79,10 +77,104 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     public void onDetach() {
         super.onDetach();
         Log.v("Debug1", "ListNotesFragment onDetach");
-        noteClicked = null;
-        dateClicked = null;
+
+        Settings settings = new Settings();
+        if (getActivity() != null)
+            settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+
+        Log.v("Debug1", "ListNotesFragment onDetach currentPositionRV=" + currentPositionRV);
+        settings.setCurrentPosition(currentPositionRV);
+
+        if (getContext() != null) {
+            new SharedPref(getContext()).saveSettings(settings);
+            ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+        }
+
         if (publisher != null) {
             publisher.unsubscribe(this);
+        }
+    }
+
+    public List<Note> sortNotes(List<Note> notes) {
+        Log.v("Debug1", "ListNotesFragment sortNotes");
+        if (getActivity() != null) {
+            int textSortId = ((GlobalVariables) getActivity().getApplication()).getSettings().getSortType();
+            Comparator<Note> dateSorter = new DateEditSorterComparator();
+            Comparator<Note> dateCreateSorter = new DateCreateSorterComparator();
+            Comparator<Note> headerSorter = new HeaderSorterComparator();
+            switch (textSortId) {
+                case (ODREB_BY_DATE_EDIT):
+                    notes.sort(dateSorter);
+                    break;
+                case (ODREB_BY_DATE_EDIT_DESC):
+                    notes.sort(dateSorter.reversed());
+                    break;
+                case (ODREB_BY_DATE_CREATE):
+                    notes.sort(dateCreateSorter);
+                    break;
+                case (ODREB_BY_DATE_CREATE_DESC):
+                    notes.sort(dateCreateSorter.reversed());
+                    break;
+                case (ODREB_BY_DATE_VALUE):
+                    notes.sort(headerSorter);
+                    break;
+                case (ODREB_BY_DATE_VALUE_DESC):
+                    notes.sort(headerSorter.reversed());
+                    break;
+            }
+        }
+        return notes;
+    }
+
+    public void setEmptyResultTextView(View view) {
+        Log.v("Debug1", "ListNotesFragment setEmptyResultTextView view.getTag()=" + view.getTag());
+        textViewEmptyListNotes = view.findViewById(R.id.textViewEmprtyListNotesRV);
+        if (textViewEmptyListNotes != null) {
+            if (notes.size() != 0) {
+                recyclerView.setVisibility(View.VISIBLE);
+                textViewEmptyListNotes.setVisibility(View.GONE);
+                buttonAddOne.setVisibility(View.GONE);
+                button1000.setVisibility(View.GONE);
+            } else {
+                recyclerView.setVisibility(View.GONE);
+                textViewEmptyListNotes.setVisibility(View.VISIBLE);
+                buttonAddOne.setVisibility(View.VISIBLE);
+                button1000.setVisibility(View.VISIBLE);
+
+                Button buttonAddOne = view.findViewById(R.id.button_addFirstNote);
+                buttonAddOne.setOnClickListener(v -> {
+                    if (getActivity() != null) {
+                        EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(-1);
+                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
+                        fragmentTransaction.addToBackStack(null);
+                        fragmentTransaction.commit();
+                    }
+                });
+                Button button1000 = view.findViewById(R.id.button_addFirst1000);
+                button1000.setOnClickListener(v -> {
+                    if (getActivity() != null) {
+                        List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+                        int start = notes.size();
+                        for (int i = start; i < COUNTDEMONOTES; i++) {
+                            Date date = new Date();
+                            Note note = new Note(("Заметка №" + i), (i * 2), date.toInstant().getEpochSecond(), date.toInstant().getEpochSecond());
+                            notes.add(note);
+                            /*try {
+                                Thread.sleep(1000); //Приостанавливает поток на 1 секунду
+                            } catch (Exception ignored) {
+
+                            }*/
+                        }
+                        //Сохраняем заметки в глобальной переменной
+                        ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
+                        new SharedPref(getActivity()).saveNotes(notes);
+                        initRecyclerViewListNotes(recyclerView, 0, 0);
+                    }
+                });
+            }
         }
     }
 
@@ -91,7 +183,128 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.v("Debug1", "ListNotesFragment onCreateView");
-        return inflater.inflate(R.layout.fragment_list_notes, container, false);
+        View view = inflater.inflate(R.layout.fragment_list_notes, container, false);
+        Log.v("Debug1", "ListNotesFragment onCreateView view.getTag()=" + view.getTag());
+        viewFragmentListNotes = view;
+        if (getActivity() != null) {
+            notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+        }
+        textViewEmptyListNotes = view.findViewById(R.id.textViewEmprtyListNotesRV);
+        buttonAddOne = view.findViewById(R.id.button_addFirstNote);
+        button1000 = view.findViewById(R.id.button_addFirst1000);
+        recyclerView = view.findViewById(R.id.recycler_view_lines);
+
+        Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+        currentPositionRV = settings.getCurrentPosition();
+
+        initRecyclerViewListNotes(recyclerView, -1, 0);
+
+        return view;
+    }
+
+
+    private void initRecyclerViewListNotes(RecyclerView recyclerView, int noteIdForScrollPosition, int typeEvent) {
+        Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes noteIdForScrollPosition=" + noteIdForScrollPosition + ", currentPositionRV=" + currentPositionRV + ", typeEvent=" + typeEvent);
+
+        if (getActivity() != null) {
+            List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+            // Эта установка служит для повышения производительности системы
+            recyclerView.setHasFixedSize(true);
+            setEmptyResultTextView(viewFragmentListNotes);
+            // Будем работать со встроенным менеджером
+            LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+            recyclerView.setLayoutManager(layoutManager);
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    if (layoutManager.findFirstVisibleItemPosition() != -1)
+                        currentPositionRV = layoutManager.findFirstVisibleItemPosition();
+                    Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes currentPositionRV=" + currentPositionRV);
+                }
+            });
+
+            notes = sortNotes(notes);
+
+            int scrollPosition = 0;
+            Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes scrollPosition=" + scrollPosition + ", noteIdForScrollPosition=" + noteIdForScrollPosition);
+            if (typeEvent == TYPE_EVENT_ADD_NOTE | typeEvent == TYPE_EVENT_EDIT_NOTE) {
+                scrollPosition = ((GlobalVariables) getActivity().getApplication()).getScrollPositionByNoteId((noteIdForScrollPosition));
+                Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes typeEvent == TYPE_EVENT_ADD_NOTE scrollPosition=" + scrollPosition);
+            } else if (typeEvent == TYPE_EVENT_DELETE_NOTE) {
+                scrollPosition = currentPositionRV;
+                Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes typeEvent == TYPE_EVENT_DELETE_NOTE scrollPosition=" + scrollPosition);
+            }
+
+            layoutManager.scrollToPosition(scrollPosition);
+
+            Settings settings = new Settings();
+            if (getActivity() != null) {
+                settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+            }
+            // Установим адаптер
+            final RVAdapter RVAdapter = new RVAdapter(notes, settings);
+            recyclerView.setAdapter(RVAdapter);
+
+            switch (typeEvent) {
+                case (TYPE_EVENT_CHANGE_SETTINGS):
+                    RVAdapter.notifyDataSetChanged();
+                break;
+                case (TYPE_EVENT_DELETE_NOTE):
+                    RVAdapter.notifyItemRemoved(((GlobalVariables) getActivity().getApplication()).getScrollPositionByNoteId((noteIdForScrollPosition)));
+                    break;
+                default:
+                    RVAdapter.notifyItemChanged(((GlobalVariables) getActivity().getApplication()).getScrollPositionByNoteId((noteIdForScrollPosition)));
+                    break;
+            }
+
+            // Установим слушателя на текст
+            RVAdapter.SetOnNoteClicked((view, position) -> {
+                int noteId = (int) view.getTag();
+                Log.v("Debug1", "ListNotesFragment initRecyclerView onNoteClickedList noteId=" + noteId);
+                ViewNoteFragment viewNoteFragment = null;
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    if (getActivity() != null)
+                        viewNoteFragment = (ViewNoteFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.activity_container_note_view);
+                } else {
+                    MainFragment mainFragment = null;
+                    if (getActivity() != null)
+                        mainFragment = (MainFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.frame_container_main);
+                    if (mainFragment != null) {
+                        FragmentManager childFragmentManager = mainFragment.getChildFragmentManager();
+                        viewNoteFragment = (ViewNoteFragment) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
+                    }
+                }
+                if (viewNoteFragment == null) {
+                    Log.v("Debug1", "ListNotesFragment initRecyclerView viewNoteFragment == null");
+                    viewNoteFragment = ViewNoteFragment.newInstance(noteId);
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
+                    //fragmentTransaction.replace(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
+                } else {
+                    Log.v("Debug1", "ListNotesFragment initRecyclerView viewNoteFragment != null");
+                    viewNoteFragment.fillViewNote(noteId, viewNoteFragment.getViewFragment());
+                }
+            });
+            // Установим слушателя на дату
+            RVAdapter.SetOnDateClicked((view, position) -> {
+                int noteId = (int) view.getTag();
+                Log.v("Debug1", "ListNotesFragment initRecyclerView onDateClickedList noteId=" + noteId);
+                DatepickerFragment datepickerFragment = DatepickerFragment.newInstance(noteId);
+                if (getActivity() != null) {
+                    FragmentTransaction fragmentTransaction;
+                    fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    fragmentTransaction.add(R.id.frame_container_main, datepickerFragment, "DatepickerFragment");
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
+                }
+            });
+        }
     }
 
     // вызывается после создания макета фрагмента, здесь мы проинициализируем список
@@ -99,117 +312,12 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "ListNotesFragment onViewCreated");
-        viewFragment = view;
-    }
-
-    protected void fillList(View view) {
-        Log.v("Debug1", "ListNotesFragment fillList");
-        LinearLayout linearLayoutNotesList = view.findViewById(R.id.ListNotesFragment);
-        LinearLayout linearLayoutIntoScrollView = view.findViewById(R.id.linearLayoutIntoScrollViewIntoFragmentListNotes);
-
-        linearLayoutIntoScrollView.removeAllViews();
-
-        if (getActivity() != null && getActivity().getApplication() != null) {
-            List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
-
-
-            //Сортировка
-            int textSortId = ((GlobalVariables) getActivity().getApplication()).getSortTypeId();
-            Comparator<Note> dateSorter = new DateSorterComparator();
-            Comparator<Note> headerSorter = new HeaderSorterComparator();
-            switch (textSortId) {
-                case (1):
-                    notes.sort(dateSorter);
-                    break;
-                case (0):
-                    notes.sort(dateSorter.reversed());
-                    break;
-                case (3):
-                    notes.sort(headerSorter);
-                    break;
-                case (2):
-                    notes.sort(headerSorter.reversed());
-                    break;
-            }
-
-            for (int i = 0, notesSize = notes.size(); i < notesSize; i++) {
-                Note note = notes.get(i);
-                View viewTop = LayoutInflater.from(requireContext()).inflate(R.layout.view_item_note_top_textview, linearLayoutNotesList, false);
-                View viewBottom = LayoutInflater.from(requireContext()).inflate(R.layout.view_item_note_bottom_textview, linearLayoutNotesList, false);
-
-                viewTop.setOnClickListener(v -> {
-                    if (dateClicked != null) {
-                        dateClicked.onDateClickedList(note.getID());
-                    }
-                });
-
-                viewBottom.setOnClickListener(v -> {
-                    if (noteClicked != null) {
-                        noteClicked.onNoteClickedList(note.getID());
-
-
-                        /*Activity activity = requireActivity();
-                        PopupMenu popupMenu = new PopupMenu(activity, v);
-                        activity.getMenuInflater().inflate(R.menu.popup, popupMenu.getMenu());
-                        Menu menu = popupMenu.getMenu();
-                        //menu.findItem(R.id.popup_view).setVisible(false);
-                        menu.add(0, 123456, 12, "Dynamic");
-                        popupMenu.setOnMenuItemClickListener(item -> {
-                            int id = item.getItemId();
-                            if (id == R.id.popup_view) {
-                                Toast.makeText(getContext(), "Chosen popup item view", Toast.LENGTH_SHORT).show();
-                                return true;
-                            } else if (id == R.id.popup_edit) {
-                                Toast.makeText(getContext(), "Chosen popup item edit2", Toast.LENGTH_SHORT).show();
-                                return true;
-                            } else if (id == R.id.popup_delete) {
-                                Toast.makeText(getContext(), "Chosen popup item delete", Toast.LENGTH_SHORT).show();
-                                return true;
-                            } else if (id == 123456) {
-                                Toast.makeText(getContext(), "Chosen new item added", Toast.LENGTH_SHORT).show();
-                                return true;
-                            }
-                            return true;
-                        });
-                        popupMenu.show();*/
-
-
-                    }
-                });
-
-                TextView textViewTop = viewTop.findViewById(R.id.textViewTop);
-                long date = note.getDate() * MILISECOND;
-
-                DateFormat f = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
-                String dateStr = f.format(date);
-
-                //textViewTop.setPadding(0,50,0,0);
-
-                textViewTop.setText(dateStr);
-                textViewTop.setTag(note.getID());
-
-                Log.v("Debug1", "ListNotesFragment fillList textViewTop.getTag()=" + textViewTop.getTag());
-
-                TextView textViewBottom = viewBottom.findViewById(R.id.textViewBottom);
-
-                String[] textSize = getResources().getStringArray(R.array.text_size);
-                int textSizeId = ((GlobalVariables) getActivity().getApplication()).getTextSizeId();
-                float textSizeFloat = Float.parseFloat(textSize[textSizeId]);
-                textViewBottom.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSizeFloat);
-
-                textViewBottom.setText(note.getValue());
-
-                linearLayoutIntoScrollView.addView(viewTop);
-                linearLayoutIntoScrollView.addView(viewBottom);
-            }
-        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
         Log.v("Debug1", "ListNotesFragment onStart");
-        fillList(viewFragment);
     }
 
     @Override
@@ -227,22 +335,5 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         super.onPause();
         Log.v("Debug1", "ListNotesFragment onPause");
     }
-
-
-
-    /*@Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.main_drawer, menu);
-    }*/
-
-    /*@Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Log.v("Debug1", "ListNotesFragment onOptionsItemSelected");
-        if (item.getItemId() == R.id.popup_view) {
-            Toast.makeText(getContext(), "popup_view", Toast.LENGTH_SHORT).show();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }*/
 
 }

@@ -13,14 +13,15 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:ems="10"
-        tools:ignore="Autofill,LabelFor"
+        android:gravity="start|top"
 
         android:inputType="textMultiLine|text"
         android:singleLine="true"
         app:layout_constraintBottom_toTopOf="@+id/button_ok"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="Autofill,LabelFor" />
 
     <Button
         android:id="@+id/button_cancel"

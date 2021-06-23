@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:text="@string/textViewTextSize"
         android:textSize="@dimen/textSizeInterface"
-        app:layout_constraintBottom_toTopOf="@+id/textViewSort"
+        app:layout_constraintBottom_toTopOf="@+id/textViewMaxCountLines"
         app:layout_constraintEnd_toStartOf="@+id/spinnerTextSize"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -26,11 +26,36 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:foregroundGravity="right"
+        android:labelFor="@id/textViewTextSize"
         android:textSize="@dimen/textSizeInterface"
-        app:layout_constraintBottom_toTopOf="@+id/spinnerSort"
+        app:layout_constraintBottom_toTopOf="@+id/spinnerMaxCountLines"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textViewTextSize"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewMaxCountLines"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/MaxCountLines"
+        android:textSize="@dimen/textSizeInterface"
+        app:layout_constraintBottom_toTopOf="@+id/textViewSort"
+        app:layout_constraintEnd_toStartOf="@+id/spinnerMaxCountLines"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTextSize" />
+
+    <Spinner
+        android:id="@+id/spinnerMaxCountLines"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:foregroundGravity="right"
+        android:labelFor="@id/textViewMaxCountLines"
+        android:textSize="@dimen/textSizeInterface"
+        app:layout_constraintBottom_toTopOf="@+id/textViewSort"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textViewMaxCountLines"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerTextSize" />
 
     <TextView
         android:id="@+id/textViewSort"
@@ -38,18 +63,29 @@
         android:layout_height="wrap_content"
         android:text="@string/textViewSortType"
         android:textSize="@dimen/textSizeInterface"
-        app:layout_constraintEnd_toStartOf="@+id/spinnerSort"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTextSize" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewTextSize"
+        app:layout_constraintBottom_toTopOf="@+id/spinnerSort"/>
 
     <Spinner
         android:id="@+id/spinnerSort"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:labelFor="@id/textViewSort"
         android:textSize="@dimen/textSizeInterface"
+        app:layout_constraintBottom_toTopOf="@+id/buttonClearAll"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textViewSort"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerTextSize"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSort" />
 
+    <Button
+        android:id="@+id/buttonClearAll"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/ClearlListNotes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerSort" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

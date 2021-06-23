@@ -1,5 +1,6 @@
 package ru.geekbrains.notes.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,18 +12,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.SharedPref;
 import ru.geekbrains.notes.note.Note;
+import ru.geekbrains.notes.observer.Publisher;
+import ru.geekbrains.notes.observer.PublisherHolder;
 
 import static ru.geekbrains.notes.Constant.MILISECOND;
 
@@ -31,6 +30,7 @@ public class DatepickerFragment extends Fragment {
 
     private static final String ARG = "NOTE_ID";
     private int noteId;
+    private Publisher publisher;
 
     public DatepickerFragment() {
         // Required empty public constructor
@@ -52,50 +52,31 @@ public class DatepickerFragment extends Fragment {
         if (getArguments() != null && getActivity() != null) {
             noteId = getArguments().getInt(ARG, 0);
             Log.v("Debug1", "DatepickerFragment onCreateView noteId=" + noteId);
-
-
             DatePicker datePicker = v.findViewById(R.id.datepicker);
-
-            Note note = ((GlobalVariables) getActivity().getApplication()).getNoteById(noteId);
-
-            long date = note.getDate() * MILISECOND;
-
+            Note note = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
+            long date = note.getDateEdit() * MILISECOND;
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(date);
             int year = calendar.get(Calendar.YEAR);
             int month = calendar.get(Calendar.MONTH);
             int day = calendar.get(Calendar.DAY_OF_MONTH);
-
             datePicker.init(year, month, day, (view, year1, monthOfYear, dayOfMonth) -> {
-
                 Log.v("Debug1", "DatepickerFragment onDateChanged into");
-
                 Calendar calendarNew = Calendar.getInstance();
                 calendarNew.set(year1, monthOfYear, dayOfMonth);
                 long newDate = calendarNew.getTimeInMillis() / MILISECOND;
-
                 if (DatepickerFragment.this.getActivity() != null) {
-                    note.setDate(newDate);
+                    note.setDateEdit(newDate);
                     ((GlobalVariables) getActivity().getApplication()).setNoteById(noteId, note);
                     List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
                     new SharedPref(DatepickerFragment.this.getActivity()).saveNotes(notes);
-
-                    LinearLayout linearLayout = DatepickerFragment.this.getActivity().findViewById(R.id.linearLayoutIntoScrollViewIntoFragmentListNotes);
-                    TextView textViewTop = linearLayout.findViewWithTag(note.getID());
-
-                    Log.v("Debug1", "DatepickerFragment onDateChanged into note.getID()=" + note.getID());
-
-                    DateFormat f = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
-                    String dateStr = f.format(newDate * MILISECOND);
-
-                    textViewTop.setText(dateStr);
-
-                    //FragmentManager fragmentManager = getFragmentManager();
+                    if (publisher != null) {
+                        publisher.notify(noteId, 3);
+                    }
                     if (getActivity() != null) {
                         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                         fragmentManager.popBackStack();
                     }
-
                 }
             });
         }
@@ -106,16 +87,29 @@ public class DatepickerFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "DatepickerFragment onViewCreated");
-
         if (getArguments() != null && getActivity() != null) {
             noteId = getArguments().getInt(ARG, 0);
-
             Log.v("Debug1", "DatepickerFragment onViewCreated noteId=" + noteId);
-            Note note = ((GlobalVariables) getActivity().getApplication()).getNoteById(noteId);
-            long date = note.getDate() / MILISECOND;
+            Note note = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
+            long date = note.getDateEdit() / MILISECOND;
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(date);
         }
+    }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        Log.v("Debug1", "DatepickerFragment onAttach");
+        if (context instanceof PublisherHolder) {
+            publisher = ((PublisherHolder) context).getPublisher();
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.v("Debug1", "DatepickerFragment onDetach");
+        publisher = null;
     }
 }

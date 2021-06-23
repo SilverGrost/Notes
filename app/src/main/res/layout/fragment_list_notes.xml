@@ -1,26 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/frameListNotes"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#000000"
-    tools:context=".ui.list.ListNotesFragment">
+    android:background="@color/black"
+    android:id="@+id/frameListNotes" >
 
-    <ScrollView
-        android:id="@+id/scrollView_cont"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:id="@+id/LinearLayoutEmprtyListNotesRV"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/linearLayoutIntoScrollViewIntoFragmentListNotes"
+        <TextView
+            android:id="@+id/textViewEmprtyListNotesRV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#000000"
-            android:orientation="vertical">
+            android:background="@drawable/round_note_view"
+            android:gravity="center"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:text="@string/EmptyListNotes"
+            android:textSize="@dimen/textSizeInterface"
+            tools:text="Ещё нет ни одной заметки. Добавьте прямо сейчас" />
 
-        </LinearLayout>
-    </ScrollView>
+        <Button
+            android:id="@+id/button_addFirstNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ButtonAddNote" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/button_addFirst1000"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ButtonAdd1000" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_lines"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layoutManager="LinearLayoutManager"
+        tools:listitem="@layout/item_note_by_rv">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+</FrameLayout>

@@ -23,9 +23,9 @@ public class SharedPref {
     private Note loadNote(int id) {
         Note note = new Note();
         note.setValue(SharedPreferences.getString(NOTEVALUE + id, note.getValue()));
-        //note.setHeader(SharedPreferences.getString(NOTEHEADER + id, note.getHeader()));
         note.setID(SharedPreferences.getInt(NOTEID + id, note.getID()));
-        note.setDate(SharedPreferences.getLong(NOTEDATE + id, note.getDate()));
+        note.setDateEdit(SharedPreferences.getLong(NOTEDATE + id, note.getDateEdit()));
+        note.setDateCreate(SharedPreferences.getLong(NOTEDATECREATE + id, note.getDateCreate()));
         return note;
     }
 
@@ -43,9 +43,10 @@ public class SharedPref {
     private void saveNote(Note note, int id) {
         SharedPreferences.Editor editor = SharedPreferences.edit();
         editor.putString(NOTEVALUE + id, note.getValue());
-        //editor.putString(NOTEHEADER + id, note.getHeader());
         editor.putInt(NOTEID + id, note.getID());
-        editor.putLong(NOTEDATE + id, note.getDate());
+        editor.putLong(NOTEDATE + id, note.getDateEdit());
+        editor.putLong(NOTEDATECREATE + id, note.getDateCreate());
+
         editor.apply();
     }
 
@@ -61,14 +62,21 @@ public class SharedPref {
 
     // Чтение настроек
     public Settings loadSettings() {
-        return new Settings(SharedPreferences.getInt(APPSETTINGSTEXTSIZE, DEFAULTTEXTSIZE), SharedPreferences.getInt(APPSETTINGSSORTTYPE, DEFAULTSORTTYPE));
+        Settings settings = new Settings();
+        settings.setSortType(SharedPreferences.getInt(APPSETTINGSSORTTYPE, DEFAULTSORTTYPEID));
+        settings.setTextSizeId(SharedPreferences.getInt(APPSETTINGSTEXTSIZE, DEFAULTTEXTSIZEID));
+        settings.setMaxCountLinesId(SharedPreferences.getInt(APPSETTINGSMAXCOUNTLINES, DEFAULTLMAXCOUNTLINESID));
+        settings.setCurrentPosition(SharedPreferences.getInt(APPSETTINGSCURRENTPOSITION, DEFAULTCURRENTPOSITION));
+        return settings;
     }
 
     // Сохранение настроек
     public void saveSettings(Settings settings) {
         SharedPreferences.Editor editor = SharedPreferences.edit();
-        editor.putInt(APPSETTINGSTEXTSIZE, settings.getTextSize());
+        editor.putInt(APPSETTINGSTEXTSIZE, settings.getTextSizeId());
         editor.putInt(APPSETTINGSSORTTYPE, settings.getSortType());
+        editor.putInt(APPSETTINGSMAXCOUNTLINES, settings.getMaxCountLinesId());
+        editor.putInt(APPSETTINGSCURRENTPOSITION, settings.getCurrentPosition());
         editor.apply();
     }
 }

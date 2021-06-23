@@ -30,7 +30,7 @@
 
     <ScrollView
         android:id="@+id/scrollViewIntoViewNote"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -48,8 +48,10 @@
                 android:layout_height="wrap_content"
                 android:background="#FFEB3B"
                 android:ems="10"
+                android:gravity="start|top"
                 android:singleLine="false"
-                android:textSize="@dimen/textview_viewnote_textsize" />
+                android:textSize="@dimen/textview_viewnote_textsize"
+                tools:text="Текст заметки" />
         </LinearLayout>
     </ScrollView>
 
