@@ -160,9 +160,6 @@ public class MainFragment extends Fragment implements View.OnClickListener, Sear
         if (id == R.id.action_search) {//addFragment(new SettingsFragment());
             Toast.makeText(getActivity(), "action_search", Toast.LENGTH_SHORT).show();
             return true;
-        } else if (id == R.id.action_add) {
-            addButtonProcess();
-            return true;
         }
         return super.onOptionsItemSelected(item);
     }

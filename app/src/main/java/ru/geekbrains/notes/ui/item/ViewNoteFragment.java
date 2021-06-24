@@ -60,9 +60,6 @@ public class ViewNoteFragment extends Fragment implements /*View.OnClickListener
                 MenuItem item_action_search = menu.findItem(R.id.action_search);
                 if (item_action_search != null)
                     item_action_search.setVisible(false);
-                MenuItem item_action_add = menu.findItem(R.id.action_add);
-                if (item_action_add != null)
-                    item_action_add.setVisible(false);
             }
         }
     }
