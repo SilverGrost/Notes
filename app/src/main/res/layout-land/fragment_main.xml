@@ -9,40 +9,6 @@
     android:background="#000000"
     tools:context=".ui.MainFragment">
 
-    <!-- Фрагмент со списком заметок -->
-    <!--<androidx.fragment.app.FragmentContainerView
-        android:id="@+id/ListNotesFragment"
-        android:name="ru.geekbrains.notes.ui.list.ListNotesFragment"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginEnd="2dp"
-        android:layout_marginBottom="0dp"
-        android:tag="ListNotesFragment"
-        app:layout_constraintBottom_toTopOf="@+id/buttonAddNote"
-        app:layout_constraintEnd_toStartOf="@+id/activity_container_note_view"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout="@layout/fragment_list_notes" />-->
-    <!--  android:name="ru.geekbrains.notes.ui.list.ListNotesFragment" -->
-
-
-    <!-- Здесь будет выбранная заметка -->
-    <!--<androidx.fragment.app.FragmentContainerView
-        android:id="@+id/activity_container_note_view"
-        android:name="ru.geekbrains.notes.ui.item.ViewNoteFragment"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="2dp"
-        android:layout_marginBottom="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/buttonAddNote"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/ListNotesFragment"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout="@layout/fragment_view_note" />-->
-    <!--android:name="ru.geekbrains.notes.ui.item.ViewNoteFragment"-->
-
-
-
     <include layout="@layout/list_notes_container" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -58,18 +24,5 @@
         android:layout_margin="16dp"
         app:borderWidth="0dp"
         app:fabSize="normal"/>
-
-
-
-    <!--<Button
-        android:id="@+id/buttonAddNote"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/button_add"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ListNotesFragment" />-->
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

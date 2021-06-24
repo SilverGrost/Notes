@@ -9,21 +9,6 @@
     android:background="#000000"
     tools:context=".ui.MainFragment">
 
-    <!-- Фрагмент со списком заметок -->
-    <!--<androidx.fragment.app.FragmentContainerView
-        android:id="@+id/ListNotesFragment"
-        android:name="ru.geekbrains.notes.ui.list.ListNotesFragment"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="#AF6D0C"
-        android:tag="ListNotesFragment"
-        app:layout_constraintBottom_toTopOf="@+id/buttonAddNote"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout="@layout/fragment_list_notes" />-->
-    <!--android:name="ru.geekbrains.notes.ui.list.ListNotesFragment"-->
-
     <include layout="@layout/list_notes_container" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -38,18 +23,6 @@
         android:layout_margin="16dp"
         app:borderWidth="0dp"
         app:elevation="6dp"
-        app:fabSize="normal"
-
-        />
-
-    <!--<Button
-        android:id="@+id/buttonAddNote"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button_add"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ListNotesFragment"/>-->
+        app:fabSize="normal" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -2,7 +2,6 @@
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
     android:insetTop="-4dp">
     <shape>
-        <solid android:color="@color/bottom_textview_color" />
         <gradient
             android:angle="135"
             android:centerColor="@color/BottomTextView_center"

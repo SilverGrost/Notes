@@ -18,4 +18,10 @@
     <color name="BottomTextView_end">#faf18c</color>
     <color name="BottomTextView_start">#f7ec85</color>
     <color name="BottomTextView_center">#faf18c</color>
+    <color name="note_edit_center">#F4DC70</color>
+    <color name="note_edit_end">#FAEE8A</color>
+    <color name="note_edit_start">#F1C958</color>
+    <color name="note_view_center">#F4DC70</color>
+    <color name="note_view_end">#FAEE8A</color>
+    <color name="note_view_start">#F1C958</color>
 </resources>

@@ -13,8 +13,9 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Date;
 import java.util.List;
@@ -87,10 +88,8 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
         Log.v("Debug1", "EditNoteFragment onCreateView");
         setHasOptionsMenu(false);
         View v = inflater.inflate(R.layout.fragment_edit_note, container, false);
-        Button button_ok = v.findViewById(R.id.button_ok);
+        FloatingActionButton button_ok = v.findViewById(R.id.button_ok);
         button_ok.setOnClickListener(this);
-        Button button_cancel = v.findViewById(R.id.button_cancel);
-        button_cancel.setOnClickListener(this);
         return v;
     }
 
@@ -158,8 +157,6 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
                         publisher.notify(noteId, TYPE_EVENT_EDIT_NOTE);
                 }
             }
-        } else if (v.getId() == R.id.button_cancel) {
-            Log.v("Debug1", "EditNoteFragment onClick button_cancel");
         }
 
         Log.v("Debug1", "EditNoteFragment onClick FragmentTransaction");
