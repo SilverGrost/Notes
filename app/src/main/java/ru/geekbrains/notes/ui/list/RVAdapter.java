@@ -128,18 +128,21 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
             textViewValuer.setOnClickListener(v -> {
                 if (noteClicked != null) {
                     if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        if (maxCountLines == 1) {
-                            if (textViewValuer.getMaxLines() == Integer.MAX_VALUE) {
-                                textViewValuer.setMaxLines(1);
-                            } else {
+
+                        switch (maxCountLines){
+                            case (-1):  //Без ограничений
                                 textViewValuer.setMaxLines(Integer.MAX_VALUE);
-                            }
-                        } else {
-                            if (maxCountLines == 0) {
-                                textViewValuer.setMaxLines(Integer.MAX_VALUE);
-                            } else {
+                                break;
+                            case (0):   //Авторазвёртывание в списке
+                                if (textViewValuer.getMaxLines() != Integer.MAX_VALUE) {
+                                    textViewValuer.setMaxLines(Integer.MAX_VALUE);
+                                } else {
+                                    textViewValuer.setMaxLines(1);
+                                }
+                                break;
+                            default:    //Выбранное кол-во
+                                textViewValuer.setMaxLines(maxCountLines);
                                 noteClicked.onNoteClickedList(v, ViewHolder.this.getAdapterPosition());
-                            }
                         }
                     } else
                         noteClicked.onNoteClickedList(v, ViewHolder.this.getAdapterPosition());
@@ -178,10 +181,16 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
             textViewValuer.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
 
             if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                if (maxCountLines != 0 & maxCountLines != 1)
-                    textViewValuer.setMaxLines(maxCountLines);
-                else if (maxCountLines == 0)
-                    textViewValuer.setMaxLines(Integer.MAX_VALUE);
+                switch (maxCountLines){
+                    case (-1):  //Без ограничений
+                        textViewValuer.setMaxLines(Integer.MAX_VALUE);
+                        break;
+                    case (0):   //Авторазвёртывание в списке
+                        textViewValuer.setMaxLines(1);
+                        break;
+                    default:    //Выбранное кол-во
+                        textViewValuer.setMaxLines(maxCountLines);
+                }
             } else
                 textViewValuer.setMaxLines(1);
 

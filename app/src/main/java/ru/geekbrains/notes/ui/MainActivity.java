@@ -108,14 +108,14 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
             int maxCountLinesId = settings.getMaxCountLinesId();
             int maxCountLines;
             switch (maxCountLinesId){
-                case (0) :
+                case (0):              //Без ограничений
+                    maxCountLines = -1;
+                    break;
+                case (1):               //Авторазвёртывание в списке
                     maxCountLines = 0;
                     break;
-                case (1):
-                    maxCountLines = 1;
-                    break;
                 default:
-                    maxCountLines = Integer.parseInt(maxCountLinesArray[maxCountLinesId]) - 1;
+                    maxCountLines = Integer.parseInt(maxCountLinesArray[maxCountLinesId]);
                     break;
             }
             settings.setMaxCountLines(maxCountLines);
