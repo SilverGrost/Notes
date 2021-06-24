@@ -19,8 +19,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
@@ -62,24 +63,28 @@ public class MainFragment extends Fragment implements View.OnClickListener, Sear
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "MainFragment onViewCreated");
-        Button buttonAddNote = view.findViewById(R.id.buttonAddNote);
-        buttonAddNote.setOnClickListener(this);
+        FloatingActionButton buttonAddNote = view.findViewById(R.id.buttonAddNote);
+        if (buttonAddNote != null)
+            buttonAddNote.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         Log.v("Debug1", "MainFragment onClick");
         if (v.getId() == R.id.buttonAddNote) {
-            EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(-1);
+            addButtonProcess();
+        }
+    }
 
-            if (getActivity() != null) {
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-            }
+    private void addButtonProcess(){
+        EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(-1);
+        if (getActivity() != null) {
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            fragmentTransaction.replace(R.id.frame_container_main, editNoteFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
         }
     }
 
@@ -130,7 +135,6 @@ public class MainFragment extends Fragment implements View.OnClickListener, Sear
                 searchResultFragment = SearchResultFragment.newInstance(query);
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                //fragmentTransaction.add(R.id.frame_container_main, searchResultFragment, "SearchResultFragment");
                 fragmentTransaction.replace(R.id.frame_container_main, searchResultFragment, "SearchResultFragment");
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
@@ -155,18 +159,6 @@ public class MainFragment extends Fragment implements View.OnClickListener, Sear
         int id = item.getItemId();
         if (id == R.id.action_search) {//addFragment(new SettingsFragment());
             Toast.makeText(getActivity(), "action_search", Toast.LENGTH_SHORT).show();
-            return true;
-        } else if (id == R.id.action_add) {
-            EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(-1);
-            if (getActivity() != null) {
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                //fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
-                fragmentTransaction.replace(R.id.frame_container_main, editNoteFragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-            }
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,28 +9,20 @@
     android:background="#000000"
     tools:context=".ui.MainFragment">
 
-    <!-- Фрагмент со списком заметок -->
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/ListNotesFragment"
-        android:name="ru.geekbrains.notes.ui.list.ListNotesFragment"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="#AF6D0C"
-        android:tag="ListNotesFragment"
-        app:layout_constraintBottom_toTopOf="@+id/buttonAddNote"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout="@layout/fragment_list_notes" />
-    <!--android:name="ru.geekbrains.notes.ui.list.ListNotesFragment"-->
-    <Button
-        android:id="@+id/buttonAddNote"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button_add"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ListNotesFragment"/>
+    <include layout="@layout/list_notes_container" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/buttonAddNote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:src="@drawable/ic_baseline_add_24"
+        android:backgroundTint="?attr/colorPrimary"
+        app:pressedTranslationZ="12dp"
+        android:contentDescription="@string/button_add"
+        android:layout_margin="16dp"
+        app:borderWidth="0dp"
+        app:elevation="6dp"
+        app:fabSize="normal" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

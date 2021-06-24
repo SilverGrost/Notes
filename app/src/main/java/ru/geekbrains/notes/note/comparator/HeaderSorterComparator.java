@@ -1,6 +1,8 @@
-package ru.geekbrains.notes.note;
+package ru.geekbrains.notes.note.comparator;
 
 import java.util.Comparator;
+
+import ru.geekbrains.notes.note.Note;
 
 public class HeaderSorterComparator implements Comparator<Note> {
     @Override

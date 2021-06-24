@@ -97,7 +97,7 @@ public class SettingsFragment extends Fragment {
             spinnerSort = view.findViewById(R.id.spinnerSort);
             ArrayAdapter<CharSequence> adapterSort = ArrayAdapter.createFromResource(getContext(), R.array.type_sort, android.R.layout.simple_spinner_item);
             spinnerSort.setAdapter(adapterSort);
-            spinnerSort.setSelection(settings.getSortType());
+            spinnerSort.setSelection(settings.getOrderType());
             spinnerSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view,
@@ -177,10 +177,19 @@ public class SettingsFragment extends Fragment {
         String[] maxCountLinesArray = getResources().getStringArray(R.array.MaxCountLines);
         int maxCountLinesId = settings.getMaxCountLinesId();
         int maxCountLines;
-        if (maxCountLinesId != 0)
-            maxCountLines = Integer.parseInt(maxCountLinesArray[maxCountLinesId]);
-        else
-            maxCountLines = 0;
+
+        switch (maxCountLinesId){
+            case (0):              //Без ограничений
+                maxCountLines = -1;
+                break;
+            case (1):               //Авторазвёртывание в списке
+                maxCountLines = 0;
+                break;
+            default:
+                maxCountLines = Integer.parseInt(maxCountLinesArray[maxCountLinesId]);
+                break;
+        }
+
         settings.setMaxCountLines(maxCountLines);
 
         if (getContext() != null) {

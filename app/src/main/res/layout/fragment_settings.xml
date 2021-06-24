@@ -5,7 +5,7 @@
     android:id="@+id/frameLayoutSettingsFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bottom_textview_color"
+    android:background="@color/TopTextView_center"
     android:clickable="true"
     tools:context=".ui.settings.SettingsFragment">
 

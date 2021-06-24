@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="@color/bottom_textview_color" />
+    <gradient
+        android:angle="135"
+        android:centerColor="@color/note_view_center"
+        android:endColor="@color/note_view_end"
+        android:startColor="@color/note_view_start"
+        android:type="linear" />
+    <corners android:radius="10dp" />
     <corners android:radius="10dp" />
 </shape>

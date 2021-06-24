@@ -63,7 +63,7 @@ public class SharedPref {
     // Чтение настроек
     public Settings loadSettings() {
         Settings settings = new Settings();
-        settings.setSortType(SharedPreferences.getInt(APPSETTINGSSORTTYPE, DEFAULTSORTTYPEID));
+        settings.setOrderType(SharedPreferences.getInt(APPSETTINGSSORTTYPE, DEFAULTSORTTYPEID));
         settings.setTextSizeId(SharedPreferences.getInt(APPSETTINGSTEXTSIZE, DEFAULTTEXTSIZEID));
         settings.setMaxCountLinesId(SharedPreferences.getInt(APPSETTINGSMAXCOUNTLINES, DEFAULTLMAXCOUNTLINESID));
         settings.setCurrentPosition(SharedPreferences.getInt(APPSETTINGSCURRENTPOSITION, DEFAULTCURRENTPOSITION));
@@ -74,7 +74,7 @@ public class SharedPref {
     public void saveSettings(Settings settings) {
         SharedPreferences.Editor editor = SharedPreferences.edit();
         editor.putInt(APPSETTINGSTEXTSIZE, settings.getTextSizeId());
-        editor.putInt(APPSETTINGSSORTTYPE, settings.getSortType());
+        editor.putInt(APPSETTINGSSORTTYPE, settings.getOrderType());
         editor.putInt(APPSETTINGSMAXCOUNTLINES, settings.getMaxCountLinesId());
         editor.putInt(APPSETTINGSCURRENTPOSITION, settings.getCurrentPosition());
         editor.apply();

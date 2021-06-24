@@ -35,7 +35,7 @@ import ru.geekbrains.notes.ui.list.SearchResultFragment;
 
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_DELETE_NOTE;
 
-public class ViewNoteFragment extends Fragment implements View.OnClickListener, ObserverNote {
+public class ViewNoteFragment extends Fragment implements /*View.OnClickListener, */ObserverNote {
 
     private static final String ARG = "NOTE_ID";
 
@@ -60,9 +60,6 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
                 MenuItem item_action_search = menu.findItem(R.id.action_search);
                 if (item_action_search != null)
                     item_action_search.setVisible(false);
-                MenuItem item_action_add = menu.findItem(R.id.action_add);
-                if (item_action_add != null)
-                    item_action_add.setVisible(false);
             }
         }
     }
@@ -149,10 +146,10 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
                 }
             }
         }
-        Button button_edit = v.findViewById(R.id.button_edit);
+        /*Button button_edit = v.findViewById(R.id.button_edit);
         button_edit.setOnClickListener(this);
         Button button_delete = v.findViewById(R.id.button_delete);
-        button_delete.setOnClickListener(this);
+        button_delete.setOnClickListener(this);*/
         Log.v("Debug1", "ViewNoteFragment onCreateView getArguments() != null noteId=" + noteId + ", container=" + container);
         return v;
     }
@@ -253,7 +250,7 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
         }
     }
 
-    @Override
+    /*@Override
     public void onClick(View v) {
         Log.v("Debug1", "ViewNoteFragment onClick noteId=" + noteId);
         if (v.getId() == R.id.button_edit) {
@@ -263,7 +260,7 @@ public class ViewNoteFragment extends Fragment implements View.OnClickListener, 
             Log.v("Debug1", "ViewNoteFragment onClick button_delete");
             buttonDeleteAction();
         }
-    }
+    }*/
 
     @Override
     public void onStart() {

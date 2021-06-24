@@ -13,8 +13,9 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Date;
 import java.util.List;
@@ -39,6 +40,12 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
     private EditText editTextNoteValue;
 
     private Publisher publisher;
+
+    private View editFragment;
+
+    public View getEditFragment() {
+        return editFragment;
+    }
 
     public static EditNoteFragment newInstance(int noteId) {
         Log.v("Debug1", "EditNoteFragment newInstance noteId=" + noteId);
@@ -81,10 +88,8 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
         Log.v("Debug1", "EditNoteFragment onCreateView");
         setHasOptionsMenu(false);
         View v = inflater.inflate(R.layout.fragment_edit_note, container, false);
-        Button button_ok = v.findViewById(R.id.button_ok);
+        FloatingActionButton button_ok = v.findViewById(R.id.button_ok);
         button_ok.setOnClickListener(this);
-        Button button_cancel = v.findViewById(R.id.button_cancel);
-        button_cancel.setOnClickListener(this);
         return v;
     }
 
@@ -92,9 +97,15 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "EditNoteFragment onViewCreated");
+        editFragment = view;
+        fillEditNote(view);
+    }
+
+    public void fillEditNote(View view) {
+        Log.v("Debug1", "EditNoteFragment fillEditNote");
         if (getArguments() != null && getActivity() != null) {
             noteId = getArguments().getInt(ARG, 0);
-            Log.v("Debug1", "EditNoteFragment onViewCreated getArguments() != null noteId=" + noteId);
+            Log.v("Debug1", "EditNoteFragment fillEditNote getArguments() != null noteId=" + noteId);
             Note note = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
             editTextNoteValue = view.findViewById(R.id.editTextNoteValue);
 
@@ -114,7 +125,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
 
         if (v.getId() == R.id.button_ok) {
             int newNoteId = -1;
-            Log.v("Debug1", "EditNoteFragment onClick button_ok");
+            Log.v("Debug1", "EditNoteFragment onClick button_ok noteId=" + noteId);
             String value = editTextNoteValue.getText().toString();
             Date date = new Date();
             if (getActivity() != null) {
@@ -122,6 +133,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
                 Note note = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
                 note.setDateEdit(date.toInstant().getEpochSecond());
                 note.setValue(value);
+
                 if (note.getID() == -1) {
                     note.setDateCreate(date.toInstant().getEpochSecond());
 
@@ -129,24 +141,22 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
 
                     note.setID(newNoteId);
                     notes.add(note);
+                    ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
                 } else {
                     ((GlobalVariables) getActivity().getApplication()).setNoteById(noteId, note);
                 }
 
-                notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
                 if (getContext() != null)
                     new SharedPref(getContext()).saveNotes(notes);
 
                 if (publisher != null) {
-                    Log.v("Debug1", "EditNoteFragment onClick button_ok notify");
+                    Log.v("Debug1", "EditNoteFragment onClick button_ok notify noteId=" + noteId);
                     if (noteId == -1)
                         publisher.notify(newNoteId, TYPE_EVENT_ADD_NOTE);
                     else
                         publisher.notify(noteId, TYPE_EVENT_EDIT_NOTE);
                 }
             }
-        } else if (v.getId() == R.id.button_cancel) {
-            Log.v("Debug1", "EditNoteFragment onClick button_cancel");
         }
 
         Log.v("Debug1", "EditNoteFragment onClick FragmentTransaction");

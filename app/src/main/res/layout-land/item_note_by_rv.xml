@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="15dp"
+    app:cardElevation="3dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:id="@+id/linearLayout">
+
+        <TextView
+            android:id="@+id/textViewTopRV"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_top_textview2"
+            android:paddingStart="5dp"
+            android:paddingEnd="0dp"
+            tools:text="19.03.2021 15:36" />
+
+
+        <TextView
+            android:id="@+id/textViewBottomRV"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_bottom_textview"
+            android:maxLines="2"
+            android:paddingStart="5dp"
+            android:paddingEnd="0dp"
+            android:ellipsize="end"
+            android:textSize="@dimen/textview_viewnote_textsize"
+            tools:text="Текст заметки начинается тут" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

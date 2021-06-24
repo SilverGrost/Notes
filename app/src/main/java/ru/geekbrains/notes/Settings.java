@@ -1,7 +1,7 @@
 package ru.geekbrains.notes;
 
 public class Settings {
-    private int sortType;
+    private int orderType;
     private int textSizeId;
     private int maxCountLinesId;
 
@@ -18,21 +18,21 @@ public class Settings {
         this.currentPosition = currentPosition;
     }
 
-    public void setSortType(int sortType) {
-        this.sortType = sortType;
+    public void setOrderType(int orderType) {
+        this.orderType = orderType;
     }
 
     public Settings() {
     }
 
-    public Settings(int sortType, int textSizeId, int maxCountLinesId) {
-        this.sortType = sortType;
+    public Settings(int orderType, int textSizeId, int maxCountLinesId) {
+        this.orderType = orderType;
         this.textSizeId = textSizeId;
         this.maxCountLinesId = maxCountLinesId;
     }
 
-    public int getSortType() {
-        return sortType;
+    public int getOrderType() {
+        return orderType;
     }
 
     public int getTextSizeId() {

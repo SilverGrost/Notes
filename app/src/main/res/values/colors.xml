@@ -8,7 +8,20 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#9b9b9b</color>
+    <color name="transperentGrey">#80252525</color>
     <color name="top_textview_color">#FFC107</color>
     <color name="bottom_textview_color">#FFEB3B</color>
     <color name="note_edit_color">#fcff74</color>
+    <color name="TopTextView_center">#f7e47b</color>
+    <color name="TopTextView_end">#fbf08b</color>
+    <color name="TopTextView_start">#f5dc6f</color>
+    <color name="BottomTextView_end">#faf18c</color>
+    <color name="BottomTextView_start">#f7ec85</color>
+    <color name="BottomTextView_center">#faf18c</color>
+    <color name="note_edit_center">#F4DC70</color>
+    <color name="note_edit_end">#FAEE8A</color>
+    <color name="note_edit_start">#F1C958</color>
+    <color name="note_view_center">#F4DC70</color>
+    <color name="note_view_end">#FAEE8A</color>
+    <color name="note_view_start">#F1C958</color>
 </resources>
