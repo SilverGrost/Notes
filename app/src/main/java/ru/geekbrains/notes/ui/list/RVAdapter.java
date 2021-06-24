@@ -127,8 +127,6 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
             // Обработчик нажатий на тексте
             textViewValuer.setOnClickListener(v -> {
                 if (noteClicked != null) {
-                    //noteClicked.onNoteClickedList(v, ViewHolder.this.getAdapterPosition());
-
                     if (orientation == Configuration.ORIENTATION_PORTRAIT) {
                         if (maxCountLines == 1) {
                             if (textViewValuer.getMaxLines() == Integer.MAX_VALUE) {
@@ -136,19 +134,20 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                             } else {
                                 textViewValuer.setMaxLines(Integer.MAX_VALUE);
                             }
+                        } else {
+                            if (maxCountLines == 0) {
+                                textViewValuer.setMaxLines(Integer.MAX_VALUE);
+                            } else {
+                                noteClicked.onNoteClickedList(v, ViewHolder.this.getAdapterPosition());
+                            }
                         }
-                        else
-                            noteClicked.onNoteClickedList(v, ViewHolder.this.getAdapterPosition());
-                    }else
+                    } else
                         noteClicked.onNoteClickedList(v, ViewHolder.this.getAdapterPosition());
-
-                    /*else
-                        textViewValuer.setMaxLines(1);*/
                 }
             });
 
             // Обработчик нажатий на иконке меню
-            imageForPopupMenu = ( itemView.findViewById(R.id.imageRVForPopupMenu));
+            imageForPopupMenu = (itemView.findViewById(R.id.imageRVForPopupMenu));
             if (imageForPopupMenu != null)
                 registerContextMenu(imageForPopupMenu);
         }
@@ -181,10 +180,9 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
             if (orientation == Configuration.ORIENTATION_PORTRAIT) {
                 if (maxCountLines != 0 & maxCountLines != 1)
                     textViewValuer.setMaxLines(maxCountLines);
-                else
-                    textViewValuer.setMaxLines(1);
-            }
-            else
+                else if (maxCountLines == 0)
+                    textViewValuer.setMaxLines(Integer.MAX_VALUE);
+            } else
                 textViewValuer.setMaxLines(1);
 
             if (imageForPopupMenu != null)
