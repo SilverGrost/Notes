@@ -26,9 +26,10 @@ import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.SharedPref;
+import ru.geekbrains.notes.note.Callback;
 import ru.geekbrains.notes.note.Note;
-import ru.geekbrains.notes.note.NoteRepository;
-import ru.geekbrains.notes.note.NoteRepositoryImpl;
+import ru.geekbrains.notes.note.NotesRepository;
+import ru.geekbrains.notes.note.NotesLocalRepositoryImpl;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 
@@ -41,7 +42,11 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
 
     private final Publisher publisher = new Publisher();
 
+
+
     private ActionBarDrawerToggle toggle;
+
+    List<Note> notes;
 
     // Сохранение данных
     @Override
@@ -88,13 +93,17 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
         if (savedInstanceState == null) {
             Log.v("Debug1", "MainActivity onCreate savedInstanceState == null");
             //Получаем доступ к репозиторию
-            NoteRepository noteRepository = new NoteRepositoryImpl();
+
 
             //Получаем заметки из репозитория
-            List<Note> notes = noteRepository.getNotes(this);
+            //List<Note> notes = notesRepository.getNotes();
+
+
+
 
             //Сохраняем заметки в глобальной переменной
-            ((GlobalVariables) getApplication()).setNotes(notes);
+            /*
+            ((GlobalVariables) getApplication()).setNotes(notes);*/
 
             Settings settings = (new SharedPref(this).loadSettings());
             ((GlobalVariables) getApplication()).setSettings(settings);
@@ -119,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
                     break;
             }
             settings.setMaxCountLines(maxCountLines);
+
 
 
         } else {
@@ -246,7 +256,8 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
             Log.v("Debug1", "MainActivity addFragment fragmentTag=" + fragmentTag);
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            fragmentTransaction.add(R.id.frame_container_main, fragment, fragmentTag);
+            //fragmentTransaction.add(R.id.frame_container_main, fragment, fragmentTag);
+            fragmentTransaction.replace(R.id.frame_container_main, fragment, fragmentTag);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         } else {

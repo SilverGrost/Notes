@@ -17,13 +17,17 @@ import android.widget.EditText;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.Settings;
+import ru.geekbrains.notes.note.Callback;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.R;
+import ru.geekbrains.notes.note.NotesLocalRepositoryImpl;
+import ru.geekbrains.notes.note.NotesRepository;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.SharedPref;
@@ -42,6 +46,8 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
     private Publisher publisher;
 
     private View editFragment;
+
+    private int newNoteId = -1;
 
     public View getEditFragment() {
         return editFragment;
@@ -124,7 +130,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
         Log.v("Debug1", "EditNoteFragment onClick");
 
         if (v.getId() == R.id.button_ok) {
-            int newNoteId = -1;
+
             Log.v("Debug1", "EditNoteFragment onClick button_ok noteId=" + noteId);
             String value = editTextNoteValue.getText().toString();
             Date date = new Date();
@@ -146,8 +152,26 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
                     ((GlobalVariables) getActivity().getApplication()).setNoteById(noteId, note);
                 }
 
-                if (getContext() != null)
-                    new SharedPref(getContext()).saveNotes(notes);
+                /*if (getContext() != null)
+                    new SharedPref(getContext()).saveNotes(notes);*/
+
+                NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext());
+                if (noteId == -1) {
+                    localRepository.addNote(notes, note, new Callback<Object>() {
+                        @Override
+                        public void onSuccess(Object result) {
+                            Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_ADD_NOTE");
+                        }
+                    });
+                }
+                else {
+                    localRepository.updateNote(notes, note, new Callback<Object>() {
+                        @Override
+                        public void onSuccess(Object result) {
+                            Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE");
+                        }
+                    });
+                }
 
                 if (publisher != null) {
                     Log.v("Debug1", "EditNoteFragment onClick button_ok notify noteId=" + noteId);

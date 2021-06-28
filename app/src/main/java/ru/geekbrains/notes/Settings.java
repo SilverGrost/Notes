@@ -1,5 +1,7 @@
 package ru.geekbrains.notes;
 
+import android.content.Context;
+
 public class Settings {
     private int orderType;
     private int textSizeId;
@@ -23,6 +25,7 @@ public class Settings {
     }
 
     public Settings() {
+
     }
 
     public Settings(int orderType, int textSizeId, int maxCountLinesId) {

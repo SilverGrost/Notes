@@ -2,6 +2,7 @@ package ru.geekbrains.notes;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import ru.geekbrains.notes.note.Note;
 
 import static ru.geekbrains.notes.Constant.*;
 
-//Пока храню заметки через SharedPreferences. Понимаю, что криво, но потмо переделаю на БД
+//Пока храню заметки через SharedPreferences. Понимаю, что криво, но потом переделаю на БД
 public class SharedPref {
 
     private final android.content.SharedPreferences SharedPreferences;
@@ -52,12 +53,14 @@ public class SharedPref {
 
     // Сохранение заметок
     public void saveNotes(List<Note> notes) {
+        Log.v("Debug1", "SharedPref saveNotes start");
         SharedPreferences.Editor editor = SharedPreferences.edit();
         editor.putInt(COUNTNOTES, notes.size());
         for (int i = 0; i < notes.size(); i++) {
             saveNote(notes.get(i), i);
         }
         editor.apply();
+        Log.v("Debug1", "SharedPref saveNotes end");
     }
 
     // Чтение настроек
