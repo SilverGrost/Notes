@@ -24,6 +24,10 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.vk.api.sdk.VK;
+
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -237,7 +241,28 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
             }
         });
 
-        if (settings.getAuthTypeService() != 0) {
+        boolean res = false;
+        int authTypeService = settings.getAuthTypeService();
+
+        if (authTypeService != 0) {
+            switch (authTypeService) {
+                case (TYPE_AUTH_GOOGLE):
+                    GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getContext());
+                    if (account != null)
+                        res = true;
+                    break;
+                case (TYPE_AUTH_VK):
+                    if (VK.isLoggedIn())
+                        res = true;
+                    break;
+                default:
+                    res = false;
+            }
+        }
+
+        Log.v("Debug1", "ListNotesFragment setNotesCloud authTypeService=" + authTypeService + ", res=" + res);
+
+        if (res) {
             NotesRepository cloudRepository = new NotesCloudRepositoryImpl().INSTANCE;
             cloudRepository.getNotes(result -> {
                 notesCloud = result;
@@ -278,6 +303,13 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                         //Если в облачных заметак нет заметки с таким id, то добавляем из локальных
                         if (noteCloud.getID() == -1) {
                             notesCloud.add(noteLocal);
+
+                            cloudRepository.addNote(notesCloud, noteLocal, new Callback<Object>() {
+                                @Override
+                                public void onSuccess(Object result1) {
+                                    Log.v("Debug1", "ListNotesFragment setNotesCloud Загрузил в облако result1=" + result1);
+                                }
+                            });
                         }
                         //Если есть, то сравниваем даты
                         else {
@@ -295,15 +327,16 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                     ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
 
 
-                    cloudRepository.setNotes(notesCloud, result1 -> Log.v("Debug1", "ListNotesFragment setNotesCloud Загрузили в облако notesCloud.size=" + notesCloud.size()));
-
+                    /*cloudRepository.setNotes(notesCloud, new Callback<Object>() {
+                        @Override
+                        public void onSuccess(Object result1) {
+                            Log.v("Debug1", "ListNotesFragment setNotesCloud Загрузили в облако result1=" + result1);
+                        }
+                    });*/
 
                     initRecyclerViewListNotes(recyclerView, -1, TYPE_EVENT_ADD_NOTE);
                 }
-
             });
-
-
         }
 
 

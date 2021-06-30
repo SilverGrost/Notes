@@ -40,6 +40,7 @@ import static ru.geekbrains.notes.Constant.AUTH_RESULT;
 import static ru.geekbrains.notes.Constant.RC_SIGN_IN_GOOGLE;
 import static ru.geekbrains.notes.Constant.RC_VK_SIGN_IN;
 import static ru.geekbrains.notes.Constant.TYPE_AUTH_GOOGLE;
+import static ru.geekbrains.notes.Constant.TYPE_AUTH_NONE;
 import static ru.geekbrains.notes.Constant.TYPE_AUTH_VK;
 
 public class AuthFragment extends Fragment {
@@ -175,8 +176,9 @@ public class AuthFragment extends Fragment {
         vcScopeList.add(VKScope.EMAIL);
         vcScopeList.add(VKScope.PHOTOS);
         vcScopeList.add(VKScope.STATUS);
-        if (getActivity() != null)
+        if (getActivity() != null) {
             VK.login(getActivity(), vcScopeList);
+        }
     }
 
 
@@ -224,17 +226,22 @@ public class AuthFragment extends Fragment {
     }
 
     // Запретить аутентификацию (уже прошла) и разрешить остальные действия
-    private void disableSign() {
+    private void disableSign(int typeAuthService) {
         Log.v("Debug1", "AuthFragment disableSign");
-        if (getArguments() != null) {
-            authTypeServer = getArguments().getInt(ARG, 0);
-            if (authTypeServer == TYPE_AUTH_GOOGLE) {
-                buttonSignInGoogle.setEnabled(false);
-                //continue_.setEnabled(true);
-                buttonSignOut.setEnabled(true);
-                buttonSignInVK.setEnabled(false);
-            }
+
+        if (authTypeServer != TYPE_AUTH_NONE) {
+            buttonSignInGoogle.setEnabled(false);
+            //continue_.setEnabled(true);
+            buttonSignOut.setEnabled(true);
+            buttonSignInVK.setEnabled(false);
         }
+        else {
+            buttonSignInGoogle.setEnabled(true);
+            //continue_.setEnabled(true);
+            buttonSignOut.setEnabled(false);
+            buttonSignInVK.setEnabled(true);
+        }
+
     }
 
     //https://developers.google.com/identity/sign-in/android/backend-auth?authuser=1
@@ -245,6 +252,8 @@ public class AuthFragment extends Fragment {
         UserProfile userProfile = new UserProfile();
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+
+            authTypeServer = TYPE_AUTH_GOOGLE;
 
             try {
                 userProfile.setDisplayName(account.getDisplayName());
@@ -277,7 +286,7 @@ public class AuthFragment extends Fragment {
             getParentFragmentManager().setFragmentResult(AUTH_RESULT, bundle);
 
             // Регистрация прошла успешно
-            disableSign();
+            disableSign(authTypeServer);
             updateUI(account.getEmail(), null, authTypeServer);
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure
@@ -288,45 +297,32 @@ public class AuthFragment extends Fragment {
     }
 
     // Получаем данные пользователя VK
-    private void handleSignInResultVK(VKAccessToken vkAccessToken) {
+    public void handleSignInResultVK(VKAccessToken vkAccessToken) {
         Log.v("Debug1", "AuthFragment handleVKSignInResult");
 
         UserProfile userProfile = new UserProfile();
         if (vkAccessToken != null) {
+
+            Log.v("Debug1", "AuthFragment handleVKSignInResult vkAccessToken != null");
+
+            authTypeServer = TYPE_AUTH_VK;
+
             userProfile.setTypeAutService(TYPE_AUTH_VK);
             userProfile.setFamilyName(String.valueOf(vkAccessToken.getUserId()));
             userProfile.setEmail(vkAccessToken.getEmail());
 
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("UserProfile", userProfile);
 
+            getParentFragmentManager().setFragmentResult(AUTH_RESULT, bundle);
 
-            /*VKParameters params = new VKParameters();
-            params.put(VKApiConst.FIELDS, "photo_max_orig");
-
-            VKRequest request = new VKRequest("users.get",params);
-            request.executeWithListener(new VKRequest.VKRequestListener() {
-
-                @Override
-                public void onComplete(VKResponse response) {
-                    super.onComplete(response);
-                    JSONArray resp = response.json.getJSONArray("response");
-                    JSONObject user = resp.getJSONObject(0);
-                    String photo_max_orig_url = user.getString("photo_max_orig");
-                }
-
-                @Override
-                public void onError(VKError error) {
-                    super.onError(error);
-                }
-            });*/
-
-
-            disableSign();
+            disableSign(authTypeServer);
             updateUI(vkAccessToken.getEmail(), null, authTypeServer);
-            //Toast.makeText(getContext(), "Вы вошли как " + vkAccessToken.getEmail(), Toast.LENGTH_SHORT).show();
-            //navController.popBackStack();
-            //navController.navigate(R.id.nav__item_notes);
+
         } else {
             //accountInfo.clear();
+            Log.v("Debug1", "AuthFragment handleVKSignInResult vkAccessToken == null");
+            authTypeServer = TYPE_AUTH_NONE;
             updateUI("", null, authTypeServer);
         }
     }
@@ -363,7 +359,7 @@ public class AuthFragment extends Fragment {
                         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getContext());
                         if (account != null) {
                             // Пользователь уже входил, сделаем кнопку недоступной
-                            disableSign();
+                            disableSign(authTypeServer);
                             // Обновим почтовый адрес этого пользователя и выведем его на экран
                             String imageURL = null;
                             if (account.getPhotoUrl() != null)
@@ -413,7 +409,7 @@ public class AuthFragment extends Fragment {
             // Когда сюда возвращается Task, результаты аутентификации уже готовы
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResultGoogle(task);
-        } else if (requestCode == RC_VK_SIGN_IN) {
+        } /*else if (requestCode == RC_VK_SIGN_IN) {
             VKAuthCallback vkAuthCallback = new VKAuthCallback() {
                 @Override
                 public void onLogin(@NotNull VKAccessToken vkAccessToken) {
@@ -425,7 +421,7 @@ public class AuthFragment extends Fragment {
                 }
             };
             VK.onActivityResult(requestCode, resultCode, data, vkAuthCallback);
-        }
+        }*/
     }
 
 

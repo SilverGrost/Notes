@@ -161,6 +161,9 @@ public class SettingsFragment extends Fragment {
                     Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getPhotoURL()=" + userProfile.getPhotoURL());
                     Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getServerAuthCode()=" + userProfile.getServerAuthCode());
                     Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getTypeAutService()=" + userProfile.getTypeAutService());
+
+
+
                     Toast.makeText(requireContext(), "Auth Success", Toast.LENGTH_SHORT).show();
                 });
             }

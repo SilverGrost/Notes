@@ -1,6 +1,7 @@
 package ru.geekbrains.notes.ui;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,7 +19,15 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.vk.api.sdk.VK;
+import com.vk.api.sdk.auth.VKAccessToken;
+import com.vk.api.sdk.auth.VKAuthCallback;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -33,9 +43,13 @@ import ru.geekbrains.notes.note.NotesLocalRepositoryImpl;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 
+import ru.geekbrains.notes.ui.auth.AuthFragment;
 import ru.geekbrains.notes.ui.item.ViewNoteFragment;
 import ru.geekbrains.notes.ui.settings.AboutFragment;
 import ru.geekbrains.notes.ui.settings.SettingsFragment;
+
+import static ru.geekbrains.notes.Constant.RC_SIGN_IN_GOOGLE;
+import static ru.geekbrains.notes.Constant.RC_VK_SIGN_IN;
 
 
 public class MainActivity extends AppCompatActivity implements PublisherHolder {
@@ -47,6 +61,37 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
     private ActionBarDrawerToggle toggle;
 
     List<Note> notes;
+
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.v("Debug1", "AuthFragment onActivityResult");
+        if (requestCode == RC_VK_SIGN_IN) {
+            VKAuthCallback vkAuthCallback = new VKAuthCallback() {
+                @Override
+                public void onLogin(@NotNull VKAccessToken vkAccessToken) {
+                    //handleSignInResultVK(vkAccessToken);
+                    Log.v("Debug1", "MainActivity onActivityResult");
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    AuthFragment authFragment = (AuthFragment)fragmentManager.findFragmentByTag("AuthFragment");
+                    if (authFragment != null){
+                        Log.v("Debug1", "MainActivity onActivityResult authFragment=" + authFragment);
+                        authFragment.handleSignInResultVK(vkAccessToken);
+                    }
+                }
+
+                @Override
+                public void onLoginFailed(int i) {
+                }
+            };
+            VK.onActivityResult(requestCode, resultCode, data, vkAuthCallback);
+        }
+    }
+
+
 
     // Сохранение данных
     @Override

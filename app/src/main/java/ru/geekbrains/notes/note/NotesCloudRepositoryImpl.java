@@ -92,7 +92,8 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
                 .add(data)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        callback.onSuccess(note);
+                        String idCloud = task.getResult().getId();
+                        callback.onSuccess(idCloud);
                     }
                 });
     }
