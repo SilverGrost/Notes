@@ -25,20 +25,19 @@ import com.google.android.material.button.MaterialButton;
 
 import com.vk.api.sdk.VK;
 import com.vk.api.sdk.auth.VKAccessToken;
-import com.vk.api.sdk.auth.VKAuthCallback;
 import com.vk.api.sdk.auth.VKScope;
 
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
+import ru.geekbrains.notes.Settings;
+import ru.geekbrains.notes.SharedPref;
 
 import static ru.geekbrains.notes.Constant.AUTH_RESULT;
 import static ru.geekbrains.notes.Constant.RC_SIGN_IN_GOOGLE;
-import static ru.geekbrains.notes.Constant.RC_VK_SIGN_IN;
 import static ru.geekbrains.notes.Constant.TYPE_AUTH_GOOGLE;
 import static ru.geekbrains.notes.Constant.TYPE_AUTH_NONE;
 import static ru.geekbrains.notes.Constant.TYPE_AUTH_VK;
@@ -100,7 +99,7 @@ public class AuthFragment extends Fragment {
 
         initGoogleSign();
         initView(view);
-        enableSign();
+        enableSign(TYPE_AUTH_NONE);
         return view;
 
     }
@@ -147,16 +146,20 @@ public class AuthFragment extends Fragment {
         Log.v("Debug1", "AuthFragment signOut");
         if (getArguments() != null) {
             authTypeServer = getArguments().getInt(ARG, 0);
-            if (authTypeServer == TYPE_AUTH_GOOGLE) {
-                googleSignInClient.signOut()
-                        .addOnCompleteListener(task -> updateUI("", null, authTypeServer));
-            } else if (authTypeServer == TYPE_AUTH_VK) {
-                if (VK.isLoggedIn()) {
-                    VK.logout();
-                    updateUI("", null, authTypeServer);
-                }
+            switch (authTypeServer) {
+                case TYPE_AUTH_GOOGLE:
+                    googleSignInClient.signOut()
+                            .addOnCompleteListener(task -> updateUI("", null, authTypeServer));
+                    break;
+                case TYPE_AUTH_VK:
+                    if (VK.isLoggedIn()) {
+                        VK.logout();
+                        updateUI("", null, authTypeServer);
+                    }
+                    break;
             }
-            enableSign();
+            enableSign(TYPE_AUTH_NONE);
+            updateUI("", null, TYPE_AUTH_NONE);
         }
     }
 
@@ -211,14 +214,18 @@ public class AuthFragment extends Fragment {
     }
 
     // Разрешить аутентификацию и запретить остальные действия
-    private void enableSign() {
+    private void enableSign(int authTypeServer) {
         Log.v("Debug1", "AuthFragment enableSign");
 
         if (getArguments() != null) {
-            authTypeServer = getArguments().getInt(ARG, 0);
-            if (authTypeServer == TYPE_AUTH_GOOGLE) {
+            //authTypeServer = getArguments().getInt(ARG, 0);
+            if (authTypeServer != TYPE_AUTH_NONE) {
+                buttonSignInGoogle.setEnabled(false);
+                buttonSignOut.setEnabled(true);
+                buttonSignInVK.setEnabled(false);
+            }
+            else{
                 buttonSignInGoogle.setEnabled(true);
-                //continue_.setEnabled(false);
                 buttonSignOut.setEnabled(false);
                 buttonSignInVK.setEnabled(true);
             }
@@ -229,7 +236,7 @@ public class AuthFragment extends Fragment {
     private void disableSign(int typeAuthService) {
         Log.v("Debug1", "AuthFragment disableSign");
 
-        if (authTypeServer != TYPE_AUTH_NONE) {
+        if (typeAuthService != TYPE_AUTH_NONE) {
             buttonSignInGoogle.setEnabled(false);
             //continue_.setEnabled(true);
             buttonSignOut.setEnabled(true);
@@ -264,7 +271,7 @@ public class AuthFragment extends Fragment {
             userProfile.setEmail(account.getEmail());
             userProfile.setFamilyName(account.getFamilyName());
             userProfile.setGivenName(account.getGivenName());
-            userProfile.setiD(account.getId());
+            userProfile.setId(account.getId());
             userProfile.setIdToken(account.getIdToken());
             if (account.getPhotoUrl() != null) {
                 userProfile.setPhotoURL(account.getPhotoUrl().toString());
@@ -284,6 +291,15 @@ public class AuthFragment extends Fragment {
             bundle.putParcelable("UserProfile", userProfile);
 
             getParentFragmentManager().setFragmentResult(AUTH_RESULT, bundle);
+
+            if (getActivity() != null) {
+                //Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                Settings settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+                settings.setAuthTypeService(authTypeServer);
+                settings.setCloudSync(true);
+                new SharedPref(getContext()).saveSettings(settings);
+                ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+            }
 
             // Регистрация прошла успешно
             disableSign(authTypeServer);
@@ -311,6 +327,17 @@ public class AuthFragment extends Fragment {
             userProfile.setFamilyName(String.valueOf(vkAccessToken.getUserId()));
             userProfile.setEmail(vkAccessToken.getEmail());
 
+            if (getActivity() != null) {
+                //Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                Settings settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+                settings.setUserNameVK(userProfile.getEmail());
+                settings.setAuthTypeService(authTypeServer);
+                settings.setCloudSync(true);
+                new SharedPref(getContext()).saveSettings(settings);
+                ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+            }
+
+
             Bundle bundle = new Bundle();
             bundle.putParcelable("UserProfile", userProfile);
 
@@ -330,17 +357,7 @@ public class AuthFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         Log.v("Debug1", "AuthFragment onViewCreated");
-
-        /*view.findViewById(R.id.sign_in_google).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent intent = googleSignInClient.getSignInIntent();
-                startActivityForResult(intent, RC_SIGN_IN_GOOGLE);
-            }
-        });*/
     }
 
     @Override
@@ -367,18 +384,46 @@ public class AuthFragment extends Fragment {
                             updateUI(account.getEmail(), imageURL, authTypeServer);
 
                         }
+                        else{
+                            authTypeServer = TYPE_AUTH_NONE;
+                            enableSign(authTypeServer);
+                            updateUI("", null, TYPE_AUTH_NONE);
+                            Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                            settings.setAuthTypeService(authTypeServer);
+                            settings.setCloudSync(false);
+                            new SharedPref(getContext()).saveSettings(settings);
+                            ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+                        }
                     }
                     break;
                 case TYPE_AUTH_VK:
                     if (VK.isLoggedIn()) {
-                        //VK.ge
-                        //updateUI(account.getEmail(), imageURL, authTypeServer);
+                        disableSign(authTypeServer);
+                        Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                        //Settings settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+                        settings.setAuthTypeService(authTypeServer);
+                        settings.setCloudSync(true);
+                        //new SharedPref(getContext()).saveSettings(settings);
+                        ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+
+
+                        updateUI(settings.getUserNameVK(), null, authTypeServer);
                         Log.v("Debug1", "AuthFragment onStart authTypeServer=" + authTypeServer + ", VK.isLoggedIn()=" + VK.isLoggedIn());
+                    }
+                    else {
+                        authTypeServer = TYPE_AUTH_NONE;
+                        enableSign(authTypeServer);
+                        updateUI("", null, TYPE_AUTH_NONE);
+                        Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                        settings.setAuthTypeService(authTypeServer);
+                        settings.setCloudSync(false);
+                        new SharedPref(getContext()).saveSettings(settings);
+                        ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
                     }
                     break;
                 default:
-                    enableSign();
-                    updateUI("", null, authTypeServer);
+                    enableSign(authTypeServer);
+                    updateUI("", null, TYPE_AUTH_NONE);
                     break;
             }
         } else {
@@ -409,19 +454,7 @@ public class AuthFragment extends Fragment {
             // Когда сюда возвращается Task, результаты аутентификации уже готовы
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResultGoogle(task);
-        } /*else if (requestCode == RC_VK_SIGN_IN) {
-            VKAuthCallback vkAuthCallback = new VKAuthCallback() {
-                @Override
-                public void onLogin(@NotNull VKAccessToken vkAccessToken) {
-                    handleSignInResultVK(vkAccessToken);
-                }
-
-                @Override
-                public void onLoginFailed(int i) {
-                }
-            };
-            VK.onActivityResult(requestCode, resultCode, data, vkAuthCallback);
-        }*/
+        }
     }
 
 

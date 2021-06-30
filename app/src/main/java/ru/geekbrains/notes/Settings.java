@@ -9,6 +9,15 @@ public class Settings {
     private float textSize;
     private int maxCountLines;
     private int currentPosition;
+    private String userNameVK;
+
+    public String getUserNameVK() {
+        return userNameVK;
+    }
+
+    public void setUserNameVK(String userNameVK) {
+        this.userNameVK = userNameVK;
+    }
 
     public int getAuthTypeService() {
         return authTypeService;
@@ -47,6 +56,12 @@ public class Settings {
         this.textSizeId = textSizeId;
         this.maxCountLinesId = maxCountLinesId;
         this.authTypeService = authTypeService;
+    }
+
+    public Settings(int orderType, int textSizeId, int maxCountLinesId) {
+        this.orderType = orderType;
+        this.textSizeId = textSizeId;
+        this.maxCountLinesId = maxCountLinesId;
     }
 
     public int getOrderType() {

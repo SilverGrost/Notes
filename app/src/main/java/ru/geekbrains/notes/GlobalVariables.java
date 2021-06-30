@@ -115,7 +115,7 @@ public class GlobalVariables extends Application {
 
 
 
-    public void setNoteCloudById(int noteId, Note note){
+    public void updateNoteCloudById(int noteId, Note note){
         for (int i = 0; i < notesCloud.size(); i++) {
             if (notesCloud.get(i).getID() == noteId) {
                 notesCloud.set(i, note);

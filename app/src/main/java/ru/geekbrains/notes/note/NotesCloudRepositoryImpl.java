@@ -13,19 +13,21 @@ import static ru.geekbrains.notes.Constant.MILISECOND;
 
 public class NotesCloudRepositoryImpl implements NotesRepository {
 
-    public static final NotesRepository INSTANCE = new NotesCloudRepositoryImpl();
-    private final static String NOTES = "notes";
-    private final static String DATE_CREATE = "date_create";
-    private final static String DATE_EDIT = "date_edit";
+    private final String collectionId;
+    private final static String FIELD_DATE_CREATE = "date_create";
+    private final static String FIELD_DATE_EDIT = "date_edit";
     private final static String VALUE = "value";
     private final static String ID = "id";
-    private static final String AUTH_SERVICE = "auth_service";
-    private static final String USER_NAME = "user_name";
     private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+
+
+    public NotesCloudRepositoryImpl(int authTypeService, String userName) {
+        collectionId = authTypeService + "_" + userName;
+    }
 
     @Override
     public void getNotes(Callback<List<Note>> callback) {
-        firebaseFirestore.collection(NOTES)
+        firebaseFirestore.collection(collectionId)
                 .get()
                 .addOnCompleteListener(task -> {
 
@@ -37,8 +39,8 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
 
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String value = (String) document.get(VALUE);
-                                Date date_create = ((Timestamp) document.get(DATE_CREATE)).toDate();
-                                Date date_edit = ((Timestamp) document.get(DATE_EDIT)).toDate();
+                                Date date_create = ((Timestamp) document.get(FIELD_DATE_CREATE)).toDate();
+                                Date date_edit = ((Timestamp) document.get(FIELD_DATE_EDIT)).toDate();
                                 long id = (long) document.get(ID);
                                 Note note = new Note();
                                 note.setDateCreate(date_create.toInstant().getEpochSecond());
@@ -66,29 +68,32 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
 
     @Override
     public void clearNotes(List<Note> notes, Callback<Object> callback) {
-
+        for (int i = 0; i < notes.size(); i++) {
+            if (notes.get(i).getIdCloud() != null) {
+                firebaseFirestore.collection(collectionId)
+                        .document(notes.get(i).getIdCloud())
+                        .delete()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                callback.onSuccess(true);
+                            }
+                        });
+            }
+        }
     }
 
     @Override
     public void addNote(List<Note> notes, Note note, Callback<Object> callback) {
         HashMap<String, Object> data = new HashMap<>();
 
-        //Date date = new Date();
-
-        /*data.put(USER_NAME, );
-        data.put(AUTH_SERVICE, );*/
         data.put(ID, note.getID());
-
-
         Date dateCreate = new Date(note.getDateCreate() * MILISECOND);
         Date dateEdit = new Date(note.getDateEdit() * MILISECOND);
-
-        data.put(DATE_CREATE, dateCreate);
-        data.put(DATE_EDIT, dateEdit);
+        data.put(FIELD_DATE_CREATE, dateCreate);
+        data.put(FIELD_DATE_EDIT, dateEdit);
         data.put(VALUE, note.getValue());
 
-
-        firebaseFirestore.collection(NOTES)
+        firebaseFirestore.collection(collectionId)
                 .add(data)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -100,8 +105,8 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
 
     @Override
     public void removeNote(List<Note> notes, Note note, Callback<Object> callback) {
-        firebaseFirestore.collection(NOTES)
-                .document(String.valueOf(note.getID()))
+        firebaseFirestore.collection(collectionId)
+                .document(note.getIdCloud())
                 .delete()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -113,24 +118,16 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
     @Override
     public void updateNote(List<Note> notes, Note note, Callback<Object> callback) {
         HashMap<String, Object> data = new HashMap<>();
-
         data.put(ID, note.getID());
-
         Date dateCreate = new Date(note.getDateCreate() * MILISECOND);
         Date dateEdit = new Date(note.getDateEdit() * MILISECOND);
-
-        data.put(DATE_CREATE, dateCreate);
-        data.put(DATE_EDIT, dateEdit);
+        data.put(FIELD_DATE_CREATE, dateCreate);
+        data.put(FIELD_DATE_EDIT, dateEdit);
         data.put(VALUE, note.getValue());
 
-        /*firebaseFirestore.collection(NOTES)
-                .document(note.getID())
+        firebaseFirestore.collection(collectionId)
+                .document(note.getIdCloud())
                 .update(data)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        callback.onSuccess(note);
-                    }
-                });*/
+                .addOnCompleteListener(task -> callback.onSuccess(note));
     }
 }

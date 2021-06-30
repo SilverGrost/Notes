@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentResultListener;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
@@ -18,12 +17,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.Switch;
-import android.widget.Toast;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.vk.api.sdk.VK;
 
 import java.util.List;
 
@@ -31,29 +29,31 @@ import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.SharedPref;
+import ru.geekbrains.notes.note.Callback;
 import ru.geekbrains.notes.note.Note;
+import ru.geekbrains.notes.note.NotesCloudRepositoryImpl;
+import ru.geekbrains.notes.note.NotesRepository;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.ui.auth.AuthFragment;
 import ru.geekbrains.notes.ui.auth.UserProfile;
 
 import static ru.geekbrains.notes.Constant.AUTH_RESULT;
+import static ru.geekbrains.notes.Constant.TYPE_AUTH_GOOGLE;
+import static ru.geekbrains.notes.Constant.TYPE_AUTH_NONE;
+import static ru.geekbrains.notes.Constant.TYPE_AUTH_VK;
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_CHANGE_SETTINGS;
+import static ru.geekbrains.notes.Constant.TYPE_EVENT_CLOUD_SYNC;
 
 public class SettingsFragment extends Fragment {
 
     private Spinner spinnerSort;
     private Spinner spinnerTextSize;
     private Spinner spinnerMaxCountLines;
+    private Settings settings;
     SwitchCompat aSwitch;
-    private Button autButton;
-    private RadioGroup radioGroup;
-    private RadioButton radioButtonGoogle;
-    private RadioButton radioButtonVK;
 
     private UserProfile userProfile = new UserProfile();
-
-    private Button clearAllNotes;
 
     private Publisher publisher;
 
@@ -75,22 +75,78 @@ public class SettingsFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_settings, container, false);
     }
 
+    public String checkCloudStatusByUserName(Settings settings){
+        //boolean isCloudSync = false;
+        int authTypeService = settings.getAuthTypeService();
+        String userName = "";
+
+        if (authTypeService != 0) {
+            switch (authTypeService) {
+                case (TYPE_AUTH_GOOGLE):
+                    if (getContext() != null) {
+                        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getContext());
+                        if (account != null) {
+                            //isCloudSync = true;
+                            userName = account.getEmail();
+                            //Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                            settings.setAuthTypeService(TYPE_AUTH_GOOGLE);
+                            settings.setCloudSync(true);
+                            ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+                        }
+                    }
+                    break;
+                case (TYPE_AUTH_VK):
+                    if (VK.isLoggedIn()) {
+                        //isCloudSync = true;
+                        userName = settings.getUserNameVK();
+                        settings.setAuthTypeService(TYPE_AUTH_VK);
+                        settings.setCloudSync(true);
+                        settings.setUserNameVK(userName);
+                        ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+                    }
+                    break;
+                default:
+                    //isCloudSync = false;
+                    userName = "";
+                    settings.setAuthTypeService(TYPE_AUTH_NONE);
+                    settings.setCloudSync(false);
+                    ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+            }
+        }
+
+        Log.v("Debug1", "EditNoteFragment checkCloudStatusByUserName authTypeService=" + authTypeService);
+
+        return userName;
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "SettingsFragment onViewCreated");
-        Settings settings;
+
         if (getContext() != null) {
+            settings = (new SharedPref(getActivity().getApplication()).loadSettings());
 
-            settings = (new SharedPref(getContext()).loadSettings());
-
-            clearAllNotes = view.findViewById(R.id.buttonClearAll);
+            Button clearAllNotes = view.findViewById(R.id.buttonClearAll);
             clearAllNotes.setOnClickListener(v -> {
                 if (getActivity() != null) {
                     List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+
+                    int authTypeService = settings.getAuthTypeService();
+                    String userName = checkCloudStatusByUserName(settings);
+                    if (userName != null && !userName.equals("")) {
+                        NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
+                        cloudRepository.clearNotes(notes, new Callback<Object>() {
+                            @Override
+                            public void onSuccess(Object result) {
+                                Log.v("Debug1", "SettingsFragment clearNotes cloudRepository");
+                            }
+                        });
+                    }
                     notes.clear();
                     ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
                     new SharedPref(getActivity()).saveNotes(notes);
+
                 }
             });
 
@@ -107,6 +163,7 @@ public class SettingsFragment extends Fragment {
                     /*if (getActivity() != null)
                         ((GlobalVariables) getActivity().getApplication()).setTextSizeId(position);*/
                 }
+
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0) {
                     //Toast.makeText(getContext(), "Position NothingSelected", Toast.LENGTH_SHORT).show();
@@ -125,6 +182,7 @@ public class SettingsFragment extends Fragment {
                     /*if (getActivity() != null)
                         ((GlobalVariables) getActivity().getApplication()).setSortTypeId(position);*/
                 }
+
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0) {
                 }
@@ -142,6 +200,7 @@ public class SettingsFragment extends Fragment {
                     /*if (getActivity() != null)
                         ((GlobalVariables) getActivity().getApplication()).setMaxCountLinesId(position);*/
                 }
+
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0) {
                 }
@@ -156,63 +215,27 @@ public class SettingsFragment extends Fragment {
                     Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getEmail()=" + userProfile.getEmail());
                     Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getFamilyName()=" + userProfile.getFamilyName());
                     Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getGivenName()=" + userProfile.getGivenName());
-                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getiD()=" + userProfile.getiD());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getiD()=" + userProfile.getId());
                     Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getIdToken()=" + userProfile.getIdToken());
                     Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getPhotoURL()=" + userProfile.getPhotoURL());
                     Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getServerAuthCode()=" + userProfile.getServerAuthCode());
                     Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getTypeAutService()=" + userProfile.getTypeAutService());
 
+                    settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+                    settings.setCloudSync(userProfile.getTypeAutService() != TYPE_AUTH_NONE);
+                    settings.setAuthTypeService(userProfile.getTypeAutService());
+                    ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
 
+                    if (publisher != null) {
+                        Log.v("Debug1", "SettingsFragment onViewCreated setFragmentResultListener notify");
+                        publisher.notify(-1, TYPE_EVENT_CLOUD_SYNC);
+                    }
 
-                    Toast.makeText(requireContext(), "Auth Success", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(requireContext(), "Auth Success", Toast.LENGTH_SHORT).show();
                 });
             }
 
-            /*radioGroup = view.findViewById(R.id.radioGroup);
-
-            radioButtonGoogle = view.findViewById(R.id.radioButtonGoogle);
-            radioButtonVK = view.findViewById(R.id.radioButtonVK);*/
-
-            //if (settings.isCloudSync()) {
-                //radioButtonGoogle.setEnabled(settings.isCloudSync());
-                //radioButtonVK.setEnabled(settings.isCloudSync());
-            /*}
-            else
-                radioGroup.setVisibility(View.GONE);*/
-
-
-            /*radioButtonGoogle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    Log.v("Debug1", "SettingsFragment onCreateView radioButtonGoogle.setOnCheckedChangeListener isChecked=" + isChecked);
-                    if (isChecked){
-                        AuthFragment authFragment = AuthFragment.newInstance();
-                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                        fragmentTransaction.add(R.id.frame_container_main, authFragment, "AuthFragment");
-                        fragmentTransaction.addToBackStack(null);
-                        fragmentTransaction.commit();
-                    }
-                    else {
-
-                    }
-                }
-            });
-
-
-            radioButtonVK.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    Log.v("Debug1", "SettingsFragment onCreateView radioButtonVK.setOnCheckedChangeListener isChecked=" + isChecked);
-                }
-            });*/
-
-
-
-
-
-            autButton = view.findViewById(R.id.buttonAuth);
+            Button autButton = view.findViewById(R.id.buttonAuth);
             autButton.setOnClickListener(v -> {
                 AuthFragment authFragment = AuthFragment.newInstance(settings.getAuthTypeService());
                 if (getActivity() != null) {
@@ -225,13 +248,16 @@ public class SettingsFragment extends Fragment {
                 }
             });
 
-
             aSwitch = view.findViewById(R.id.switchAuth);
-            if (settings.getAuthTypeService() != 0) {
+
+
+
+
+            aSwitch.setChecked(settings.isCloudSync());
+            /*if (settings.getAuthTypeService() != 0) {
                 aSwitch.setChecked(true);
                 autButton.setVisibility(View.VISIBLE);
-            }
-            else {
+            } else {
                 aSwitch.setChecked(false);
                 autButton.setVisibility(View.INVISIBLE);
             }
@@ -240,9 +266,7 @@ public class SettingsFragment extends Fragment {
                     autButton.setVisibility(View.VISIBLE);
                 else
                     autButton.setVisibility(View.INVISIBLE);
-
-                //Toast.makeText(requireContext(), "Auth Failed", Toast.LENGTH_SHORT).show();
-            });
+            });*/
 
         }
     }
@@ -284,7 +308,14 @@ public class SettingsFragment extends Fragment {
 
     @Override
     public void onDetach() {
-        Settings settings = new Settings(spinnerSort.getSelectedItemPosition(), spinnerTextSize.getSelectedItemPosition(), spinnerMaxCountLines.getSelectedItemPosition(), userProfile.getTypeAutService());
+
+        settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+
+        settings.setOrderType(spinnerSort.getSelectedItemPosition());
+        settings.setTextSizeId(spinnerTextSize.getSelectedItemPosition());
+        settings.setMaxCountLinesId(spinnerMaxCountLines.getSelectedItemPosition());
+
+        settings.setCloudSync(aSwitch.isChecked());
 
         String[] textSizeArray = getResources().getStringArray(R.array.text_size);
         int textSizeId = settings.getTextSizeId();
@@ -295,7 +326,7 @@ public class SettingsFragment extends Fragment {
         int maxCountLinesId = settings.getMaxCountLinesId();
         int maxCountLines;
 
-        switch (maxCountLinesId){
+        switch (maxCountLinesId) {
             case (0):              //Без ограничений
                 maxCountLines = -1;
                 break;

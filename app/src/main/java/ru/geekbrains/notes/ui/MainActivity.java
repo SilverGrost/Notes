@@ -19,9 +19,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.vk.api.sdk.VK;
 import com.vk.api.sdk.auth.VKAccessToken;
@@ -36,10 +33,6 @@ import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.SharedPref;
-import ru.geekbrains.notes.note.Callback;
-import ru.geekbrains.notes.note.Note;
-import ru.geekbrains.notes.note.NotesRepository;
-import ru.geekbrains.notes.note.NotesLocalRepositoryImpl;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 
@@ -48,21 +41,13 @@ import ru.geekbrains.notes.ui.item.ViewNoteFragment;
 import ru.geekbrains.notes.ui.settings.AboutFragment;
 import ru.geekbrains.notes.ui.settings.SettingsFragment;
 
-import static ru.geekbrains.notes.Constant.RC_SIGN_IN_GOOGLE;
 import static ru.geekbrains.notes.Constant.RC_VK_SIGN_IN;
 
 
 public class MainActivity extends AppCompatActivity implements PublisherHolder {
 
     private final Publisher publisher = new Publisher();
-
-
-
     private ActionBarDrawerToggle toggle;
-
-    List<Note> notes;
-
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -82,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
                         authFragment.handleSignInResultVK(vkAccessToken);
                     }
                 }
-
                 @Override
                 public void onLoginFailed(int i) {
                 }
@@ -137,18 +121,6 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
         //Если первый раз
         if (savedInstanceState == null) {
             Log.v("Debug1", "MainActivity onCreate savedInstanceState == null");
-            //Получаем доступ к репозиторию
-
-
-            //Получаем заметки из репозитория
-            //List<Note> notes = notesRepository.getNotes();
-
-
-
-
-            //Сохраняем заметки в глобальной переменной
-            /*
-            ((GlobalVariables) getApplication()).setNotes(notes);*/
 
             Settings settings = (new SharedPref(this).loadSettings());
             ((GlobalVariables) getApplication()).setSettings(settings);
@@ -173,9 +145,6 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
                     break;
             }
             settings.setMaxCountLines(maxCountLines);
-
-
-
         } else {
             Log.v("Debug1", "MainActivity onCreate savedInstanceState != null");
 
@@ -256,9 +225,7 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
 
         TextView textView = navHeader.findViewById(R.id.textView_version_menu);
         if (textView != null) {
-            int versionCode = BuildConfig.VERSION_CODE;
             String versionName = BuildConfig.VERSION_NAME;
-            //String versionName = null;
             String strAbout = getResources().getString(R.string.menu_string) + versionName;
             textView.setText(strAbout);
         }

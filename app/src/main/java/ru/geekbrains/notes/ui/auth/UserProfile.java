@@ -1,6 +1,5 @@
 package ru.geekbrains.notes.ui.auth;
 
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -12,7 +11,7 @@ public class UserProfile implements Parcelable {
     private String email;
     private String familyName;
     private String givenName;
-    private String iD;
+    private String id;
     private int typeAutService;
 
     public UserProfile() {
@@ -27,7 +26,7 @@ public class UserProfile implements Parcelable {
         email = in.readString();
         familyName = in.readString();
         givenName = in.readString();
-        iD = in.readString();
+        id = in.readString();
         typeAutService = in.readInt();
     }
 
@@ -107,12 +106,12 @@ public class UserProfile implements Parcelable {
         this.givenName = givenName;
     }
 
-    public String getiD() {
-        return iD;
+    public String getId() {
+        return id;
     }
 
-    public void setiD(String iD) {
-        this.iD = iD;
+    public void setId(String iD) {
+        this.id = iD;
     }
 
     @Override
@@ -129,6 +128,6 @@ public class UserProfile implements Parcelable {
         dest.writeString(getEmail());
         dest.writeString(getFamilyName());
         dest.writeString(getGivenName());
-        dest.writeString(getiD());
+        dest.writeString(getId());
     }
 }

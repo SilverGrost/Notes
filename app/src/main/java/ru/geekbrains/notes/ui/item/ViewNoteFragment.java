@@ -18,14 +18,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.Settings;
-import ru.geekbrains.notes.note.Callback;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.note.NotesLocalRepositoryImpl;
@@ -33,11 +31,9 @@ import ru.geekbrains.notes.note.NotesRepository;
 import ru.geekbrains.notes.observer.ObserverNote;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
-import ru.geekbrains.notes.SharedPref;
 import ru.geekbrains.notes.ui.list.SearchResultFragment;
 
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_DELETE_NOTE;
-import static ru.geekbrains.notes.Constant.TYPE_EVENT_EDIT_NOTE;
 
 public class ViewNoteFragment extends Fragment implements ObserverNote {
 
@@ -46,7 +42,6 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
     private int noteId = 0;
     private Publisher publisher;
     private Publisher publisher2;
-    private int position;
 
     private View viewFragment;
 
@@ -224,7 +219,7 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
         if (getActivity() != null && getActivity().getApplication() != null) {
             List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
             int prevID = 0;
-            position = 0;
+            int position = 0;
             Note note = new Note();
             for (int i = 0; i < notes.size(); i++) {
                 if (notes.get(i).getID() == noteId) {
@@ -239,15 +234,7 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
             ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
 
             NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext());
-            localRepository.removeNote(notes, note, new Callback<Object>() {
-                @Override
-                public void onSuccess(Object result) {
-                    /*if (publisher != null) {
-                        publisher.notify(position, TYPE_EVENT_DELETE_NOTE);
-                    }*/
-                    Log.v("Debug1", "ViewNoteFragment onClick button_delete onSuccess");
-                }
-            });
+            localRepository.removeNote(notes, note, result -> Log.v("Debug1", "ViewNoteFragment onClick button_delete onSuccess"));
 
 
             //if (getContext() != null) {

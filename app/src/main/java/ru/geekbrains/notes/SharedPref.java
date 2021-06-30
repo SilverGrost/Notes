@@ -27,6 +27,7 @@ public class SharedPref {
         note.setID(SharedPreferences.getInt(NOTEID + id, note.getID()));
         note.setDateEdit(SharedPreferences.getLong(NOTEDATE + id, note.getDateEdit()));
         note.setDateCreate(SharedPreferences.getLong(NOTEDATECREATE + id, note.getDateCreate()));
+        note.setIdCloud(SharedPreferences.getString(NOTEIDCLOUD + id, note.getIdCloud()));
         return note;
     }
 
@@ -47,6 +48,7 @@ public class SharedPref {
         editor.putInt(NOTEID + id, note.getID());
         editor.putLong(NOTEDATE + id, note.getDateEdit());
         editor.putLong(NOTEDATECREATE + id, note.getDateCreate());
+        editor.putString(NOTEIDCLOUD + id, note.getIdCloud());
 
         editor.apply();
     }
@@ -72,6 +74,7 @@ public class SharedPref {
         settings.setCurrentPosition(SharedPreferences.getInt(APPSETTINGSCURRENTPOSITION, DEFAULTCURRENTPOSITION));
         settings.setCloudSync(SharedPreferences.getBoolean(APPSETTINGSCLOUDSYNC, DEFAULTCLOUDSYNC));
         settings.setAuthTypeService(SharedPreferences.getInt(AUTHTYPESERVICE, DEFAULTAUTHTYPESERVICE));
+        settings.setUserNameVK(SharedPreferences.getString(USERNAMEVK, DEFAULTUSERNAMEVK));
         return settings;
     }
 
@@ -84,6 +87,7 @@ public class SharedPref {
         editor.putInt(APPSETTINGSCURRENTPOSITION, settings.getCurrentPosition());
         editor.putBoolean(APPSETTINGSCLOUDSYNC, settings.isCloudSync());
         editor.putInt(AUTHTYPESERVICE, settings.getAuthTypeService());
+        editor.putString(USERNAMEVK, settings.getUserNameVK());
         editor.apply();
     }
 }
