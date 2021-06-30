@@ -70,6 +70,8 @@ public class SharedPref {
         settings.setTextSizeId(SharedPreferences.getInt(APPSETTINGSTEXTSIZE, DEFAULTTEXTSIZEID));
         settings.setMaxCountLinesId(SharedPreferences.getInt(APPSETTINGSMAXCOUNTLINES, DEFAULTLMAXCOUNTLINESID));
         settings.setCurrentPosition(SharedPreferences.getInt(APPSETTINGSCURRENTPOSITION, DEFAULTCURRENTPOSITION));
+        settings.setCloudSync(SharedPreferences.getBoolean(APPSETTINGSCLOUDSYNC, DEFAULTCLOUDSYNC));
+        settings.setAuthTypeService(SharedPreferences.getInt(AUTHTYPESERVICE, DEFAULTAUTHTYPESERVICE));
         return settings;
     }
 
@@ -80,6 +82,8 @@ public class SharedPref {
         editor.putInt(APPSETTINGSSORTTYPE, settings.getOrderType());
         editor.putInt(APPSETTINGSMAXCOUNTLINES, settings.getMaxCountLinesId());
         editor.putInt(APPSETTINGSCURRENTPOSITION, settings.getCurrentPosition());
+        editor.putBoolean(APPSETTINGSCLOUDSYNC, settings.isCloudSync());
+        editor.putInt(AUTHTYPESERVICE, settings.getAuthTypeService());
         editor.apply();
     }
 }

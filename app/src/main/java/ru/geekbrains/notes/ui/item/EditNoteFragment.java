@@ -26,6 +26,7 @@ import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.note.Callback;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.R;
+import ru.geekbrains.notes.note.NotesCloudRepositoryImpl;
 import ru.geekbrains.notes.note.NotesLocalRepositoryImpl;
 import ru.geekbrains.notes.note.NotesRepository;
 import ru.geekbrains.notes.observer.Publisher;
@@ -157,21 +158,22 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
 
                 NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext());
                 if (noteId == -1) {
-                    localRepository.addNote(notes, note, new Callback<Object>() {
-                        @Override
-                        public void onSuccess(Object result) {
-                            Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_ADD_NOTE");
-                        }
-                    });
+                    localRepository.addNote(notes, note, result -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_ADD_NOTE"));
                 }
                 else {
-                    localRepository.updateNote(notes, note, new Callback<Object>() {
-                        @Override
-                        public void onSuccess(Object result) {
-                            Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE");
-                        }
-                    });
+                    localRepository.updateNote(notes, note, result -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE"));
                 }
+
+                Settings settings = new Settings();
+                if (getActivity() != null) {
+                    settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                }
+
+                if (settings.getAuthTypeService() != 0) {
+                    NotesRepository cloudRepository = new NotesCloudRepositoryImpl().INSTANCE;
+                    cloudRepository.addNote(notes, note, result -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository"));
+                }
+
 
                 if (publisher != null) {
                     Log.v("Debug1", "EditNoteFragment onClick button_ok notify noteId=" + noteId);

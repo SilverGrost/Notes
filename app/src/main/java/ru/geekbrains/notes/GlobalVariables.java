@@ -10,6 +10,7 @@ import ru.geekbrains.notes.note.Note;
 public class GlobalVariables extends Application {
 
     private List<Note> notes;
+    private List<Note> notesCloud;
 
     private int currentNote;
 
@@ -61,13 +62,12 @@ public class GlobalVariables extends Application {
         this.notes = notes;
     }
 
-    public Note getNoteByNoteId(int noteId){
-        for (int i = 0; i < notes.size(); i++) {
-            if (notes.get(i).getID() == noteId) {
-                return notes.get(i);
-            }
-        }
-        return new Note();
+    public void setNotesCloud(List<Note> notes) {
+        this.notesCloud = notes;
+    }
+
+    public List<Note> getNotesCloud() {
+        return notesCloud;
     }
 
     public int getScrollPositionByNoteId(int noteId){
@@ -93,6 +93,9 @@ public class GlobalVariables extends Application {
         return newId;
     }
 
+
+
+
     public void setNoteById(int noteId, Note note){
         for (int i = 0; i < notes.size(); i++) {
             if (notes.get(i).getID() == noteId) {
@@ -101,7 +104,33 @@ public class GlobalVariables extends Application {
         }
     }
 
+    public Note getNoteByNoteId(int noteId){
+        for (int i = 0; i < notes.size(); i++) {
+            if (notes.get(i).getID() == noteId) {
+                return notes.get(i);
+            }
+        }
+        return new Note();
+    }
 
+
+
+    public void setNoteCloudById(int noteId, Note note){
+        for (int i = 0; i < notesCloud.size(); i++) {
+            if (notesCloud.get(i).getID() == noteId) {
+                notesCloud.set(i, note);
+            }
+        }
+    }
+
+    public Note getNoteCloudByNoteId(int noteId){
+        for (int i = 0; i < notesCloud.size(); i++) {
+            if (notesCloud.get(i).getID() == noteId) {
+                return notesCloud.get(i);
+            }
+        }
+        return new Note();
+    }
 
 
 }

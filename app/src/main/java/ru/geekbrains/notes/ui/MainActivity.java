@@ -211,8 +211,9 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
 
         TextView textView = navHeader.findViewById(R.id.textView_version_menu);
         if (textView != null) {
-            //int versionCode = BuildConfig.VERSION_CODE;
+            int versionCode = BuildConfig.VERSION_CODE;
             String versionName = BuildConfig.VERSION_NAME;
+            //String versionName = null;
             String strAbout = getResources().getString(R.string.menu_string) + versionName;
             textView.setText(strAbout);
         }

@@ -5,7 +5,11 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentResultListener;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,7 +18,12 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.Switch;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -25,16 +34,26 @@ import ru.geekbrains.notes.SharedPref;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
+import ru.geekbrains.notes.ui.auth.AuthFragment;
+import ru.geekbrains.notes.ui.auth.UserProfile;
 
+import static ru.geekbrains.notes.Constant.AUTH_RESULT;
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_CHANGE_SETTINGS;
 
 public class SettingsFragment extends Fragment {
 
-    Spinner spinnerSort;
-    Spinner spinnerTextSize;
-    Spinner spinnerMaxCountLines;
+    private Spinner spinnerSort;
+    private Spinner spinnerTextSize;
+    private Spinner spinnerMaxCountLines;
+    SwitchCompat aSwitch;
+    private Button autButton;
+    private RadioGroup radioGroup;
+    private RadioButton radioButtonGoogle;
+    private RadioButton radioButtonVK;
 
-    Button clearAllNotes;
+    private UserProfile userProfile = new UserProfile();
+
+    private Button clearAllNotes;
 
     private Publisher publisher;
 
@@ -127,6 +146,101 @@ public class SettingsFragment extends Fragment {
                 public void onNothingSelected(AdapterView<?> arg0) {
                 }
             });
+
+
+            if (getActivity() != null) {
+                getActivity().getSupportFragmentManager().setFragmentResultListener(AUTH_RESULT, this, (requestKey, result) -> {
+
+                    userProfile = result.getParcelable("UserProfile");
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getDisplayName()=" + userProfile.getDisplayName());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getEmail()=" + userProfile.getEmail());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getFamilyName()=" + userProfile.getFamilyName());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getGivenName()=" + userProfile.getGivenName());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getiD()=" + userProfile.getiD());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getIdToken()=" + userProfile.getIdToken());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getPhotoURL()=" + userProfile.getPhotoURL());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getServerAuthCode()=" + userProfile.getServerAuthCode());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getTypeAutService()=" + userProfile.getTypeAutService());
+                    Toast.makeText(requireContext(), "Auth Success", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            /*radioGroup = view.findViewById(R.id.radioGroup);
+
+            radioButtonGoogle = view.findViewById(R.id.radioButtonGoogle);
+            radioButtonVK = view.findViewById(R.id.radioButtonVK);*/
+
+            //if (settings.isCloudSync()) {
+                //radioButtonGoogle.setEnabled(settings.isCloudSync());
+                //radioButtonVK.setEnabled(settings.isCloudSync());
+            /*}
+            else
+                radioGroup.setVisibility(View.GONE);*/
+
+
+            /*radioButtonGoogle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    Log.v("Debug1", "SettingsFragment onCreateView radioButtonGoogle.setOnCheckedChangeListener isChecked=" + isChecked);
+                    if (isChecked){
+                        AuthFragment authFragment = AuthFragment.newInstance();
+                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        fragmentTransaction.add(R.id.frame_container_main, authFragment, "AuthFragment");
+                        fragmentTransaction.addToBackStack(null);
+                        fragmentTransaction.commit();
+                    }
+                    else {
+
+                    }
+                }
+            });
+
+
+            radioButtonVK.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    Log.v("Debug1", "SettingsFragment onCreateView radioButtonVK.setOnCheckedChangeListener isChecked=" + isChecked);
+                }
+            });*/
+
+
+
+
+
+            autButton = view.findViewById(R.id.buttonAuth);
+            autButton.setOnClickListener(v -> {
+                AuthFragment authFragment = AuthFragment.newInstance(settings.getAuthTypeService());
+                if (getActivity() != null) {
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    fragmentTransaction.add(R.id.frame_container_main, authFragment, "AuthFragment");
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
+                }
+            });
+
+
+            aSwitch = view.findViewById(R.id.switchAuth);
+            if (settings.getAuthTypeService() != 0) {
+                aSwitch.setChecked(true);
+                autButton.setVisibility(View.VISIBLE);
+            }
+            else {
+                aSwitch.setChecked(false);
+                autButton.setVisibility(View.INVISIBLE);
+            }
+            aSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked)
+                    autButton.setVisibility(View.VISIBLE);
+                else
+                    autButton.setVisibility(View.INVISIBLE);
+
+                //Toast.makeText(requireContext(), "Auth Failed", Toast.LENGTH_SHORT).show();
+            });
+
         }
     }
 
@@ -167,7 +281,7 @@ public class SettingsFragment extends Fragment {
 
     @Override
     public void onDetach() {
-        Settings settings = new Settings(spinnerSort.getSelectedItemPosition(), spinnerTextSize.getSelectedItemPosition(), spinnerMaxCountLines.getSelectedItemPosition());
+        Settings settings = new Settings(spinnerSort.getSelectedItemPosition(), spinnerTextSize.getSelectedItemPosition(), spinnerMaxCountLines.getSelectedItemPosition(), userProfile.getTypeAutService());
 
         String[] textSizeArray = getResources().getStringArray(R.array.text_size);
         int textSizeId = settings.getTextSizeId();

@@ -12,11 +12,15 @@ public class Constant {
     public static final String APPSETTINGSTEXTSIZE = "AppSettingsTextSize";
     public static final String APPSETTINGSSORTTYPE = "AppSettingsSortType";
     public static final String APPSETTINGSMAXCOUNTLINES = "AppSettingsMaxCountLines";
+    public static final String APPSETTINGSCLOUDSYNC = "AppSettingsCloudSync";
     public static final String APPSETTINGSCURRENTPOSITION = "AppSettingsCurrentPosition";
+    public static final String AUTHTYPESERVICE = "AuthTypeService";
     public static final int DEFAULTTEXTSIZEID = 5;
     public static final int DEFAULTSORTTYPEID = 0;
     public static final int DEFAULTLMAXCOUNTLINESID = 0;
+    public static final boolean DEFAULTCLOUDSYNC = false;
     public static final int DEFAULTCURRENTPOSITION = 0;
+    public static final int DEFAULTAUTHTYPESERVICE = 0;
     public static final int ORDER_BY_DATE_EDIT = 0;
     public static final int ORDER_BY_DATE_EDIT_DESC = 1;
     public static final int ORDER_BY_DATE_CREATE = 2;
@@ -28,4 +32,11 @@ public class Constant {
     //public static final int TYPE_EVENT_VIEW_NOTE = 2;
     public static final int TYPE_EVENT_DELETE_NOTE = 3;
     public static final int TYPE_EVENT_CHANGE_SETTINGS = 4;
+    public static final int TYPE_AUTH_NONE = 0;
+    public static final int TYPE_AUTH_GOOGLE = 1;
+    public static final int TYPE_AUTH_VK = 2;
+    public static final int RC_SIGN_IN_GOOGLE = 40404;
+    public static final int RC_VK_SIGN_IN = 282;
+    public static final String AUTH_RESULT = "AUTH_RESULT";
+
 }

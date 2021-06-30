@@ -39,6 +39,8 @@
 
     </LinearLayout>
 
+
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_lines"
         android:layout_width="match_parent"
@@ -49,5 +51,14 @@
     </androidx.recyclerview.widget.RecyclerView>
 
 
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:background="@color/black"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:visibility="visible" />
 
 </FrameLayout>

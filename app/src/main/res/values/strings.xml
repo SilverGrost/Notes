@@ -48,4 +48,15 @@
     <string name="ButtonAdd1000">Добавить 1000 заметок</string>
     <string name="MaxCountLines">Кол-во строк в списке</string>
     <string name="ImageViewDescriptionMenu">Menu</string>
+    <string name="textViewAuthBy">Вы авторизованы через:</string>
+    <string name="sign_out">Выйти</string>
+    <string name="textViewYouCan">Вы можете авторизоваться через:</string>
+    <string name="sign_in_vk">VK</string>
+    <string name="switchAuth">Облачная синхронизация</string>
+    <string name="buttonAuth">Настройки синхронизации</string>
+    <string name="imageviewava">imageViewAva</string>
+    <string name="textViewAuthByVK">Вы авторизованы через VK</string>
+    <string name="textViewAuthByGoogle">Вы авторизованы через Google</string>
+    <string name="textViewAuthByNONE">Вы не авторизованы</string>
+    <integer name="com_vk_sdk_AppId">7891094</integer>
 </resources>
