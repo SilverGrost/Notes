@@ -22,7 +22,6 @@ import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.Settings;
-import ru.geekbrains.notes.note.Callback;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.note.NotesCloudRepositoryImpl;
@@ -172,21 +171,13 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
                     localRepository.addNote(notes, note, result -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_ADD_NOTE"));
                     if (cloudSync) {
 
-                        cloudRepository.addNote(notes, note, new Callback<Object>() {
-                            @Override
-                            public void onSuccess(Object result) {
-                                Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository add result=" + result);
-                                note.setIdCloud((String) result);
-                                localRepository.updateNote(notes, note, result1 -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE updateNote"));
+                        cloudRepository.addNote(notes, note, result -> {
+                            Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository add result=" + result);
+                            note.setIdCloud((String) result);
+                            localRepository.updateNote(notes, note, result1 -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE updateNote"));
 
-                                cloudRepository.updateNote(notes, note, new Callback<Object>() {
-                                    @Override
-                                    public void onSuccess(Object result) {
-                                        Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository update");
-                                    }
-                                });
+                            cloudRepository.updateNote(notes, note, result12 -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository update"));
 
-                            }
                         });
                     }
 
@@ -194,17 +185,14 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
                 } else {
                     localRepository.updateNote(notes, note, result -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE"));
                     if (cloudSync) {
-                        cloudRepository.updateNote(notes, note, new Callback<Object>() {
-                            @Override
-                            public void onSuccess(Object result) {
-                                Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository update");
-                                localRepository.updateNote(notes, note, new Callback<Object>() {
-                                    @Override
-                                    public void onSuccess(Object result1) {
-                                        Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE updateNote");
-                                    }
-                                });
-                            }
+                        cloudRepository.updateNote(notes, note, result -> {
+                            Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository update");
+                            /*localRepository.updateNote(notes, note, new Callback<Object>() {
+                                @Override
+                                public void onSuccess(Object result1) {
+                                    Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE updateNote");
+                                }
+                            });*/
                         });
                     }
                 }

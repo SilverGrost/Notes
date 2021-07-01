@@ -155,6 +155,7 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
             data.put(VALUE, note.getValue());
             data.put(IDCLOUD, note.getIdCloud());
 
+            if (note.getIdCloud() != null && !note.getIdCloud().equals(""))
             firebaseFirestore.collection(collectionId)
                     .document(note.getIdCloud())
                     .update(data)

@@ -32,7 +32,6 @@ import java.util.List;
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.SharedPref;
-import ru.geekbrains.notes.note.Callback;
 import ru.geekbrains.notes.note.NotesCloudRepositoryImpl;
 import ru.geekbrains.notes.note.NotesLocalRepositoryImpl;
 import ru.geekbrains.notes.note.NotesRepository;
@@ -198,7 +197,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
                         for (int i = start; i < COUNTDEMONOTES; i++) {
                             Date date = new Date();
-                            Note note = new Note(("Заметка №" + i), (i * 2), date.toInstant().getEpochSecond(), date.toInstant().getEpochSecond());
+                            Note note = new Note(("Заметка №" + i), (i/* * 2*/), date.toInstant().getEpochSecond(), date.toInstant().getEpochSecond());
 
                             /*try {
                                 Thread.sleep(1000); //Приостанавливает поток на 1 секунду
@@ -206,14 +205,35 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
                             }*/
 
-                            cloudRepository.addNote(notes, note, result -> {
-                                note.setIdCloud((String) result);
-                                Log.v("Debug1", "ListNotesFragment setEmptyResultTextView cloudRepository cloudRepository.addNote result=" + result);
-                                //((GlobalVariables) getActivity().getApplication()).setNoteById(note.getID(), note);
-                                //localRepository.updateNote(notes, note, result1 -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE updateNote"));
-                            });
+
+                            boolean cloudSync = false;
+                            String userName;
+                            if (getActivity() != null) {
+                                //Получаем настройки из глобальной переменной
+                                Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                                userName = AuthFragment.checkCloudStatusByUserName(settings, getContext(), getActivity());
+                                if (userName != null && !userName.equals("")) {
+                                    cloudSync = true;
+                                }
+                            }
+
+                            NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext());
 
                             notes.add(note);
+
+                            if (cloudSync) {
+
+                                NotesRepository finalCloudRepository = cloudRepository;
+                                cloudRepository.addNote(notes, note, result -> {
+                                    note.setIdCloud((String) result);
+
+                                    localRepository.updateNote(notes, note, result1 -> Log.v("Debug1", "ListNotesFragment setEmptyResultTextVie addDemo localRepository updateNote"));
+
+                                    finalCloudRepository.updateNote(notes, note, result12 -> Log.v("Debug1", "ListNotesFragment setEmptyResultTextVie addDemo finalCloudRepository updateNote"));
+                                });
+                            }
+
+
                         }
 
                         //Сохраняем заметки в глобальной переменной
@@ -327,12 +347,19 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
                         //Если в облачных заметак нет заметки с таким id, то добавляем из локальных
                         if (noteCloud.getID() == -1) {
+
+
+                            cloudRepository.addNote(notes, noteLocal, result15 -> {
+                                noteLocal.setIdCloud((String) result15);
+
+                                localRepository.updateNote(notes, noteLocal, result1 -> Log.v("Debug1", "ListNotesFragment setEmptyResultTextVie addDemo localRepository updateNote"));
+
+                                cloudRepository.updateNote(notes, noteLocal, result151 -> Log.v("Debug1", "ListNotesFragment setEmptyResultTextVie addDemo finalCloudRepository updateNote"));
+                            });
+
                             //notesCloud.add(noteLocal);
                             localRepository.addNote(notesCloud, noteCloud, result13 -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_ADD_NOTE"));
-                            cloudRepository.addNote(notesCloud, noteLocal, result1 -> {
-                                Log.v("Debug1", "ListNotesFragment cloudSync Загрузил в облако result1=" + result1);
-                                noteLocal.setIdCloud((String) result1);
-                            });
+
                         }
                         //Если есть, то сравниваем даты
                         else {
@@ -347,9 +374,6 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                             }
                         }
                     }
-
-                    /*((GlobalVariables) getActivity().getApplication()).setNotesCloud(notesCloud);
-                    ((GlobalVariables) getActivity().getApplication()).setNotes(notes);*/
 
                     notesCloud = ((GlobalVariables) getActivity().getApplication()).getNotesCloud();
                     notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
