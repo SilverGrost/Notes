@@ -23,7 +23,10 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
+import ru.geekbrains.notes.Settings;
+import ru.geekbrains.notes.SharedPref;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
 import ru.geekbrains.notes.ui.list.SearchResultFragment;
 
@@ -119,6 +122,12 @@ public class MainFragment extends Fragment implements View.OnClickListener, Sear
     @Override
     public void onDetach() {
         super.onDetach();
+        //Читаем настройки из глобальной переменной
+        Settings settings;
+        if (getActivity() != null & getContext() != null) {
+            settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+            new SharedPref(getContext()).saveSettings(settings);
+        }
         Log.v("Debug1", "MainFragment onDetach");
     }
 

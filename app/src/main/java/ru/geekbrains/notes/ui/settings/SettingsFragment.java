@@ -19,10 +19,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.vk.api.sdk.VK;
-
 import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
@@ -39,9 +35,7 @@ import ru.geekbrains.notes.ui.auth.AuthFragment;
 import ru.geekbrains.notes.ui.auth.UserProfile;
 
 import static ru.geekbrains.notes.Constant.AUTH_RESULT;
-import static ru.geekbrains.notes.Constant.TYPE_AUTH_GOOGLE;
 import static ru.geekbrains.notes.Constant.TYPE_AUTH_NONE;
-import static ru.geekbrains.notes.Constant.TYPE_AUTH_VK;
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_CHANGE_SETTINGS;
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_CLOUD_SYNC;
 
@@ -75,57 +69,19 @@ public class SettingsFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_settings, container, false);
     }
 
-    public String checkCloudStatusByUserName(Settings settings){
-        //boolean isCloudSync = false;
-        int authTypeService = settings.getAuthTypeService();
-        String userName = "";
-
-        if (authTypeService != 0) {
-            switch (authTypeService) {
-                case (TYPE_AUTH_GOOGLE):
-                    if (getContext() != null) {
-                        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getContext());
-                        if (account != null) {
-                            //isCloudSync = true;
-                            userName = account.getEmail();
-                            //Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
-                            settings.setAuthTypeService(TYPE_AUTH_GOOGLE);
-                            settings.setCloudSync(true);
-                            ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
-                        }
-                    }
-                    break;
-                case (TYPE_AUTH_VK):
-                    if (VK.isLoggedIn()) {
-                        //isCloudSync = true;
-                        userName = settings.getUserNameVK();
-                        settings.setAuthTypeService(TYPE_AUTH_VK);
-                        settings.setCloudSync(true);
-                        settings.setUserNameVK(userName);
-                        ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
-                    }
-                    break;
-                default:
-                    //isCloudSync = false;
-                    userName = "";
-                    settings.setAuthTypeService(TYPE_AUTH_NONE);
-                    settings.setCloudSync(false);
-                    ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
-            }
-        }
-
-        Log.v("Debug1", "EditNoteFragment checkCloudStatusByUserName authTypeService=" + authTypeService);
-
-        return userName;
-    }
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "SettingsFragment onViewCreated");
 
         if (getContext() != null) {
-            settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+            //settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+
+            //Читаем настройки из глобальной переменной
+            //Settings settings = new Settings();
+            if (getActivity() != null) {
+                settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+            }
 
             Button clearAllNotes = view.findViewById(R.id.buttonClearAll);
             clearAllNotes.setOnClickListener(v -> {
@@ -133,15 +89,10 @@ public class SettingsFragment extends Fragment {
                     List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
 
                     int authTypeService = settings.getAuthTypeService();
-                    String userName = checkCloudStatusByUserName(settings);
+                    String userName = AuthFragment.checkCloudStatusByUserName(settings, getContext(), getActivity());
                     if (userName != null && !userName.equals("")) {
                         NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
-                        cloudRepository.clearNotes(notes, new Callback<Object>() {
-                            @Override
-                            public void onSuccess(Object result) {
-                                Log.v("Debug1", "SettingsFragment clearNotes cloudRepository");
-                            }
-                        });
+                        cloudRepository.clearNotes(notes, result -> Log.v("Debug1", "SettingsFragment clearNotes cloudRepository"));
                     }
                     notes.clear();
                     ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
@@ -221,10 +172,24 @@ public class SettingsFragment extends Fragment {
                     Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getServerAuthCode()=" + userProfile.getServerAuthCode());
                     Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getTypeAutService()=" + userProfile.getTypeAutService());
 
-                    settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+                    //settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+
+
+                    //Читаем настройки из глобальной переменной
+                    //Settings settings = new Settings();
+                    if (getActivity() != null) {
+                        settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                    }
+
+
                     settings.setCloudSync(userProfile.getTypeAutService() != TYPE_AUTH_NONE);
                     settings.setAuthTypeService(userProfile.getTypeAutService());
+
+                    //Сохраняем настройки в глобальную переменную
                     ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+
+                    if (userProfile.getTypeAutService() == TYPE_AUTH_NONE)
+                        aSwitch.setChecked(false);
 
                     if (publisher != null) {
                         Log.v("Debug1", "SettingsFragment onViewCreated setFragmentResultListener notify");
@@ -254,19 +219,33 @@ public class SettingsFragment extends Fragment {
 
 
             aSwitch.setChecked(settings.isCloudSync());
-            /*if (settings.getAuthTypeService() != 0) {
+
+            if (settings.getAuthTypeService() != 0) {
                 aSwitch.setChecked(true);
                 autButton.setVisibility(View.VISIBLE);
             } else {
                 aSwitch.setChecked(false);
                 autButton.setVisibility(View.INVISIBLE);
             }
+
             aSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (isChecked)
+                if (isChecked) {
                     autButton.setVisibility(View.VISIBLE);
+
+                    AuthFragment authFragment = AuthFragment.newInstance(settings.getAuthTypeService());
+                    if (getActivity() != null) {
+                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        fragmentTransaction.add(R.id.frame_container_main, authFragment, "AuthFragment");
+                        fragmentTransaction.addToBackStack(null);
+                        fragmentTransaction.commit();
+                    }
+
+                }
                 else
                     autButton.setVisibility(View.INVISIBLE);
-            });*/
+            });
 
         }
     }
@@ -309,7 +288,13 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onDetach() {
 
-        settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+        //settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+
+        //Читаем настройки из глобальной переменной
+        //Settings settings = new Settings();
+        if (getActivity() != null) {
+            settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+        }
 
         settings.setOrderType(spinnerSort.getSelectedItemPosition());
         settings.setTextSizeId(spinnerTextSize.getSelectedItemPosition());

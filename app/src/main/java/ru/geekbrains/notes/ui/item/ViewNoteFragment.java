@@ -169,6 +169,7 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
 
             Settings settings = new Settings();
             if (getActivity() != null) {
+                //Получаем настройки из глобальной переменной
                 settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
             }
 

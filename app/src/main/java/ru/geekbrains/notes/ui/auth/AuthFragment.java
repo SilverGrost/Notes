@@ -1,5 +1,6 @@
 package ru.geekbrains.notes.ui.auth;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,14 +28,12 @@ import com.vk.api.sdk.VK;
 import com.vk.api.sdk.auth.VKAccessToken;
 import com.vk.api.sdk.auth.VKScope;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.Settings;
-import ru.geekbrains.notes.SharedPref;
 
 import static ru.geekbrains.notes.Constant.AUTH_RESULT;
 import static ru.geekbrains.notes.Constant.RC_SIGN_IN_GOOGLE;
@@ -144,23 +143,35 @@ public class AuthFragment extends Fragment {
     // Выход из учётной записи в приложении
     private void signOut() {
         Log.v("Debug1", "AuthFragment signOut");
-        if (getArguments() != null) {
-            authTypeServer = getArguments().getInt(ARG, 0);
-            switch (authTypeServer) {
-                case TYPE_AUTH_GOOGLE:
-                    googleSignInClient.signOut()
-                            .addOnCompleteListener(task -> updateUI("", null, authTypeServer));
-                    break;
-                case TYPE_AUTH_VK:
-                    if (VK.isLoggedIn()) {
-                        VK.logout();
-                        updateUI("", null, authTypeServer);
-                    }
-                    break;
-            }
-            enableSign(TYPE_AUTH_NONE);
-            updateUI("", null, TYPE_AUTH_NONE);
+        //if (getArguments() != null) {
+        //authTypeServer = getArguments().getInt(ARG, 0);
+        Log.v("Debug1", "AuthFragment signOut authTypeServer=" + authTypeServer);
+
+        switch (authTypeServer) {
+            case TYPE_AUTH_GOOGLE:
+                googleSignInClient.signOut()
+                        .addOnCompleteListener(task -> updateUI("", null, authTypeServer));
+                break;
+            case TYPE_AUTH_VK:
+                if (VK.isLoggedIn()) {
+                    VK.logout();
+                    updateUI("", null, authTypeServer);
+                }
+                break;
         }
+        authTypeServer = TYPE_AUTH_NONE;
+        enableSign(authTypeServer);
+        updateUI("", null, authTypeServer);
+
+
+        UserProfile userProfile = new UserProfile();
+        userProfile.setTypeAutService(authTypeServer);
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("UserProfile", userProfile);
+
+        getParentFragmentManager().setFragmentResult(AUTH_RESULT, bundle);
+        //}
     }
 
 
@@ -184,9 +195,55 @@ public class AuthFragment extends Fragment {
         }
     }
 
+    public static String checkCloudStatusByUserName(Settings settings, Context context, Activity activity) {
+        int authTypeService = settings.getAuthTypeService();
+        String userName = "";
+
+        if (authTypeService != 0) {
+            switch (authTypeService) {
+                case (TYPE_AUTH_GOOGLE):
+                    if (context != null) {
+                        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
+                        if (account != null) {
+                            //isCloudSync = true;
+                            userName = account.getEmail();
+                            //Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                            settings.setAuthTypeService(TYPE_AUTH_GOOGLE);
+                            settings.setCloudSync(true);
+                            //Сохраняем настройки в глобальную переменную
+                            ((GlobalVariables) activity.getApplication()).setSettings(settings);
+                        }
+                    }
+                    break;
+                case (TYPE_AUTH_VK):
+                    if (VK.isLoggedIn()) {
+                        //isCloudSync = true;
+                        userName = settings.getUserNameVK();
+                        settings.setAuthTypeService(TYPE_AUTH_VK);
+                        settings.setCloudSync(true);
+                        settings.setUserNameVK(userName);
+                        //Сохраняем настройки в глобальную переменную
+                        ((GlobalVariables) activity.getApplication()).setSettings(settings);
+                    }
+                    break;
+                default:
+                    //isCloudSync = false;
+                    userName = "";
+                    settings.setAuthTypeService(TYPE_AUTH_NONE);
+                    settings.setCloudSync(false);
+                    //Сохраняем настройки в глобальную переменную
+                    ((GlobalVariables) activity.getApplication()).setSettings(settings);
+            }
+        }
+
+        Log.v("Debug1", "AuthFragment checkCloudStatusByUserName authTypeService=" + authTypeService + ", userName=" + userName);
+
+        return userName;
+    }
+
 
     private void updateUI(String email, String imageUrl, int typeAuthService) {
-        Log.v("Debug1", "AuthFragment updateUI");
+        Log.v("Debug1", "AuthFragment updateUI typeAuthService=" + typeAuthService);
         textViewEmail.setText(email);
         switch (typeAuthService) {
             case TYPE_AUTH_GOOGLE:
@@ -203,6 +260,7 @@ public class AuthFragment extends Fragment {
                 textViewAuthBy.setText(R.string.textViewAuthByNONE);
                 buttonSignOut.setVisibility(View.GONE);
                 textViewYouCan.setVisibility(View.VISIBLE);
+                imageViewAva.setImageResource(0);
         }
 
         if (imageUrl != null) {
@@ -221,13 +279,22 @@ public class AuthFragment extends Fragment {
             //authTypeServer = getArguments().getInt(ARG, 0);
             if (authTypeServer != TYPE_AUTH_NONE) {
                 buttonSignInGoogle.setEnabled(false);
-                buttonSignOut.setEnabled(true);
                 buttonSignInVK.setEnabled(false);
-            }
-            else{
+
+                buttonSignOut.setEnabled(true);
+
+                buttonSignInGoogle.setVisibility(View.GONE);
+                buttonSignInVK.setVisibility(View.GONE);
+
+            } else {
                 buttonSignInGoogle.setEnabled(true);
-                buttonSignOut.setEnabled(false);
                 buttonSignInVK.setEnabled(true);
+
+                buttonSignOut.setEnabled(false);
+
+                buttonSignInGoogle.setVisibility(View.VISIBLE);
+                buttonSignInVK.setVisibility(View.VISIBLE);
+
             }
         }
     }
@@ -238,15 +305,22 @@ public class AuthFragment extends Fragment {
 
         if (typeAuthService != TYPE_AUTH_NONE) {
             buttonSignInGoogle.setEnabled(false);
-            //continue_.setEnabled(true);
             buttonSignOut.setEnabled(true);
+
             buttonSignInVK.setEnabled(false);
-        }
-        else {
+            buttonSignInGoogle.setEnabled(false);
+
+            buttonSignInGoogle.setVisibility(View.GONE);
+            buttonSignInVK.setVisibility(View.GONE);
+        } else {
             buttonSignInGoogle.setEnabled(true);
-            //continue_.setEnabled(true);
             buttonSignOut.setEnabled(false);
+
             buttonSignInVK.setEnabled(true);
+            buttonSignInGoogle.setEnabled(true);
+
+            buttonSignInGoogle.setVisibility(View.VISIBLE);
+            buttonSignInVK.setVisibility(View.VISIBLE);
         }
 
     }
@@ -262,28 +336,26 @@ public class AuthFragment extends Fragment {
 
             authTypeServer = TYPE_AUTH_GOOGLE;
 
-            try {
+            if (account != null) {
                 userProfile.setDisplayName(account.getDisplayName());
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
 
-            userProfile.setEmail(account.getEmail());
-            userProfile.setFamilyName(account.getFamilyName());
-            userProfile.setGivenName(account.getGivenName());
-            userProfile.setId(account.getId());
-            userProfile.setIdToken(account.getIdToken());
-            if (account.getPhotoUrl() != null) {
-                userProfile.setPhotoURL(account.getPhotoUrl().toString());
-                Log.v("Debug1", "AuthFragment handleSignInResult=" + account.getPhotoUrl().toString());
-                if (getContext() != null)
-                    Glide.with(getContext())
-                            .load(account.getPhotoUrl().toString())
-                            .circleCrop()
-                            .into(imageViewAva);
-            }
 
-            userProfile.setServerAuthCode(account.getServerAuthCode());
+                userProfile.setEmail(account.getEmail());
+                userProfile.setFamilyName(account.getFamilyName());
+                userProfile.setGivenName(account.getGivenName());
+                userProfile.setId(account.getId());
+                userProfile.setIdToken(account.getIdToken());
+                if (account.getPhotoUrl() != null) {
+                    userProfile.setPhotoURL(account.getPhotoUrl().toString());
+                    Log.v("Debug1", "AuthFragment handleSignInResult=" + account.getPhotoUrl().toString());
+                    if (getContext() != null)
+                        Glide.with(getContext())
+                                .load(account.getPhotoUrl().toString())
+                                .into(imageViewAva);
+                }
+
+                userProfile.setServerAuthCode(account.getServerAuthCode());
+            }
             userProfile.setTypeAutService(TYPE_AUTH_GOOGLE);
 
 
@@ -293,17 +365,23 @@ public class AuthFragment extends Fragment {
             getParentFragmentManager().setFragmentResult(AUTH_RESULT, bundle);
 
             if (getActivity() != null) {
-                //Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
-                Settings settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+                //Читаем настройки из глобальной переменной
+                Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+
+                //Settings settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+
                 settings.setAuthTypeService(authTypeServer);
                 settings.setCloudSync(true);
-                new SharedPref(getContext()).saveSettings(settings);
+
+                //new SharedPref(getContext()).saveSettings(settings);
+
+                //Сохраняем настройки в глобальную переменную
                 ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
             }
 
             // Регистрация прошла успешно
             disableSign(authTypeServer);
-            updateUI(account.getEmail(), null, authTypeServer);
+            updateUI(userProfile.getEmail(), null, authTypeServer);
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure
             // reason. Please refer to the GoogleSignInStatusCodes class
@@ -328,12 +406,17 @@ public class AuthFragment extends Fragment {
             userProfile.setEmail(vkAccessToken.getEmail());
 
             if (getActivity() != null) {
-                //Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
-                Settings settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+                //Читаем настройки из глобальной переменной
+                Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+
+                //Settings settings = (new SharedPref(getActivity().getApplication()).loadSettings());
                 settings.setUserNameVK(userProfile.getEmail());
                 settings.setAuthTypeService(authTypeServer);
                 settings.setCloudSync(true);
-                new SharedPref(getContext()).saveSettings(settings);
+
+                //new SharedPref(getContext()).saveSettings(settings);
+
+                //Сохраняем настройки в глобальную переменную
                 ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
             }
 
@@ -383,42 +466,63 @@ public class AuthFragment extends Fragment {
                                 imageURL = account.getPhotoUrl().toString();
                             updateUI(account.getEmail(), imageURL, authTypeServer);
 
-                        }
-                        else{
+                        } else {
                             authTypeServer = TYPE_AUTH_NONE;
                             enableSign(authTypeServer);
                             updateUI("", null, TYPE_AUTH_NONE);
-                            Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
-                            settings.setAuthTypeService(authTypeServer);
-                            settings.setCloudSync(false);
-                            new SharedPref(getContext()).saveSettings(settings);
-                            ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+
+                            //Читаем настройки из глобальной переменной
+                            if (getActivity() != null) {
+                                Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                                settings.setAuthTypeService(authTypeServer);
+                                settings.setCloudSync(false);
+                                //new SharedPref(getContext()).saveSettings(settings);
+
+                                //Сохраняем настройки в глобальную переменную
+                                ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+                            }
                         }
                     }
                     break;
                 case TYPE_AUTH_VK:
                     if (VK.isLoggedIn()) {
                         disableSign(authTypeServer);
-                        Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
-                        //Settings settings = (new SharedPref(getActivity().getApplication()).loadSettings());
-                        settings.setAuthTypeService(authTypeServer);
-                        settings.setCloudSync(true);
-                        //new SharedPref(getContext()).saveSettings(settings);
-                        ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
 
+                        if (getActivity() != null) {
+                            //Читаем настройки из глобальной переменной
+                            Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
 
-                        updateUI(settings.getUserNameVK(), null, authTypeServer);
+                            //Settings settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+
+                            settings.setAuthTypeService(authTypeServer);
+                            settings.setCloudSync(true);
+
+                            //new SharedPref(getContext()).saveSettings(settings);
+
+                            //Сохраняем настройки в глобальную переменную
+                            ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+                            updateUI(settings.getUserNameVK(), null, authTypeServer);
+                        }
+
                         Log.v("Debug1", "AuthFragment onStart authTypeServer=" + authTypeServer + ", VK.isLoggedIn()=" + VK.isLoggedIn());
-                    }
-                    else {
+                    } else {
                         authTypeServer = TYPE_AUTH_NONE;
                         enableSign(authTypeServer);
                         updateUI("", null, TYPE_AUTH_NONE);
-                        Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
-                        settings.setAuthTypeService(authTypeServer);
-                        settings.setCloudSync(false);
-                        new SharedPref(getContext()).saveSettings(settings);
-                        ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+
+                        Settings settings;
+                        if (getActivity() != null) {
+                            //Читаем настройки из глобальной переменной
+                            settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+
+                            settings.setAuthTypeService(authTypeServer);
+                            settings.setCloudSync(false);
+
+                            //new SharedPref(getContext()).saveSettings(settings);
+
+                            //Сохраняем настройки в глобальную переменную
+                            ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+                        }
                     }
                     break;
                 default:
@@ -441,6 +545,15 @@ public class AuthFragment extends Fragment {
     public void onDetach() {
         //navigation = null;
         Log.v("Debug1", "AuthFragment onDetach");
+
+        UserProfile userProfile = new UserProfile();
+        userProfile.setTypeAutService(authTypeServer);
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("UserProfile", userProfile);
+
+        getParentFragmentManager().setFragmentResult(AUTH_RESULT, bundle);
+
         super.onDetach();
     }
 

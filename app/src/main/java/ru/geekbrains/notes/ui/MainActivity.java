@@ -122,7 +122,10 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
         if (savedInstanceState == null) {
             Log.v("Debug1", "MainActivity onCreate savedInstanceState == null");
 
+            //Читаем настройки приложения из sharedPreference
             Settings settings = (new SharedPref(this).loadSettings());
+
+            //Сохраняем считанные настройки в глобальную переменную
             ((GlobalVariables) getApplication()).setSettings(settings);
 
             String[] textSizeArray = getResources().getStringArray(R.array.text_size);

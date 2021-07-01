@@ -22,16 +22,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 
-import java.util.Comparator;
 import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.SharedPref;
-import ru.geekbrains.notes.note.comparator.DateCreateSorterComparator;
-import ru.geekbrains.notes.note.comparator.DateEditSorterComparator;
-import ru.geekbrains.notes.note.comparator.HeaderSorterComparator;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.observer.ObserverNote;
 import ru.geekbrains.notes.observer.Publisher;
@@ -41,12 +37,6 @@ import ru.geekbrains.notes.ui.MainFragment;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
 import ru.geekbrains.notes.ui.item.ViewNoteFragment;
 
-import static ru.geekbrains.notes.Constant.ORDER_BY_DATE_CREATE;
-import static ru.geekbrains.notes.Constant.ORDER_BY_DATE_CREATE_DESC;
-import static ru.geekbrains.notes.Constant.ORDER_BY_DATE_EDIT;
-import static ru.geekbrains.notes.Constant.ORDER_BY_DATE_EDIT_DESC;
-import static ru.geekbrains.notes.Constant.ORDER_BY_DATE_VALUE;
-import static ru.geekbrains.notes.Constant.ORDER_BY_DATE_VALUE_DESC;
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_DELETE_NOTE;
 
 
@@ -122,36 +112,6 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
         }
     }
 
-    public List<Note> sortNotes(List<Note> notes) {
-        Log.v("Debug1", "ListNotesFragment sortNotes");
-        if (getActivity() != null) {
-            int textSortId = ((GlobalVariables) getActivity().getApplication()).getSettings().getOrderType();
-            Comparator<Note> dateSorter = new DateEditSorterComparator();
-            Comparator<Note> dateCreateSorter = new DateCreateSorterComparator();
-            Comparator<Note> headerSorter = new HeaderSorterComparator();
-            switch (textSortId) {
-                case (ORDER_BY_DATE_EDIT):
-                    notes.sort(dateSorter);
-                    break;
-                case (ORDER_BY_DATE_EDIT_DESC):
-                    notes.sort(dateSorter.reversed());
-                    break;
-                case (ORDER_BY_DATE_CREATE):
-                    notes.sort(dateCreateSorter);
-                    break;
-                case (ORDER_BY_DATE_CREATE_DESC):
-                    notes.sort(dateCreateSorter.reversed());
-                    break;
-                case (ORDER_BY_DATE_VALUE):
-                    notes.sort(headerSorter);
-                    break;
-                case (ORDER_BY_DATE_VALUE_DESC):
-                    notes.sort(headerSorter.reversed());
-                    break;
-            }
-        }
-        return notes;
-    }
 
     public void setEmptyResultTextView(View view) {
         Log.v("Debug1", "SearchResultFragment setEmptyResultTextView");
@@ -194,7 +154,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
             LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(layoutManager);
 
-            notes = sortNotes(notes);
+            notes = ListNotesFragment.sortNotes(notes, getActivity());
             Settings settings = new Settings();
             if (getActivity() != null) {
                 settings = ((GlobalVariables) getActivity().getApplication()).getSettings();

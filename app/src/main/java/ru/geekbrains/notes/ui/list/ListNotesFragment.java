@@ -1,5 +1,6 @@
 package ru.geekbrains.notes.ui.list;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -24,10 +25,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.vk.api.sdk.VK;
-
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +32,7 @@ import java.util.List;
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.SharedPref;
+import ru.geekbrains.notes.note.Callback;
 import ru.geekbrains.notes.note.NotesCloudRepositoryImpl;
 import ru.geekbrains.notes.note.NotesLocalRepositoryImpl;
 import ru.geekbrains.notes.note.NotesRepository;
@@ -48,6 +46,7 @@ import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.ui.DatepickerFragment;
 import ru.geekbrains.notes.ui.MainFragment;
+import ru.geekbrains.notes.ui.auth.AuthFragment;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
 import ru.geekbrains.notes.ui.item.ViewNoteFragment;
 
@@ -78,6 +77,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
         if (recyclerView != null) {
             if (typeEvent == TYPE_EVENT_CLOUD_SYNC) {
+                Log.v("Debug1", "ListNotesFragment updateNote noteID=" + noteID + ", typeEvent=TYPE_EVENT_CLOUD_SYNC");
                 if (getActivity() != null) {
                     cloudSync(((GlobalVariables) getActivity().getApplication()).getSettings());
                 }
@@ -119,10 +119,10 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         }
     }
 
-    public List<Note> sortNotes(List<Note> notes) {
+    public static List<Note> sortNotes(List<Note> notes, Activity activity) {
         Log.v("Debug1", "ListNotesFragment sortNotes");
-        if (getActivity() != null) {
-            int textSortId = ((GlobalVariables) getActivity().getApplication()).getSettings().getOrderType();
+        if (activity != null) {
+            int textSortId = ((GlobalVariables) activity.getApplication()).getSettings().getOrderType();
             Comparator<Note> dateSorter = new DateEditSorterComparator();
             Comparator<Note> dateCreateSorter = new DateCreateSorterComparator();
             Comparator<Note> headerSorter = new HeaderSorterComparator();
@@ -190,7 +190,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                         if (getActivity() != null) {
                             Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
                             int authTypeService = settings.getAuthTypeService();
-                            String userName = checkCloudStatusByUserName(settings);
+                            String userName = AuthFragment.checkCloudStatusByUserName(settings, getContext(), getActivity());
                             if (userName != null && !userName.equals("")) {
                                 cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
                             }
@@ -274,55 +274,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         return view;
     }
 
-    public String checkCloudStatusByUserName(Settings settings) {
-        //boolean isCloudSync = false;
-        int authTypeService = settings.getAuthTypeService();
-        String userName = "";
-
-        if (authTypeService != 0) {
-            switch (authTypeService) {
-                case (TYPE_AUTH_GOOGLE):
-                    if (getContext() != null) {
-                        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getContext());
-                        if (account != null) {
-                            //isCloudSync = true;
-                            userName = account.getEmail();
-                            //Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
-                            settings.setAuthTypeService(TYPE_AUTH_GOOGLE);
-                            settings.setCloudSync(true);
-                            if (getActivity() != null)
-                                ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
-                        }
-                    }
-                    break;
-                case (TYPE_AUTH_VK):
-                    if (VK.isLoggedIn()) {
-                        //isCloudSync = true;
-                        userName = settings.getUserNameVK();
-                        settings.setAuthTypeService(TYPE_AUTH_VK);
-                        settings.setCloudSync(true);
-                        settings.setUserNameVK(userName);
-                        if (getActivity() != null)
-                            ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
-                    }
-                    break;
-                default:
-                    //isCloudSync = false;
-                    userName = "";
-                    settings.setAuthTypeService(TYPE_AUTH_NONE);
-                    settings.setCloudSync(false);
-                    if (getActivity() != null)
-                        ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
-            }
-        }
-
-        Log.v("Debug1", "ListNotesFragment checkCloudStatusByUserName authTypeService=" + authTypeService);
-
-        return userName;
-    }
-
     private void cloudSync(Settings settings) {
-        String userName = checkCloudStatusByUserName(settings);
+        String userName = AuthFragment.checkCloudStatusByUserName(settings, getContext(), getActivity());
         int authTypeService = settings.getAuthTypeService();
 
         Log.v("Debug1", "ListNotesFragment cloudSync userName=" + userName + ", authTypeService=" + authTypeService);
@@ -332,7 +285,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
             cloudRepository.getNotes(result -> {
                 notesCloud = result;
                 if (getActivity() != null) {
-                    ((GlobalVariables) getActivity().getApplication()).setNotesCloud(notes);
+                    ((GlobalVariables) getActivity().getApplication()).setNotesCloud(notesCloud);
                     Log.v("Debug1", "ListNotesFragment cloudSync notesCloud.size=" + notesCloud.size());
 
                     NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext());
@@ -366,6 +319,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                     /*((GlobalVariables) getActivity().getApplication()).setNotesCloud(notesCloud);
                     ((GlobalVariables) getActivity().getApplication()).setNotes(notes);*/
 
+                    Log.v("Debug1", "ListNotesFragment cloudSync notes.size=" + notes.size());
                     //Пройдёмся по локальным
                     for (int i = 0; i < notes.size(); i++) {
                         Note noteLocal = notes.get(i);
@@ -399,6 +353,10 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
                     notesCloud = ((GlobalVariables) getActivity().getApplication()).getNotesCloud();
                     notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+
+                    localRepository.setNotes(notes, result14 -> {
+
+                    });
 
                     initRecyclerViewListNotes(recyclerView, -1, TYPE_EVENT_ADD_NOTE);
                 }
@@ -474,8 +432,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
             Note note = new Note();
             for (int i = 0; i < notes.size(); i++) {
                 if (notes.get(i).getID() == noteId) {
-                    notes.remove(i);
                     note = notes.get(i);
+                    notes.remove(i);
                     break;
                 }
                 prevID = notes.get(i).getID();
@@ -532,7 +490,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                 }
             });
 
-            notes = sortNotes(notes);
+            notes = sortNotes(notes, getActivity());
 
             int scrollPosition = 0;
             Log.v("Debug1", "ListNotesFragment initRecyclerViewListNotes scrollPosition=" + scrollPosition + ", noteIdForScrollPosition=" + noteIdForScrollPosition);
@@ -546,6 +504,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
             layoutManager.scrollToPosition(scrollPosition);
 
+            //Читаем настройки из глобальной переменной
             Settings settings = new Settings();
             if (getActivity() != null) {
                 settings = ((GlobalVariables) getActivity().getApplication()).getSettings();

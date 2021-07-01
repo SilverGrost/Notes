@@ -18,6 +18,7 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
     private final static String FIELD_DATE_EDIT = "date_edit";
     private final static String VALUE = "value";
     private final static String ID = "id";
+    private final static String IDCLOUD = "idCloud";
     private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
 
 
@@ -38,6 +39,7 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
                         if (task.getResult() != null) {
 
                             for (QueryDocumentSnapshot document : task.getResult()) {
+
                                 String value = (String) document.get(VALUE);
 
                                 Date date_create = null;
@@ -56,6 +58,8 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
                                 if (o != null)
                                     id = (long) o;
 
+                                String idCloud = (String) document.get(IDCLOUD);
+
                                 Note note = new Note();
 
                                 if (date_create != null)
@@ -66,6 +70,7 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
 
                                 note.setID((int) id);
                                 note.setValue(value);
+                                note.setIdCloud(idCloud);
                                 result.add(note);
                             }
                         }
@@ -109,6 +114,7 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
         data.put(FIELD_DATE_CREATE, dateCreate);
         data.put(FIELD_DATE_EDIT, dateEdit);
         data.put(VALUE, note.getValue());
+        data.put(IDCLOUD, note.getIdCloud());
 
         firebaseFirestore.collection(collectionId)
                 .add(data)
@@ -147,6 +153,7 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
             data.put(FIELD_DATE_CREATE, dateCreate);
             data.put(FIELD_DATE_EDIT, dateEdit);
             data.put(VALUE, note.getValue());
+            data.put(IDCLOUD, note.getIdCloud());
 
             firebaseFirestore.collection(collectionId)
                     .document(note.getIdCloud())

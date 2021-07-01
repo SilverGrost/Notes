@@ -15,16 +15,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.vk.api.sdk.VK;
 
 import java.util.Date;
 import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.Settings;
+import ru.geekbrains.notes.note.Callback;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.note.NotesCloudRepositoryImpl;
@@ -32,10 +30,8 @@ import ru.geekbrains.notes.note.NotesLocalRepositoryImpl;
 import ru.geekbrains.notes.note.NotesRepository;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
+import ru.geekbrains.notes.ui.auth.AuthFragment;
 
-import static ru.geekbrains.notes.Constant.TYPE_AUTH_GOOGLE;
-import static ru.geekbrains.notes.Constant.TYPE_AUTH_NONE;
-import static ru.geekbrains.notes.Constant.TYPE_AUTH_VK;
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_ADD_NOTE;
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_EDIT_NOTE;
 
@@ -129,50 +125,6 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    public String checkCloudStatusByUserName(Settings settings){
-        //boolean isCloudSync = false;
-        int authTypeService = settings.getAuthTypeService();
-        String userName = "";
-
-        if (authTypeService != 0) {
-            switch (authTypeService) {
-                case (TYPE_AUTH_GOOGLE):
-                    if (getContext() != null) {
-                        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getContext());
-                        if (account != null) {
-                            //isCloudSync = true;
-                            userName = account.getEmail();
-                            //Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
-                            settings.setAuthTypeService(TYPE_AUTH_GOOGLE);
-                            settings.setCloudSync(true);
-                            ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
-                        }
-                    }
-                    break;
-                case (TYPE_AUTH_VK):
-                    if (VK.isLoggedIn()) {
-                        //isCloudSync = true;
-                        userName = settings.getUserNameVK();
-                        settings.setAuthTypeService(TYPE_AUTH_VK);
-                        settings.setCloudSync(true);
-                        settings.setUserNameVK(userName);
-                        ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
-                    }
-                    break;
-                default:
-                    //isCloudSync = false;
-                    userName = "";
-                    settings.setAuthTypeService(TYPE_AUTH_NONE);
-                    settings.setCloudSync(false);
-                    ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
-            }
-        }
-
-        Log.v("Debug1", "EditNoteFragment checkCloudStatusByUserName authTypeService=" + authTypeService);
-
-        return userName;
-    }
-
     @Override
     public void onClick(View v) {
         Log.v("Debug1", "EditNoteFragment onClick");
@@ -200,26 +152,61 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
                     //((GlobalVariables) getActivity().getApplication()).setNoteById(noteId, note);
                 }
 
+
+                boolean cloudSync = false;
+                int authTypeService = 0;
+                String userName = "";
+                if (getActivity() != null) {
+                    //Получаем настройки из глобальной переменной
+                    Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                    authTypeService = settings.getAuthTypeService();
+                    userName = AuthFragment.checkCloudStatusByUserName(settings, getContext(), getActivity());
+                    if (userName != null && !userName.equals("")) {
+                        cloudSync = true;
+                    }
+                }
+
                 NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext());
+                NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
                 if (noteId == -1) {
                     localRepository.addNote(notes, note, result -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_ADD_NOTE"));
+                    if (cloudSync) {
 
-                    if (getActivity() != null) {
-                        Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
-                        int authTypeService = settings.getAuthTypeService();
-                        String userName = checkCloudStatusByUserName(settings);
-                        if (userName != null && !userName.equals("")) {
-                            NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
-                            cloudRepository.addNote(notes, note, result -> {
-                                Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository");
+                        cloudRepository.addNote(notes, note, new Callback<Object>() {
+                            @Override
+                            public void onSuccess(Object result) {
+                                Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository add result=" + result);
                                 note.setIdCloud((String) result);
                                 localRepository.updateNote(notes, note, result1 -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE updateNote"));
-                            });
-                        }
+
+                                cloudRepository.updateNote(notes, note, new Callback<Object>() {
+                                    @Override
+                                    public void onSuccess(Object result) {
+                                        Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository update");
+                                    }
+                                });
+
+                            }
+                        });
                     }
+
 
                 } else {
                     localRepository.updateNote(notes, note, result -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE"));
+                    if (cloudSync) {
+                        cloudRepository.updateNote(notes, note, new Callback<Object>() {
+                            @Override
+                            public void onSuccess(Object result) {
+                                Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository update");
+                                localRepository.updateNote(notes, note, new Callback<Object>() {
+                                    @Override
+                                    public void onSuccess(Object result1) {
+                                        Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE updateNote");
+                                    }
+                                });
+                            }
+                        });
+                    }
                 }
 
                 if (publisher != null) {

@@ -122,7 +122,7 @@ public class UserProfile implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getIdToken());
-        //dest.writeString(getPhotoURL());
+        dest.writeString(getPhotoURL());
         dest.writeString(getServerAuthCode());
         dest.writeString(getDisplayName());
         dest.writeString(getEmail());
