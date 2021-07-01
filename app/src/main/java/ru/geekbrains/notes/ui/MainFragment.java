@@ -94,6 +94,10 @@ public class MainFragment extends Fragment implements View.OnClickListener, Sear
     @Override
     public void onStart() {
         super.onStart();
+        //getActivity().setTitle("Список заметок");
+        MainActivity.setTitle(getActivity(), "Список заметок");
+
+
         Log.v("Debug1", "MainFragment onStart");
     }
 
@@ -106,6 +110,10 @@ public class MainFragment extends Fragment implements View.OnClickListener, Sear
     public void onResume() {
         super.onResume();
         Log.v("Debug1", "MainFragment onResume");
+        //getActivity().setTitle("Список заметок");
+        MainActivity.setTitle(getActivity(), "Список заметок");
+
+
     }
 
     public void onPause() {

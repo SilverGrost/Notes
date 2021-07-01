@@ -122,6 +122,9 @@ public class DatepickerFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+
+        MainActivity.setTitle(getActivity(), "Правка даты");
+
         Log.v("Debug1", "DatepickerFragment onAttach");
         if (context instanceof PublisherHolder) {
             publisher = ((PublisherHolder) context).getPublisher();

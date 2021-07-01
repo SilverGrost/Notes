@@ -33,6 +33,7 @@ import ru.geekbrains.notes.observer.ObserverNote;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.ui.DatepickerFragment;
+import ru.geekbrains.notes.ui.MainActivity;
 import ru.geekbrains.notes.ui.MainFragment;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
 import ru.geekbrains.notes.ui.item.ViewNoteFragment;
@@ -68,6 +69,8 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        //getActivity().setTitle("Результат поиска");
+        MainActivity.setTitle(getActivity(), "Результат поиска");
         Log.v("Debug1", "SearchResultFragment onAttach");
         if (context instanceof PublisherHolder) {
             publisher = ((PublisherHolder) context).getPublisher();

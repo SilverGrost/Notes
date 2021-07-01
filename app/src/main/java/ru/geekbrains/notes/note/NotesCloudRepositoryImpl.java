@@ -27,6 +27,7 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
     }
 
     @Override
+    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     public void getNotes(Callback<List<Note>> callback) {
         firebaseFirestore.collection(collectionId)
                 .get()

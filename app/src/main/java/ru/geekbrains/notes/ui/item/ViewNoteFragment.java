@@ -31,6 +31,7 @@ import ru.geekbrains.notes.note.NotesRepository;
 import ru.geekbrains.notes.observer.ObserverNote;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
+import ru.geekbrains.notes.ui.MainActivity;
 import ru.geekbrains.notes.ui.list.SearchResultFragment;
 
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_DELETE_NOTE;
@@ -109,6 +110,10 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        //getActivity().setTitle("Просмотр заметки");
+        MainActivity.setTitle(getActivity(), "Просмотр заметки");
+
+
         Log.v("Debug1", "ViewNoteFragment onAttach context=" + context);
         if (context instanceof PublisherHolder) {
             publisher = ((PublisherHolder) context).getPublisher();

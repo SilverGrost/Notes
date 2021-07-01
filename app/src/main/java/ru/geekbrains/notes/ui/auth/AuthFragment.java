@@ -34,6 +34,7 @@ import java.util.List;
 import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.Settings;
+import ru.geekbrains.notes.ui.MainActivity;
 
 import static ru.geekbrains.notes.Constant.AUTH_RESULT;
 import static ru.geekbrains.notes.Constant.RC_SIGN_IN_GOOGLE;
@@ -539,6 +540,9 @@ public class AuthFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         Log.v("Debug1", "AuthFragment onAttach");
+        //getActivity().setTitle("Авторизация...");
+        MainActivity.setTitle(getActivity(), "Авторизация...");
+
     }
 
     @Override

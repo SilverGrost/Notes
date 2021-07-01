@@ -29,6 +29,7 @@ import ru.geekbrains.notes.note.NotesLocalRepositoryImpl;
 import ru.geekbrains.notes.note.NotesRepository;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
+import ru.geekbrains.notes.ui.MainActivity;
 import ru.geekbrains.notes.ui.auth.AuthFragment;
 
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_ADD_NOTE;
@@ -71,6 +72,9 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         Log.v("Debug1", "EditNoteFragment onAttach");
+        //getActivity().setTitle("Правка заметки");
+        MainActivity.setTitle(getActivity(), "Правка заметки");
+
         if (context instanceof PublisherHolder) {
             publisher = ((PublisherHolder) context).getPublisher();
         }

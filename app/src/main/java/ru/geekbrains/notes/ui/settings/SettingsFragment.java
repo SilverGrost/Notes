@@ -5,7 +5,9 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -31,6 +33,7 @@ import ru.geekbrains.notes.note.NotesCloudRepositoryImpl;
 import ru.geekbrains.notes.note.NotesRepository;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
+import ru.geekbrains.notes.ui.MainActivity;
 import ru.geekbrains.notes.ui.auth.AuthFragment;
 import ru.geekbrains.notes.ui.auth.UserProfile;
 
@@ -79,6 +82,13 @@ public class SettingsFragment extends Fragment {
 
             //Читаем настройки из глобальной переменной
             //Settings settings = new Settings();
+
+
+            //((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Настройки");
+            //getActivity().setTitle("Настройки");
+
+            MainActivity.setTitle(getActivity(), "Настройки");
+
             if (getActivity() != null) {
                 settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
             }

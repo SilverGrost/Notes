@@ -44,6 +44,7 @@ import ru.geekbrains.notes.observer.ObserverNote;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.ui.DatepickerFragment;
+import ru.geekbrains.notes.ui.MainActivity;
 import ru.geekbrains.notes.ui.MainFragment;
 import ru.geekbrains.notes.ui.auth.AuthFragment;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
@@ -89,6 +90,9 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         Log.v("Debug1", "ListNotesFragment onAttach");
+
+        //getActivity().setTitle("Список заметок");
+        MainActivity.setTitle(getActivity(), "Список заметок");
 
         if (context instanceof PublisherHolder) {
             publisher = ((PublisherHolder) context).getPublisher();
@@ -595,6 +599,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
 
     public void onResume() {
         super.onResume();
+        //getActivity().setTitle("Список заметок");
+        MainActivity.setTitle(getActivity(), "Список заметок");
         Log.v("Debug1", "ListNotesFragment onResume");
     }
 
