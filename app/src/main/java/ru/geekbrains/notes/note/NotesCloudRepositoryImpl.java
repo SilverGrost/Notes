@@ -39,20 +39,37 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
 
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String value = (String) document.get(VALUE);
-                                Date date_create = ((Timestamp) document.get(FIELD_DATE_CREATE)).toDate();
-                                Date date_edit = ((Timestamp) document.get(FIELD_DATE_EDIT)).toDate();
-                                long id = (long) document.get(ID);
+
+                                Date date_create = null;
+                                Object o;
+                                o = document.get(FIELD_DATE_CREATE);
+                                if (o != null)
+                                    date_create = ((Timestamp) o).toDate();
+
+                                Date date_edit = null;
+                                o = document.get(FIELD_DATE_EDIT);
+                                if (o != null)
+                                    date_edit = ((Timestamp) o).toDate();
+
+                                long id = 0;
+                                o = document.get(ID);
+                                if (o != null)
+                                    id = (long) o;
+
                                 Note note = new Note();
-                                note.setDateCreate(date_create.toInstant().getEpochSecond());
-                                note.setDateEdit(date_edit.toInstant().getEpochSecond());
+
+                                if (date_create != null)
+                                    note.setDateCreate(date_create.toInstant().getEpochSecond());
+
+                                if (date_edit != null)
+                                    note.setDateEdit(date_edit.toInstant().getEpochSecond());
+
                                 note.setID((int) id);
                                 note.setValue(value);
                                 result.add(note);
                             }
                         }
-
                         callback.onSuccess(result);
-
                     } else {
                         task.getException();
                     }
@@ -69,7 +86,7 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
     @Override
     public void clearNotes(List<Note> notes, Callback<Object> callback) {
         for (int i = 0; i < notes.size(); i++) {
-            if (notes.get(i).getIdCloud() != null) {
+            if (notes.get(i).getIdCloud() != null && !notes.get(i).getIdCloud().equals("")) {
                 firebaseFirestore.collection(collectionId)
                         .document(notes.get(i).getIdCloud())
                         .delete()
@@ -97,37 +114,44 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
                 .add(data)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        String idCloud = task.getResult().getId();
-                        callback.onSuccess(idCloud);
+                        if (task.getResult() != null) {
+                            String idCloud = task.getResult().getId();
+                            callback.onSuccess(idCloud);
+                        }
                     }
                 });
     }
 
     @Override
     public void removeNote(List<Note> notes, Note note, Callback<Object> callback) {
-        firebaseFirestore.collection(collectionId)
-                .document(note.getIdCloud())
-                .delete()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        callback.onSuccess(note);
-                    }
-                });
+        if (note.getIdCloud() != null && !note.getIdCloud().equals("")) {
+            firebaseFirestore.collection(collectionId)
+                    .document(note.getIdCloud())
+                    .delete()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            callback.onSuccess(note);
+                        }
+                    });
+        }
     }
 
     @Override
     public void updateNote(List<Note> notes, Note note, Callback<Object> callback) {
-        HashMap<String, Object> data = new HashMap<>();
-        data.put(ID, note.getID());
-        Date dateCreate = new Date(note.getDateCreate() * MILISECOND);
-        Date dateEdit = new Date(note.getDateEdit() * MILISECOND);
-        data.put(FIELD_DATE_CREATE, dateCreate);
-        data.put(FIELD_DATE_EDIT, dateEdit);
-        data.put(VALUE, note.getValue());
 
-        firebaseFirestore.collection(collectionId)
-                .document(note.getIdCloud())
-                .update(data)
-                .addOnCompleteListener(task -> callback.onSuccess(note));
+        if (note.getIdCloud() != null && !note.getIdCloud().equals("")) {
+            HashMap<String, Object> data = new HashMap<>();
+            data.put(ID, note.getID());
+            Date dateCreate = new Date(note.getDateCreate() * MILISECOND);
+            Date dateEdit = new Date(note.getDateEdit() * MILISECOND);
+            data.put(FIELD_DATE_CREATE, dateCreate);
+            data.put(FIELD_DATE_EDIT, dateEdit);
+            data.put(VALUE, note.getValue());
+
+            firebaseFirestore.collection(collectionId)
+                    .document(note.getIdCloud())
+                    .update(data)
+                    .addOnCompleteListener(task -> callback.onSuccess(note));
+        }
     }
 }

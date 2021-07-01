@@ -177,21 +177,45 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                         fragmentTransaction.commit();
                     }
                 });
-                Button button1000 = view.findViewById(R.id.button_addFirst1000);
-                button1000.setOnClickListener(v -> {
+                Button buttonAddDemoNotes = view.findViewById(R.id.button_addFirst1000);
+                buttonAddDemoNotes.setText(getString(R.string.buttonAddDemo, COUNTDEMONOTES));
+
+                buttonAddDemoNotes.setOnClickListener(v -> {
                     if (getActivity() != null) {
                         List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
                         int start = notes.size();
+
+                        NotesRepository cloudRepository = null;
+                        //NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext());
+                        if (getActivity() != null) {
+                            Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                            int authTypeService = settings.getAuthTypeService();
+                            String userName = checkCloudStatusByUserName(settings);
+                            if (userName != null && !userName.equals("")) {
+                                cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
+                            }
+                        }
+
                         for (int i = start; i < COUNTDEMONOTES; i++) {
                             Date date = new Date();
                             Note note = new Note(("Заметка №" + i), (i * 2), date.toInstant().getEpochSecond(), date.toInstant().getEpochSecond());
-                            notes.add(note);
+
                             /*try {
                                 Thread.sleep(1000); //Приостанавливает поток на 1 секунду
                             } catch (Exception ignored) {
 
                             }*/
+
+                            cloudRepository.addNote(notes, note, result -> {
+                                note.setIdCloud((String) result);
+                                Log.v("Debug1", "ListNotesFragment setEmptyResultTextView cloudRepository cloudRepository.addNote result=" + result);
+                                //((GlobalVariables) getActivity().getApplication()).setNoteById(note.getID(), note);
+                                //localRepository.updateNote(notes, note, result1 -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE updateNote"));
+                            });
+
+                            notes.add(note);
                         }
+
                         //Сохраняем заметки в глобальной переменной
                         ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
                         new SharedPref(getActivity()).saveNotes(notes);
@@ -250,7 +274,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         return view;
     }
 
-    public String checkCloudStatusByUserName(Settings settings){
+    public String checkCloudStatusByUserName(Settings settings) {
         //boolean isCloudSync = false;
         int authTypeService = settings.getAuthTypeService();
         String userName = "";
@@ -266,7 +290,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                             //Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
                             settings.setAuthTypeService(TYPE_AUTH_GOOGLE);
                             settings.setCloudSync(true);
-                            ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+                            if (getActivity() != null)
+                                ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
                         }
                     }
                     break;
@@ -277,7 +302,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                         settings.setAuthTypeService(TYPE_AUTH_VK);
                         settings.setCloudSync(true);
                         settings.setUserNameVK(userName);
-                        ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+                        if (getActivity() != null)
+                            ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
                     }
                     break;
                 default:
@@ -285,7 +311,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                     userName = "";
                     settings.setAuthTypeService(TYPE_AUTH_NONE);
                     settings.setCloudSync(false);
-                    ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+                    if (getActivity() != null)
+                        ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
             }
         }
 

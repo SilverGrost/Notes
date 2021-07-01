@@ -2,7 +2,7 @@ package ru.geekbrains.notes;
 
 public class Constant {
     public static final int MILISECOND = 1000;
-    public static final int COUNTDEMONOTES = 1000;
+    public static final int COUNTDEMONOTES = 20;
     public static final String NOTEVALUE = "Value";
     public static final String NOTEID = "ID";
     public static final String NOTEDATE = "Date";

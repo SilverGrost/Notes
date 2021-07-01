@@ -12,56 +12,29 @@ import ru.geekbrains.notes.SharedPref;
 
 public class NotesLocalRepositoryImpl implements NotesRepository {
 
-    private Context context;
-    private ExecutorService executor = Executors.newCachedThreadPool();
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private final Context context;
+    private final ExecutorService executor = Executors.newCachedThreadPool();
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     public NotesLocalRepositoryImpl(Context context) {
         this.context = context;
     }
 
-    /*@Override
-    public List<Note> getNotes() {
-        return (new SharedPref(context).loadNotes());
-    }*/
 
     @Override
     public void getNotes(Callback<List<Note>> callback) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
+        executor.execute(() -> handler.post(() -> {
 
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        /*try {
-                            Thread.sleep(2000L);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }*/
-
-                        List<Note> notes = new SharedPref(context).loadNotes();
-                        callback.onSuccess(notes);
-                    }
-                });
-            }
-        });
+            List<Note> notes = new SharedPref(context).loadNotes();
+            callback.onSuccess(notes);
+        }));
     }
 
     @Override
     public void setNotes(List<Note> notes, Callback<Object> callback) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                new SharedPref(context).saveNotes(notes);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onSuccess(notes);
-                    }
-                });
-            }
+        executor.execute(() -> {
+            new SharedPref(context).saveNotes(notes);
+            handler.post(() -> callback.onSuccess(notes));
         });
     }
 
@@ -79,23 +52,15 @@ public class NotesLocalRepositoryImpl implements NotesRepository {
 
     @Override
     public void removeNote(List<Note> notes, Note note, Callback<Object> callback) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < notes.size(); i++) {
-                    if (notes.get(i).getID() == note.getID()) {
-                        notes.remove(i);
-                        break;
-                    }
+        executor.execute(() -> {
+            for (int i = 0; i < notes.size(); i++) {
+                if (notes.get(i).getID() == note.getID()) {
+                    notes.remove(i);
+                    break;
                 }
-                new SharedPref(context).saveNotes(notes);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onSuccess(true);
-                    }
-                });
             }
+            new SharedPref(context).saveNotes(notes);
+            handler.post(() -> callback.onSuccess(true));
         });
     }
 
