@@ -58,5 +58,6 @@
     <string name="textViewAuthByVK">Вы авторизованы через VK</string>
     <string name="textViewAuthByGoogle">Вы авторизованы через Google</string>
     <string name="textViewAuthByNONE">Вы не авторизованы</string>
+    <string name="buttonAddDemo">Добавить %1$d заметок</string>
     <integer name="com_vk_sdk_AppId">7891094</integer>
 </resources>

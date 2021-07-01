@@ -1,11 +1,5 @@
 package ru.geekbrains.notes.note;
 
-import android.content.Context;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import java.util.Date;
 import java.util.List;
 
 public interface NotesRepository {
