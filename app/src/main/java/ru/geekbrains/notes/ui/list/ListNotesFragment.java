@@ -430,36 +430,18 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         }
     }
 
-    /*private void showAlertDialogDeleteNote() {
+    private void showAlertDialogDeleteNote(int noteId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
                 .setTitle("ВНИМАНИЕ!")
                 .setMessage("Вы действительно хотите удалить заметку?")
                 .setIcon(R.drawable.ic_clear)
                 .setCancelable(false)
-                .setPositiveButton("Да", (dialog, which) -> {
-                    if (getActivity() != null) {
-                        List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
-
-                        int authTypeService = settings.getAuthTypeService();
-                        String userName = AuthFragment.checkCloudStatusByUserName(settings, getContext(), getActivity());
-                        if (userName != null && !userName.equals("")) {
-                            NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
-                            cloudRepository.clearNotes(notes, result -> {
-                                Log.v("Debug1", "SettingsFragment clearNotes cloudRepository");
-                                Snackbar.make(getView(), "Список заметок очищен", Snackbar.LENGTH_SHORT).show();
-                            });
-                        }
-                        notes.clear();
-                        ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
-                        new SharedPref(getActivity()).saveNotes(notes);
-
-                    }
-                })
+                .setPositiveButton("Да", (dialog, which) -> deleteNote(noteId))
                 .setNegativeButton("Нет", (dialog, which) -> {
                 });
 
         builder.show();
-    }*/
+    }
 
     //TODO сделать один метод на несколько классов
     private void deleteNote(int noteId) {
@@ -705,7 +687,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
             editNote(noteId);
             return true;
         } else if (itemId == R.id.popup_delete) {
-            deleteNote(noteId);
+            showAlertDialogDeleteNote(noteId);
             return true;
         }
         return super.onContextItemSelected(item);

@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -78,7 +79,8 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
             buttonEditAction();
             return true;
         } else if (id == R.id.action_delete) {
-            deleteNote();
+            //deleteNote();
+            showAlertDialogDeleteNote();
             return true;
         }
 
@@ -222,6 +224,19 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
+    }
+
+    private void showAlertDialogDeleteNote() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
+                .setTitle("ВНИМАНИЕ!")
+                .setMessage("Вы действительно хотите удалить заметку?")
+                .setIcon(R.drawable.ic_clear)
+                .setCancelable(false)
+                .setPositiveButton("Да", (dialog, which) -> deleteNote())
+                .setNegativeButton("Нет", (dialog, which) -> {
+                });
+
+        builder.show();
     }
 
     private void deleteNote() {
