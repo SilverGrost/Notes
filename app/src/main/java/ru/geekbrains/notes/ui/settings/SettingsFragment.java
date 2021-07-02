@@ -30,6 +30,7 @@ import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.SharedPref;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.note.NotesCloudRepositoryImpl;
+import ru.geekbrains.notes.note.NotesLocalRepositoryImpl;
 import ru.geekbrains.notes.note.NotesRepository;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
@@ -65,7 +66,6 @@ public class SettingsFragment extends Fragment {
     }
 
     private void showAlertDialogClearNotes() {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
                 .setTitle("ВНИМАНИЕ!")
                 .setMessage("Вы действительно хотите очистить список заметок?")
@@ -80,19 +80,20 @@ public class SettingsFragment extends Fragment {
                         if (userName != null && !userName.equals("")) {
                             NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
                             cloudRepository.clearNotes(notes, result -> {
-                                Log.v("Debug1", "SettingsFragment clearNotes cloudRepository");
-                                Snackbar.make(getView(), "Список заметок удалён", Snackbar.LENGTH_SHORT).show();
+                                Log.v("Debug1", "SettingsFragment cloudRepository.clearNotes");
+                                if ((int) result == notes.size())
+                                    if (getView() != null)
+                                        Snackbar.make(getView(), "Список заметок очищен", Snackbar.LENGTH_SHORT).show();
                             });
                         }
-                        notes.clear();
-                        ((GlobalVariables) SettingsFragment.this.getActivity().getApplication()).setNotes(notes);
-                        new SharedPref(SettingsFragment.this.getActivity()).saveNotes(notes);
+
+                        //Очищаем в локальном репозитории
+                        NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext(), getActivity());
+                        localRepository.clearNotes(notes, result1 -> Log.v("Debug1", "SettingsFragment clearNotes localRepository.clearNotes"));
 
                     }
                 })
                 .setNegativeButton("Нет", (dialog, which) -> {
-                    //Snackbar.make(getView(), "Negative", Snackbar.LENGTH_SHORT).show();
-
                 });
 
         builder.show();

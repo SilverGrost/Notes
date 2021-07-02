@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -51,6 +52,7 @@ import ru.geekbrains.notes.ui.MainFragment;
 import ru.geekbrains.notes.ui.auth.AuthFragment;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
 import ru.geekbrains.notes.ui.item.ViewNoteFragment;
+import ru.geekbrains.notes.ui.settings.SettingsFragment;
 
 import static ru.geekbrains.notes.Constant.*;
 
@@ -427,6 +429,37 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
             editNoteFragment.fillEditNote(editNoteFragment.getEditFragment());
         }
     }
+
+    /*private void showAlertDialogDeleteNote() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
+                .setTitle("ВНИМАНИЕ!")
+                .setMessage("Вы действительно хотите удалить заметку?")
+                .setIcon(R.drawable.ic_clear)
+                .setCancelable(false)
+                .setPositiveButton("Да", (dialog, which) -> {
+                    if (getActivity() != null) {
+                        List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+
+                        int authTypeService = settings.getAuthTypeService();
+                        String userName = AuthFragment.checkCloudStatusByUserName(settings, getContext(), getActivity());
+                        if (userName != null && !userName.equals("")) {
+                            NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
+                            cloudRepository.clearNotes(notes, result -> {
+                                Log.v("Debug1", "SettingsFragment clearNotes cloudRepository");
+                                Snackbar.make(getView(), "Список заметок очищен", Snackbar.LENGTH_SHORT).show();
+                            });
+                        }
+                        notes.clear();
+                        ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
+                        new SharedPref(getActivity()).saveNotes(notes);
+
+                    }
+                })
+                .setNegativeButton("Нет", (dialog, which) -> {
+                });
+
+        builder.show();
+    }*/
 
     //TODO сделать один метод на несколько классов
     private void deleteNote(int noteId) {

@@ -46,6 +46,7 @@ public class NotesLocalRepositoryImpl implements NotesRepository {
     @Override
     public void clearNotes(List<Note> notes, Callback<Object> callback) {
         notes.clear();
+        ((GlobalVariables) activity.getApplication()).setNotes(notes);
         setNotes(notes, callback);
     }
 
