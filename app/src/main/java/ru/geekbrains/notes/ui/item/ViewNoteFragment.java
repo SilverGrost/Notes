@@ -117,9 +117,7 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        //getActivity().setTitle("Просмотр заметки");
         MainActivity.setTitle(getActivity(), "Просмотр заметки");
-
 
         Log.v("Debug1", "ViewNoteFragment onAttach context=" + context);
         if (context instanceof PublisherHolder) {
@@ -158,10 +156,6 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
                 }
             }
         }
-        /*Button button_edit = v.findViewById(R.id.button_edit);
-        button_edit.setOnClickListener(this);
-        Button button_delete = v.findViewById(R.id.button_delete);
-        button_delete.setOnClickListener(this);*/
         Log.v("Debug1", "ViewNoteFragment onCreateView getArguments() != null noteId=" + noteId + ", container=" + container);
         return v;
     }
@@ -204,33 +198,10 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
 
     private void buttonEditAction() {
         Log.v("Debug1", "ViewNoteFragment buttonEditAction");
-        /*EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(noteId);
-        if (getActivity() != null) {
-            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-            SearchResultFragment searchResultFragment = (SearchResultFragment) fragmentManager.findFragmentByTag("SearchResultFragment");
-            if (searchResultFragment == null)
-                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    fragmentManager = getActivity().getSupportFragmentManager();
-                } else {
-                    fragmentManager = getActivity().getSupportFragmentManager();
-                    Fragment parentFragment = getParentFragment();
-                    if (parentFragment != null) {
-                        fragmentManager = parentFragment.getActivity().getSupportFragmentManager();
-                    }
-                }
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            //fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
-            fragmentTransaction.replace(R.id.frame_container_main, editNoteFragment);
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
-        }*/
 
         EditNoteFragmentDialog.newInstance(noteId)
                         .show(getChildFragmentManager(), EditNoteFragmentDialog.TAG);
     }
-
-
 
     private void showAlertDialogDeleteNote() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())

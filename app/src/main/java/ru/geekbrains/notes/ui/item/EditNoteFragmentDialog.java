@@ -1,19 +1,20 @@
 package ru.geekbrains.notes.ui.item;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-
 
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+
 
 import java.util.Date;
 import java.util.List;
@@ -34,23 +35,27 @@ import static ru.geekbrains.notes.Constant.TYPE_EVENT_ADD_NOTE;
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_EDIT_NOTE;
 
 
-public class EditNoteFragmentDialog extends DialogFragment {
+public class EditNoteFragmentDialog extends DialogFragment implements View.OnClickListener {
 
     private static final String ARG = "NOTE_ID";
     public static final String TAG = "EditNoteFragmentDialog";
     int noteId = 0;
+    private EditText editTextNoteValue;
 
     private Publisher publisher;
+    private View editFragmentDialog;
 
     private int newNoteId = -1;
+
+    public View getEditFragment() {
+        return editFragmentDialog;
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         Log.v("Debug1", "EditNoteFragmentDialog onAttach");
-        //getActivity().setTitle("Правка заметки");
         MainActivity.setTitle(getActivity(), "Правка заметки");
-
         if (context instanceof PublisherHolder) {
             publisher = ((PublisherHolder) context).getPublisher();
         }
@@ -64,106 +69,126 @@ public class EditNoteFragmentDialog extends DialogFragment {
     }
 
 
-    @NonNull
     @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        // Вытаскиваем макет диалога
-        // https://stackoverflow.com/questions/15151783/stackoverflowerror-when-trying-to-inflate-a-custom-layout-for-an-alertdialog-ins
-        final View contentView = requireActivity().getLayoutInflater().inflate(R.layout.fragment_edit_note_dialog, null);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        Log.v("Debug1", "EditNoteFragment onCreateView");
+        setHasOptionsMenu(false);
+        View v = inflater.inflate(R.layout.fragment_edit_note_dialog, container, false);
+        Button button_ok = v.findViewById(R.id.button_ok);
+        button_ok.setOnClickListener(this);
 
-        EditText editTextNoteValue = contentView.findViewById(R.id.editTextNoteValue);
+        Button button_cancel = v.findViewById(R.id.button_cancel);
+        button_cancel.setOnClickListener(this);
+        return v;
+    }
 
-        Settings settings;
-        Note note;
-        if (getArguments() != null)
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Log.v("Debug1", "EditNoteFragment onViewCreated");
+        editFragmentDialog = view;
+        fillEditNote(view);
+    }
+
+    public void fillEditNote(View view) {
+        Log.v("Debug1", "EditNoteFragment fillEditNote");
+        if (getArguments() != null && getActivity() != null) {
             noteId = getArguments().getInt(ARG, 0);
+            Log.v("Debug1", "EditNoteFragment fillEditNote getArguments() != null noteId=" + noteId);
+            Note note = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
+            editTextNoteValue = view.findViewById(R.id.editTextNoteValue);
 
-        if (getActivity() != null) {
-            note = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
-            settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
-            editTextNoteValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, settings.getTextSize());
-            editTextNoteValue.setText(note.getValue());
+            Settings settings;
+            if (getActivity() != null) {
+                settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                editTextNoteValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, settings.getTextSize());
+                editTextNoteValue.setText(note.getValue());
+            }
         }
+    }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity())
-                .setTitle("Title")
-                .setView(contentView)
-                .setPositiveButton("Ok", (dialogInterface, i) -> {
+    @Override
+    public void onClick(View v) {
+        Log.v("Debug1", "EditNoteFragmentDialog onClick");
 
-                    Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok noteId=" + noteId);
-                    String value = editTextNoteValue.getText().toString();
-                    Date date = new Date();
-                    if (getActivity() != null) {
-                        List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
-                        Note note1 = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
-                        note1.setDateEdit(date.toInstant().getEpochSecond());
-                        note1.setValue(value);
+        if (v.getId() == R.id.button_ok) {
 
-                        boolean cloudSync = false;
-                        int authTypeService = 0;
-                        String userName = "";
-                        if (getActivity() != null) {
-                            //Получаем настройки из глобальной переменной
-                            Settings settings1 = ((GlobalVariables) getActivity().getApplication()).getSettings();
-                            authTypeService = settings1.getAuthTypeService();
-                            userName = AuthFragment.checkCloudStatusByUserName(settings1, getContext(), getActivity());
-                            if (userName != null && !userName.equals("")) {
-                                cloudSync = true;
-                            }
-                        }
+            Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok noteId=" + noteId);
+            String value = editTextNoteValue.getText().toString();
+            Date date = new Date();
+            if (getActivity() != null) {
+                List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+                Note note = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
+                note.setDateEdit(date.toInstant().getEpochSecond());
+                note.setValue(value);
 
-                        NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext(), getActivity());
-                        NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
-
-
-                        if (note1.getID() == -1) {
-                            note1.setDateCreate(date.toInstant().getEpochSecond());
-
-                            newNoteId = ((GlobalVariables) getActivity().getApplication()).getNewId();
-
-                            note1.setID(newNoteId);
-
-                            boolean finalCloudSync = cloudSync;
-                            localRepository.addNote(notes, note1, result -> {
-                                Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok localRepository addNote");
-
-                                if (finalCloudSync) {
-                                    //Добавялем в облако и получаем облачный id
-                                    cloudRepository.addNote(notes, note1, result13 -> {
-                                        note1.setIdCloud((String) result13);
-                                        Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok cloudRepository addNote result=" + result13);
-
-                                        //Обнавляем в локальном репозитории полученный облачный id
-                                        localRepository.updateNote(notes, note1, result1 -> Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok localRepository updateNote"));
-
-                                        //Обнавляем в облачном репозитории полученный облачный id
-                                        cloudRepository.updateNote(notes, note1, result12 -> Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok cloudRepository updateNote"));
-                                    });
-                                }
-                            });
-
-                        } else {
-                            localRepository.updateNote(notes, note1, result -> Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok notify TYPE_EVENT_EDIT_NOTE"));
-                            if (cloudSync) {
-                                cloudRepository.updateNote(notes, note1, result -> Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok notify cloudRepository update"));
-                            }
-                        }
-
-                        if (publisher != null) {
-                            Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok notify noteId=" + noteId);
-                            if (noteId == -1)
-                                publisher.notify(newNoteId, TYPE_EVENT_ADD_NOTE);
-                            else
-                                publisher.notify(noteId, TYPE_EVENT_EDIT_NOTE);
-                        }
+                boolean cloudSync = false;
+                int authTypeService = 0;
+                String userName = "";
+                if (getActivity() != null) {
+                    //Получаем настройки из глобальной переменной
+                    Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                    authTypeService = settings.getAuthTypeService();
+                    userName = AuthFragment.checkCloudStatusByUserName(settings, getContext(), getActivity());
+                    if (userName != null && !userName.equals("")) {
+                        cloudSync = true;
                     }
+                }
+
+                NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext(), getActivity());
+                NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
 
 
-                    dismiss();
-                    //((MainActivity) requireActivity()).onDialogResult(answer);
-                })
-                .setNegativeButton("Нет", (dialog, which) -> dismiss());
-        return builder.create();
+                if (note.getID() == -1) {
+                    note.setDateCreate(date.toInstant().getEpochSecond());
+
+                    newNoteId = ((GlobalVariables) getActivity().getApplication()).getNewId();
+
+                    note.setID(newNoteId);
+
+                    boolean finalCloudSync = cloudSync;
+                    localRepository.addNote(notes, note, result -> {
+                        Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok localRepository addNote");
+
+                        if (finalCloudSync) {
+                            //Добавялем в облако и получаем облачный id
+                            cloudRepository.addNote(notes, note, result13 -> {
+                                note.setIdCloud((String) result13);
+                                Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok cloudRepository addNote result=" + result13);
+
+                                //Обнавляем в локальном репозитории полученный облачный id
+                                localRepository.updateNote(notes, note, result1 -> Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok localRepository updateNote"));
+
+                                //Обнавляем в облачном репозитории полученный облачный id
+                                cloudRepository.updateNote(notes, note, result12 -> Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok cloudRepository updateNote"));
+                            });
+                        }
+                    });
+
+                } else {
+                    localRepository.updateNote(notes, note, result -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE"));
+                    if (cloudSync) {
+                        cloudRepository.updateNote(notes, note, result -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository update"));
+                    }
+                }
+
+                if (publisher != null) {
+                    Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok notify noteId=" + noteId);
+                    if (noteId == -1)
+                        publisher.notify(newNoteId, TYPE_EVENT_ADD_NOTE);
+                    else
+                        publisher.notify(noteId, TYPE_EVENT_EDIT_NOTE);
+                }
+            }
+        }
+        else
+            if(v.getId() == R.id.button_ok){
+                dismiss();
+            }
+
+        dismiss();
+        Log.v("Debug1", "EditNoteFragmentDialog onClick end");
     }
 
     public static EditNoteFragmentDialog newInstance(int noteId) {
@@ -174,6 +199,5 @@ public class EditNoteFragmentDialog extends DialogFragment {
         fragment.setArguments(args);
         return fragment;
     }
-
 
 }
