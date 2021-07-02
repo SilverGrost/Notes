@@ -36,6 +36,7 @@ import ru.geekbrains.notes.ui.DatepickerFragment;
 import ru.geekbrains.notes.ui.MainActivity;
 import ru.geekbrains.notes.ui.MainFragment;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
+import ru.geekbrains.notes.ui.item.EditNoteFragmentDialog;
 import ru.geekbrains.notes.ui.item.ViewNoteFragment;
 
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_DELETE_NOTE;
@@ -49,6 +50,8 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
     private List<Note> notes;
     private View viewSearchResult;
     private RVAdapter rvAdapter;
+
+    public static final String TAG = "SearchResultFragment";
 
     public RecyclerView getRecyclerView() {
         return recyclerView;
@@ -172,32 +175,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
             rvAdapter.SetOnNoteClicked((view, position) -> {
                 int noteId = (int) view.getTag();
                 Log.v("Debug1", "SearchResultFragment initRecyclerView onNoteClickedList noteId=" + noteId);
-                ViewNoteFragment viewNoteFragment = null;
-                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    if (getActivity() != null)
-                        viewNoteFragment = (ViewNoteFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.activity_container_note_view);
-                } else {
-                    MainFragment mainFragment = null;
-                    if (getActivity() != null)
-                        mainFragment = (MainFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.frame_container_main);
-                    if (mainFragment != null) {
-                        FragmentManager childFragmentManager = mainFragment.getChildFragmentManager();
-                        viewNoteFragment = (ViewNoteFragment) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
-                    }
-                }
-                if (viewNoteFragment == null) {
-                    Log.v("Debug1", "SearchResultFragment initRecyclerView viewNoteFragment == null");
-                    viewNoteFragment = ViewNoteFragment.newInstance(noteId);
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                    fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragment");
-                    fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.commit();
-                } else {
-                    Log.v("Debug1", "SearchResultFragment initRecyclerView viewNoteFragment != null");
-                    viewNoteFragment.fillViewNote(noteId, viewNoteFragment.getViewFragment());
-                }
+                viewNote(noteId);
             });
             // Установим слушателя на дату
             rvAdapter.SetOnDateClicked((view, position) -> {
@@ -284,33 +262,35 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
     }
 
     private void editNote(int noteId){
-        EditNoteFragment editNoteFragment = null;
+        /*EditNoteFragmentDialog editNoteFragmentDialog = null;
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             if (getActivity() != null)
-                editNoteFragment = (EditNoteFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.activity_container_note_view);
+                editNoteFragmentDialog = (EditNoteFragmentDialog) getActivity().getSupportFragmentManager().findFragmentById(R.id.activity_container_note_view);
         } else {
             MainFragment mainFragment = null;
             if (getActivity() != null)
                 mainFragment = (MainFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.frame_container_main);
             if (mainFragment != null) {
                 FragmentManager childFragmentManager = mainFragment.getChildFragmentManager();
-                editNoteFragment = (EditNoteFragment) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
+                editNoteFragmentDialog = (EditNoteFragmentDialog) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
             }
         }
-        if (editNoteFragment == null) {
-            Log.v("Debug1", "ListNotesFragment editNote viewNoteFragment == null");
-            editNoteFragment = EditNoteFragment.newInstance(noteId);
+        if (editNoteFragmentDialog == null) {
+            Log.v("Debug1", "ListNotesFragment editNote editNoteFragmentDialog == null");
+            editNoteFragmentDialog = EditNoteFragmentDialog.newInstance(noteId);
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            fragmentTransaction.add(R.id.frame_container_main, editNoteFragment, "EditNoteFragmentPortrait");
-            //fragmentTransaction.replace(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
+            fragmentTransaction.add(R.id.frame_container_main, editNoteFragmentDialog, "EditNoteFragmentDialogPortrait");
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         } else {
-            Log.v("Debug1", "ListNotesFragment editNote viewNoteFragment != null");
-            editNoteFragment.fillEditNote(editNoteFragment.getEditFragment());
-        }
+            Log.v("Debug1", "ListNotesFragment editNote editNoteFragment != null");
+            editNoteFragment.fillEditNote(editNoteFragmentDialog.getEditFragment());
+        }*/
+
+        EditNoteFragmentDialog.newInstance(noteId)
+                .show(getChildFragmentManager(), EditNoteFragmentDialog.TAG);
     }
 
     private void deleteNote(int noteId){

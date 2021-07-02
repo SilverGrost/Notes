@@ -39,6 +39,7 @@ import static ru.geekbrains.notes.Constant.TYPE_EVENT_EDIT_NOTE;
 public class EditNoteFragment extends Fragment implements View.OnClickListener {
 
     private static final String ARG = "NOTE_ID";
+    public static final String TAG = "EditNoteFragment";
     int noteId = 0;
 
     private EditText editTextNoteValue;
@@ -118,13 +119,12 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
             Note note = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
             editTextNoteValue = view.findViewById(R.id.editTextNoteValue);
 
-            Settings settings = new Settings();
+            Settings settings;
             if (getActivity() != null) {
                 settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                editTextNoteValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, settings.getTextSize());
+                editTextNoteValue.setText(note.getValue());
             }
-
-            editTextNoteValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, settings.getTextSize());
-            editTextNoteValue.setText(note.getValue());
         }
     }
 

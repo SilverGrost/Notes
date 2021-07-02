@@ -51,6 +51,8 @@ public class SettingsFragment extends Fragment {
     private Settings settings;
     SwitchCompat aSwitch;
 
+    public static final String TAG = "SettingsFragment";
+
     private UserProfile userProfile = new UserProfile();
 
     private Publisher publisher;

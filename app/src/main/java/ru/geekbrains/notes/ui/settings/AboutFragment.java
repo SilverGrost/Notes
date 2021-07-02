@@ -20,6 +20,8 @@ import ru.geekbrains.notes.ui.MainActivity;
 
 public class AboutFragment extends Fragment {
 
+    public static final String TAG = "AboutFragment";
+
     public AboutFragment() {
         // Required empty public constructor
     }

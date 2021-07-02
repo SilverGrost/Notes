@@ -37,13 +37,14 @@ import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.ui.MainActivity;
 import ru.geekbrains.notes.ui.auth.AuthFragment;
-import ru.geekbrains.notes.ui.list.SearchResultFragment;
 
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_DELETE_NOTE;
 
 public class ViewNoteFragment extends Fragment implements ObserverNote {
 
     private static final String ARG = "NOTE_ID";
+
+    public static final String TAG = "ViewNoteFragment";
 
     private int noteId = 0;
     private Publisher publisher;
@@ -203,7 +204,7 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
 
     private void buttonEditAction() {
         Log.v("Debug1", "ViewNoteFragment buttonEditAction");
-        EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(noteId);
+        /*EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(noteId);
         if (getActivity() != null) {
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             SearchResultFragment searchResultFragment = (SearchResultFragment) fragmentManager.findFragmentByTag("SearchResultFragment");
@@ -223,8 +224,13 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
             fragmentTransaction.replace(R.id.frame_container_main, editNoteFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
-        }
+        }*/
+
+        EditNoteFragmentDialog.newInstance(noteId)
+                        .show(getChildFragmentManager(), EditNoteFragmentDialog.TAG);
     }
+
+
 
     private void showAlertDialogDeleteNote() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
@@ -255,7 +261,6 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
                 position = i;
             }
             Log.v("Debug1", "ViewNoteFragment deleteNote prevID=" + prevID);
-            //((GlobalVariables) getActivity().getApplication()).setNotes(notes);
 
             boolean cloudSync = false;
             int authTypeService = 0;

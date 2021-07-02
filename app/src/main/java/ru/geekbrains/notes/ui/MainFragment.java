@@ -32,6 +32,8 @@ import ru.geekbrains.notes.ui.list.SearchResultFragment;
 
 public class MainFragment extends Fragment implements View.OnClickListener, SearchView.OnQueryTextListener {
 
+    public static final String TAG = "MainFragment";
+
     public MainFragment() {
         // Required empty public constructor
     }
