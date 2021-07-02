@@ -1,5 +1,6 @@
 package ru.geekbrains.notes.note;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,16 +9,20 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.SharedPref;
 
 public class NotesLocalRepositoryImpl implements NotesRepository {
 
     private final Context context;
+    private final Activity activity;
+
     private final ExecutorService executor = Executors.newCachedThreadPool();
     private final Handler handler = new Handler(Looper.getMainLooper());
 
-    public NotesLocalRepositoryImpl(Context context) {
+    public NotesLocalRepositoryImpl(Context context, Activity activity) {
         this.context = context;
+        this.activity = activity;
     }
 
 
@@ -47,6 +52,7 @@ public class NotesLocalRepositoryImpl implements NotesRepository {
     @Override
     public void addNote(List<Note> notes, Note note, Callback<Object> callback) {
         notes.add(note);
+        ((GlobalVariables) activity.getApplication()).setNotes(notes);
         setNotes(notes, callback);
     }
 
@@ -56,6 +62,7 @@ public class NotesLocalRepositoryImpl implements NotesRepository {
             for (int i = 0; i < notes.size(); i++) {
                 if (notes.get(i).getID() == note.getID()) {
                     notes.remove(i);
+                    ((GlobalVariables) activity.getApplication()).setNotes(notes);
                     break;
                 }
             }
@@ -69,6 +76,7 @@ public class NotesLocalRepositoryImpl implements NotesRepository {
         for (int i = 0; i < notes.size(); i++) {
             if (notes.get(i).getID() == note.getID()) {
                 notes.set(i, note);
+                ((GlobalVariables) activity.getApplication()).setNotes(notes);
                 setNotes(notes, callback);
                 break;
             }

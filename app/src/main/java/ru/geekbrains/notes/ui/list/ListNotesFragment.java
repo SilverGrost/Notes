@@ -25,6 +25,8 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -203,13 +205,6 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                             Date date = new Date();
                             Note note = new Note(("Заметка №" + i), (i/* * 2*/), date.toInstant().getEpochSecond(), date.toInstant().getEpochSecond());
 
-                            /*try {
-                                Thread.sleep(1000); //Приостанавливает поток на 1 секунду
-                            } catch (Exception ignored) {
-
-                            }*/
-
-
                             boolean cloudSync = false;
                             String userName;
                             if (getActivity() != null) {
@@ -221,7 +216,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                                 }
                             }
 
-                            NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext());
+                            NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext(), getActivity());
 
                             notes.add(note);
 
@@ -230,6 +225,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                                 NotesRepository finalCloudRepository = cloudRepository;
                                 cloudRepository.addNote(notes, note, result -> {
                                     note.setIdCloud((String) result);
+                                    Log.v("Debug1", "ListNotesFragment setEmptyResultTextVie addDemo cloudRepository.addNote result=" + result);
 
                                     localRepository.updateNote(notes, note, result1 -> Log.v("Debug1", "ListNotesFragment setEmptyResultTextVie addDemo localRepository updateNote"));
 
@@ -241,8 +237,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                         }
 
                         //Сохраняем заметки в глобальной переменной
-                        ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
-                        new SharedPref(getActivity()).saveNotes(notes);
+                        /*((GlobalVariables) getActivity().getApplication()).setNotes(notes);
+                        new SharedPref(getActivity()).saveNotes(notes);*/
                         initRecyclerViewListNotes(recyclerView, 0, 0);
                     }
                 });
@@ -255,47 +251,8 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.v("Debug1", "ListNotesFragment onCreateView");
-        View view = inflater.inflate(R.layout.fragment_list_notes, container, false);
-        Log.v("Debug1", "ListNotesFragment onCreateView view.getTag()=" + view.getTag());
-        viewFragmentListNotes = view;
-        if (getActivity() != null) {
-            notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
-        }
-        textViewEmptyListNotes = view.findViewById(R.id.textViewEmprtyListNotesRV);
-        buttonAddOne = view.findViewById(R.id.button_addFirstNote);
-        button1000 = view.findViewById(R.id.button_addFirst1000);
-        recyclerView = view.findViewById(R.id.recycler_view_lines);
 
-        progressBar = view.findViewById(R.id.progress);
-
-        if (isLoading) {
-            progressBar.setVisibility(View.VISIBLE);
-        }
-
-        Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
-
-        Log.v("Debug1", "ListNotesFragment onCreateView settings.getUserNameVK()=" + settings.getUserNameVK());
-
-
-        currentPositionRV = settings.getCurrentPosition();
-
-        isLoading = true;
-        NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext());
-        localRepository.getNotes(result -> {
-            notes = result;
-            if (getActivity() != null) {
-                ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
-                initRecyclerViewListNotes(recyclerView, -1, TYPE_EVENT_ADD_NOTE);
-                isLoading = false;
-                if (progressBar != null) {
-                    progressBar.setVisibility(View.GONE);
-                }
-            }
-        });
-
-        cloudSync(settings);
-
-        return view;
+        return inflater.inflate(R.layout.fragment_list_notes, container, false);
     }
 
     private void cloudSync(Settings settings) {
@@ -312,7 +269,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                     ((GlobalVariables) getActivity().getApplication()).setNotesCloud(notesCloud);
                     Log.v("Debug1", "ListNotesFragment cloudSync notesCloud.size=" + notesCloud.size());
 
-                    NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext());
+                    NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext(), getActivity());
                     //Пройдёмся по облачным
                     for (int i = 0; i < notesCloud.size(); i++) {
                         Note noteCloud = notesCloud.get(i);
@@ -321,18 +278,27 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                         //Если в локальных заметак нет заметки с таким id, то добавляем из облака
                         if (noteLocal.getID() == -1) {
                             //notes.add(noteCloud);
-                            localRepository.addNote(notes, noteCloud, result12 -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_ADD_NOTE"));
+                            localRepository.addNote(notes, noteCloud, result12 -> Log.v("Debug1", "ListNotesFragment cloudSync localRepository.addNote"));
                         }
                         //Если есть, то сравниваем даты
                         else {
                             //Если дата правки в облаке больше, то обнавляем локальные из облака
                             if (noteCloud.getDateEdit() > noteLocal.getDateEdit()) {
-                                ((GlobalVariables) getActivity().getApplication()).setNoteById(noteCloud.getID(), noteCloud);
-                            } else {
+                                //((GlobalVariables) getActivity().getApplication()).setNoteById(noteCloud.getID(), noteCloud);
+
+                                //Обнавляем в локальном репозитории
+                                localRepository.updateNote(notes, noteCloud, result1 -> {
+                                    Log.v("Debug1", "ListNotesFragment cloudSync localRepository updateNote onSuccess");
+                                    //((GlobalVariables) getActivity().getApplication()).setNotes(notes);
+
+                                });
+
+
+                            } else if (noteCloud.getDateEdit() < noteLocal.getDateEdit()) {
                                 //Иначе обновляем облачные из локальных
                                 ((GlobalVariables) getActivity().getApplication()).updateNoteCloudById(noteLocal.getID(), noteLocal);
 
-                                cloudRepository.updateNote(null, noteLocal, result1 -> Log.v("Debug1", "ListNotesFragment cloudSync Обновил в облаке result1=" + result1));
+                                cloudRepository.updateNote(null, noteLocal, result1 -> Log.v("Debug1", "ListNotesFragment cloudSync cloudRepository.updateNote Обновил в облаке result1=" + result1));
                             }
                         }
                     }
@@ -374,13 +340,23 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                                 cloudRepository.updateNote(null, noteLocal, result1 -> Log.v("Debug1", "ListNotesFragment cloudSync Обновил в облаке result1=" + result1));
                             } else if (noteLocal.getDateEdit() < noteCloud.getDateEdit()) {
                                 //Обновляем локальные из облака
-                                ((GlobalVariables) getActivity().getApplication()).setNoteById(noteCloud.getID(), noteCloud);
+                                //((GlobalVariables) getActivity().getApplication()).setNoteById(noteCloud.getID(), noteCloud);
+
+                                //Обнавляем в локальном репозитории
+                                localRepository.updateNote(notes, noteCloud, result1 -> {
+                                    Log.v("Debug1", "ListNotesFragment cloudSync localRepository updateNote onSuccess");
+                                    //((GlobalVariables) getActivity().getApplication()).setNotes(notes);
+
+                                });
                             }
                         }
                     }
 
-                    notesCloud = ((GlobalVariables) getActivity().getApplication()).getNotesCloud();
-                    notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+                    if (getActivity() != null) {
+                        notesCloud = ((GlobalVariables) getActivity().getApplication()).getNotesCloud();
+                        notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+
+                    }
 
                     localRepository.setNotes(notes, result14 -> {
 
@@ -452,6 +428,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         }
     }
 
+    //TODO сделать один метод на несколько классов
     private void deleteNote(int noteId) {
         if (getActivity() != null && getActivity().getApplication() != null) {
             List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
@@ -470,16 +447,38 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
             Log.v("Debug1", "ListNotesFragment onClick button_delete prevID=" + prevID);
             ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
 
-            NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext());
+            boolean cloudSync = false;
+            int authTypeService = 0;
+            String userName = "";
+            if (getActivity() != null) {
+                //Получаем настройки из глобальной переменной
+                Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                authTypeService = settings.getAuthTypeService();
+                userName = AuthFragment.checkCloudStatusByUserName(settings, getContext(), getActivity());
+                if (userName != null && !userName.equals("")) {
+                    cloudSync = true;
+                }
+            }
+            Log.v("Debug1", "ListNotesFragment onClick button_delete cloudSync=" + cloudSync);
+
+            if (cloudSync) {
+                NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
+                cloudRepository.removeNote(notes, note, result -> {
+                    Log.v("Debug1", "ListNotesFragment onClick button_ok cloudRepository removeNote result=" + result);
+                    if (getView() != null)
+                        Snackbar.make(getView(), "Заметка удалена из облака", Snackbar.LENGTH_SHORT).show();
+                });
+            }
+
+            NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext(), getActivity());
             localRepository.removeNote(notes, note, result -> {
-                /*if (publisher != null) {
-                    publisher.notify(position, TYPE_EVENT_DELETE_NOTE);
-                }*/
-                Log.v("Debug1", "ListNotesFragment onClick button_delete onSuccess");
+                Log.v("Debug1", "ListNotesFragment onClick button_delete localRepository removeNote onSuccess");
+                if (getView() != null)
+                    Snackbar.make(getView(), "Заметка удалена с устройства", Snackbar.LENGTH_SHORT).show();
+
             });
 
-            //if (getContext() != null) {
-            //new SharedPref(getContext()).saveNotes(notes);
+
             if (publisher != null) {
                 Log.v("Debug1", "ListNotesFragment onClick button_delete notify");
                 publisher.notify(position, TYPE_EVENT_DELETE_NOTE);
@@ -492,7 +491,6 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                     fragmentTransaction.commit();
                 }
             }
-            //}
         }
     }
 
@@ -582,7 +580,46 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Log.v("Debug1", "ListNotesFragment onViewCreated");
+
+        Log.v("Debug1", "ListNotesFragment onViewCreated view.getTag()=" + view.getTag());
+        viewFragmentListNotes = view;
+        if (getActivity() != null) {
+            notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+        }
+        textViewEmptyListNotes = view.findViewById(R.id.textViewEmprtyListNotesRV);
+        buttonAddOne = view.findViewById(R.id.button_addFirstNote);
+        button1000 = view.findViewById(R.id.button_addFirst1000);
+        recyclerView = view.findViewById(R.id.recycler_view_lines);
+
+        progressBar = view.findViewById(R.id.progress);
+
+        if (isLoading) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+
+        Log.v("Debug1", "ListNotesFragment onViewCreated settings.getUserNameVK()=" + settings.getUserNameVK());
+
+
+        currentPositionRV = settings.getCurrentPosition();
+
+        isLoading = true;
+        NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext(), getActivity());
+        localRepository.getNotes(result -> {
+            notes = result;
+            if (getActivity() != null) {
+                ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
+                initRecyclerViewListNotes(recyclerView, -1, TYPE_EVENT_ADD_NOTE);
+                isLoading = false;
+                if (progressBar != null) {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        cloudSync(settings);
+
     }
 
     @Override

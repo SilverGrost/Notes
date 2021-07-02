@@ -5,9 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -27,7 +25,6 @@ import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.SharedPref;
-import ru.geekbrains.notes.note.Callback;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.note.NotesCloudRepositoryImpl;
 import ru.geekbrains.notes.note.NotesRepository;
@@ -226,8 +223,6 @@ public class SettingsFragment extends Fragment {
             aSwitch = view.findViewById(R.id.switchAuth);
 
 
-
-
             aSwitch.setChecked(settings.isCloudSync());
 
             if (settings.getAuthTypeService() != 0) {
@@ -252,8 +247,7 @@ public class SettingsFragment extends Fragment {
                         fragmentTransaction.commit();
                     }
 
-                }
-                else
+                } else
                     autButton.setVisibility(View.INVISIBLE);
             });
 

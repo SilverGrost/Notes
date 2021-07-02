@@ -1,5 +1,7 @@
 package ru.geekbrains.notes.note;
 
+import android.util.Log;
+
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -117,6 +119,8 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
         data.put(VALUE, note.getValue());
         data.put(IDCLOUD, note.getIdCloud());
 
+        Log.v("Debug1", "NotesCloudRepositoryImpl addNote note.getID()=" + note.getID() + ", note.getValue()=" + note.getValue() + ", note.getIdCloud()=" + note.getIdCloud());
+
         firebaseFirestore.collection(collectionId)
                 .add(data)
                 .addOnCompleteListener(task -> {
@@ -131,6 +135,7 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
 
     @Override
     public void removeNote(List<Note> notes, Note note, Callback<Object> callback) {
+        Log.v("Debug1", "NotesCloudRepositoryImpl removeNote note.getID()=" + note.getID() + ", note.getValue()=" + note.getValue() + ", note.getIdCloud()" + note.getIdCloud());
         if (note.getIdCloud() != null && !note.getIdCloud().equals("")) {
             firebaseFirestore.collection(collectionId)
                     .document(note.getIdCloud())
@@ -147,6 +152,7 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
     public void updateNote(List<Note> notes, Note note, Callback<Object> callback) {
 
         if (note.getIdCloud() != null && !note.getIdCloud().equals("")) {
+
             HashMap<String, Object> data = new HashMap<>();
             data.put(ID, note.getID());
             Date dateCreate = new Date(note.getDateCreate() * MILISECOND);
@@ -155,6 +161,8 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
             data.put(FIELD_DATE_EDIT, dateEdit);
             data.put(VALUE, note.getValue());
             data.put(IDCLOUD, note.getIdCloud());
+
+            Log.v("Debug1", "NotesCloudRepositoryImpl updateNote note.getID()=" + note.getID() + ", note.getValue()=" + note.getValue() + ", note.getIdCloud()" + note.getIdCloud());
 
             if (note.getIdCloud() != null && !note.getIdCloud().equals(""))
             firebaseFirestore.collection(collectionId)

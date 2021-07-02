@@ -143,19 +143,6 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
                 note.setDateEdit(date.toInstant().getEpochSecond());
                 note.setValue(value);
 
-                if (note.getID() == -1) {
-                    note.setDateCreate(date.toInstant().getEpochSecond());
-
-                    newNoteId = ((GlobalVariables) getActivity().getApplication()).getNewId();
-
-                    note.setID(newNoteId);
-                    //notes.add(note);
-                    //((GlobalVariables) getActivity().getApplication()).setNotes(notes);
-                } else {
-                    //((GlobalVariables) getActivity().getApplication()).setNoteById(noteId, note);
-                }
-
-
                 boolean cloudSync = false;
                 int authTypeService = 0;
                 String userName = "";
@@ -169,35 +156,40 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
                     }
                 }
 
-                NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext());
+                NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext(), getActivity());
                 NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
-                if (noteId == -1) {
-                    localRepository.addNote(notes, note, result -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_ADD_NOTE"));
-                    if (cloudSync) {
 
-                        cloudRepository.addNote(notes, note, result -> {
-                            Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository add result=" + result);
-                            note.setIdCloud((String) result);
-                            localRepository.updateNote(notes, note, result1 -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE updateNote"));
 
-                            cloudRepository.updateNote(notes, note, result12 -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository update"));
+                if (note.getID() == -1) {
+                    note.setDateCreate(date.toInstant().getEpochSecond());
 
-                        });
-                    }
+                    newNoteId = ((GlobalVariables) getActivity().getApplication()).getNewId();
 
+                    note.setID(newNoteId);
+
+                    boolean finalCloudSync = cloudSync;
+                    localRepository.addNote(notes, note, result -> {
+                        Log.v("Debug1", "EditNoteFragment onClick button_ok localRepository addNote");
+
+                        if (finalCloudSync) {
+                            //Добавялем в облако и получаем облачный id
+                            cloudRepository.addNote(notes, note, result13 -> {
+                                note.setIdCloud((String) result13);
+                                Log.v("Debug1", "EditNoteFragment onClick button_ok cloudRepository addNote result=" + result13);
+
+                                //Обнавляем в локальном репозитории полученный облачный id
+                                localRepository.updateNote(notes, note, result1 -> Log.v("Debug1", "EditNoteFragment onClick button_ok localRepository updateNote"));
+
+                                //Обнавляем в облачном репозитории полученный облачный id
+                                cloudRepository.updateNote(notes, note, result12 -> Log.v("Debug1", "EditNoteFragment onClick button_ok cloudRepository updateNote"));
+                            });
+                        }
+                    });
 
                 } else {
                     localRepository.updateNote(notes, note, result -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE"));
                     if (cloudSync) {
-                        cloudRepository.updateNote(notes, note, result -> {
-                            Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository update");
-                            /*localRepository.updateNote(notes, note, new Callback<Object>() {
-                                @Override
-                                public void onSuccess(Object result1) {
-                                    Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE updateNote");
-                                }
-                            });*/
-                        });
+                        cloudRepository.updateNote(notes, note, result -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository update"));
                     }
                 }
 
