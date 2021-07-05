@@ -3,8 +3,9 @@ package ru.geekbrains.notes.note;
 import android.util.Log;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,47 +36,47 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
                 .get()
                 .addOnCompleteListener(task -> {
 
+                    ArrayList<Note> result = new ArrayList<>();
+
                     if (task.isSuccessful()) {
+                        QuerySnapshot resultTask = task.getResult();
+                        if( resultTask == null ) {
+                            return;
+                        }
 
-                        ArrayList<Note> result = new ArrayList<>();
+                        for (DocumentSnapshot document : resultTask.getDocuments()) {
+                            String value = (String) document.get(VALUE);
 
-                        if (task.getResult() != null) {
+                            Date date_create = null;
+                            Object o;
+                            o = document.get(FIELD_DATE_CREATE);
+                            if (o != null)
+                                date_create = ((Timestamp) o).toDate();
 
-                            for (QueryDocumentSnapshot document : task.getResult()) {
+                            Date date_edit = null;
+                            o = document.get(FIELD_DATE_EDIT);
+                            if (o != null)
+                                date_edit = ((Timestamp) o).toDate();
 
-                                String value = (String) document.get(VALUE);
+                            long id = 0;
+                            o = document.get(ID);
+                            if (o != null)
+                                id = (long) o;
 
-                                Date date_create = null;
-                                Object o;
-                                o = document.get(FIELD_DATE_CREATE);
-                                if (o != null)
-                                    date_create = ((Timestamp) o).toDate();
+                            String idCloud = (String) document.get(IDCLOUD);
 
-                                Date date_edit = null;
-                                o = document.get(FIELD_DATE_EDIT);
-                                if (o != null)
-                                    date_edit = ((Timestamp) o).toDate();
+                            Note note = new Note();
 
-                                long id = 0;
-                                o = document.get(ID);
-                                if (o != null)
-                                    id = (long) o;
+                            if (date_create != null)
+                                note.setDateCreate(date_create.toInstant().getEpochSecond());
 
-                                String idCloud = (String) document.get(IDCLOUD);
+                            if (date_edit != null)
+                                note.setDateEdit(date_edit.toInstant().getEpochSecond());
 
-                                Note note = new Note();
-
-                                if (date_create != null)
-                                    note.setDateCreate(date_create.toInstant().getEpochSecond());
-
-                                if (date_edit != null)
-                                    note.setDateEdit(date_edit.toInstant().getEpochSecond());
-
-                                note.setID((int) id);
-                                note.setValue(value);
-                                note.setIdCloud(idCloud);
-                                result.add(note);
-                            }
+                            note.setID((int) id);
+                            note.setValue(value);
+                            note.setIdCloud(idCloud);
+                            result.add(note);
                         }
                         callback.onSuccess(result);
                     } else {
