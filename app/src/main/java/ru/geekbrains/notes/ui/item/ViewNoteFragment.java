@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -36,13 +37,14 @@ import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
 import ru.geekbrains.notes.ui.MainActivity;
 import ru.geekbrains.notes.ui.auth.AuthFragment;
-import ru.geekbrains.notes.ui.list.SearchResultFragment;
 
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_DELETE_NOTE;
 
 public class ViewNoteFragment extends Fragment implements ObserverNote {
 
     private static final String ARG = "NOTE_ID";
+
+    public static final String TAG = "ViewNoteFragment";
 
     private int noteId = 0;
     private Publisher publisher;
@@ -78,7 +80,8 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
             buttonEditAction();
             return true;
         } else if (id == R.id.action_delete) {
-            deleteNote();
+            //deleteNote();
+            showAlertDialogDeleteNote();
             return true;
         }
 
@@ -114,9 +117,7 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        //getActivity().setTitle("Просмотр заметки");
         MainActivity.setTitle(getActivity(), "Просмотр заметки");
-
 
         Log.v("Debug1", "ViewNoteFragment onAttach context=" + context);
         if (context instanceof PublisherHolder) {
@@ -155,10 +156,6 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
                 }
             }
         }
-        /*Button button_edit = v.findViewById(R.id.button_edit);
-        button_edit.setOnClickListener(this);
-        Button button_delete = v.findViewById(R.id.button_delete);
-        button_delete.setOnClickListener(this);*/
         Log.v("Debug1", "ViewNoteFragment onCreateView getArguments() != null noteId=" + noteId + ", container=" + container);
         return v;
     }
@@ -201,27 +198,22 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
 
     private void buttonEditAction() {
         Log.v("Debug1", "ViewNoteFragment buttonEditAction");
-        EditNoteFragment editNoteFragment = EditNoteFragment.newInstance(noteId);
-        if (getActivity() != null) {
-            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-            SearchResultFragment searchResultFragment = (SearchResultFragment) fragmentManager.findFragmentByTag("SearchResultFragment");
-            if (searchResultFragment == null)
-                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    fragmentManager = getActivity().getSupportFragmentManager();
-                } else {
-                    fragmentManager = getActivity().getSupportFragmentManager();
-                    Fragment parentFragment = getParentFragment();
-                    if (parentFragment != null) {
-                        fragmentManager = parentFragment.getActivity().getSupportFragmentManager();
-                    }
-                }
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            //fragmentTransaction.add(R.id.frame_container_main, editNoteFragment);
-            fragmentTransaction.replace(R.id.frame_container_main, editNoteFragment);
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
-        }
+
+        EditNoteFragmentDialog.newInstance(noteId)
+                        .show(getChildFragmentManager(), EditNoteFragmentDialog.TAG);
+    }
+
+    private void showAlertDialogDeleteNote() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
+                .setTitle("ВНИМАНИЕ!")
+                .setMessage("Вы действительно хотите удалить заметку?")
+                .setIcon(R.drawable.ic_clear)
+                .setCancelable(false)
+                .setPositiveButton("Да", (dialog, which) -> deleteNote())
+                .setNegativeButton("Нет", (dialog, which) -> {
+                });
+
+        builder.show();
     }
 
     private void deleteNote() {
@@ -240,7 +232,6 @@ public class ViewNoteFragment extends Fragment implements ObserverNote {
                 position = i;
             }
             Log.v("Debug1", "ViewNoteFragment deleteNote prevID=" + prevID);
-            //((GlobalVariables) getActivity().getApplication()).setNotes(notes);
 
             boolean cloudSync = false;
             int authTypeService = 0;

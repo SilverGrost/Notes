@@ -96,12 +96,13 @@ public class NotesCloudRepositoryImpl implements NotesRepository {
     public void clearNotes(List<Note> notes, Callback<Object> callback) {
         for (int i = 0; i < notes.size(); i++) {
             if (notes.get(i).getIdCloud() != null && !notes.get(i).getIdCloud().equals("")) {
+                int finalI = i;
                 firebaseFirestore.collection(collectionId)
                         .document(notes.get(i).getIdCloud())
                         .delete()
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
-                                callback.onSuccess(true);
+                                callback.onSuccess(finalI);
                             }
                         });
             }

@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -50,6 +51,7 @@ import ru.geekbrains.notes.ui.MainActivity;
 import ru.geekbrains.notes.ui.MainFragment;
 import ru.geekbrains.notes.ui.auth.AuthFragment;
 import ru.geekbrains.notes.ui.item.EditNoteFragment;
+import ru.geekbrains.notes.ui.item.EditNoteFragmentDialog;
 import ru.geekbrains.notes.ui.item.ViewNoteFragment;
 
 import static ru.geekbrains.notes.Constant.*;
@@ -328,7 +330,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                             });
 
                             //notesCloud.add(noteLocal);
-                            localRepository.addNote(notesCloud, noteCloud, result13 -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_ADD_NOTE"));
+                            localRepository.addNote(notesCloud, noteCloud, result13 -> Log.v("Debug1", "ListNotesFragment onClick button_ok notify TYPE_EVENT_ADD_NOTE"));
 
                         }
                         //Если есть, то сравниваем даты
@@ -374,12 +376,13 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
             if (getActivity() != null)
                 viewNoteFragment = (ViewNoteFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.activity_container_note_view);
         } else {
-            MainFragment mainFragment = null;
-            if (getActivity() != null)
+            MainFragment mainFragment;
+            if (getActivity() != null) {
                 mainFragment = (MainFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.frame_container_main);
-            if (mainFragment != null) {
-                FragmentManager childFragmentManager = mainFragment.getChildFragmentManager();
-                viewNoteFragment = (ViewNoteFragment) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
+                if (mainFragment != null) {
+                    FragmentManager childFragmentManager = mainFragment.getChildFragmentManager();
+                    viewNoteFragment = (ViewNoteFragment) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
+                }
             }
         }
         if (viewNoteFragment == null) {
@@ -388,8 +391,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
-            //fragmentTransaction.replace(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
+            fragmentTransaction.replace(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         } else {
@@ -398,34 +400,22 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
         }
     }
 
-    private void editNote(int noteId) {
-        EditNoteFragment editNoteFragment = null;
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            if (getActivity() != null)
-                editNoteFragment = (EditNoteFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.activity_container_note_view);
-        } else {
-            MainFragment mainFragment = null;
-            if (getActivity() != null)
-                mainFragment = (MainFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.frame_container_main);
-            if (mainFragment != null) {
-                FragmentManager childFragmentManager = mainFragment.getChildFragmentManager();
-                editNoteFragment = (EditNoteFragment) childFragmentManager.findFragmentById(R.id.activity_container_note_view);
-            }
-        }
-        if (editNoteFragment == null) {
-            Log.v("Debug1", "ListNotesFragment editNote viewNoteFragment == null");
-            editNoteFragment = EditNoteFragment.newInstance(noteId);
-            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            fragmentTransaction.add(R.id.frame_container_main, editNoteFragment, "EditNoteFragmentPortrait");
-            //fragmentTransaction.replace(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
-        } else {
-            Log.v("Debug1", "ListNotesFragment editNote viewNoteFragment != null");
-            editNoteFragment.fillEditNote(editNoteFragment.getEditFragment());
-        }
+     private void editNote(int noteId) {
+        EditNoteFragmentDialog.newInstance(noteId)
+                .show(getChildFragmentManager(), EditNoteFragmentDialog.TAG);
+    }
+
+    private void showAlertDialogDeleteNote(int noteId) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
+                .setTitle("ВНИМАНИЕ!")
+                .setMessage("Вы действительно хотите удалить заметку?")
+                .setIcon(R.drawable.ic_clear)
+                .setCancelable(false)
+                .setPositiveButton("Да", (dialog, which) -> deleteNote(noteId))
+                .setNegativeButton("Нет", (dialog, which) -> {
+                });
+
+        builder.show();
     }
 
     //TODO сделать один метод на несколько классов
@@ -617,9 +607,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
                 }
             }
         });
-
         cloudSync(settings);
-
     }
 
     @Override
@@ -649,8 +637,6 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
     }
 
     @Override
@@ -672,7 +658,7 @@ public class ListNotesFragment extends Fragment implements ObserverNote {
             editNote(noteId);
             return true;
         } else if (itemId == R.id.popup_delete) {
-            deleteNote(noteId);
+            showAlertDialogDeleteNote(noteId);
             return true;
         }
         return super.onContextItemSelected(item);

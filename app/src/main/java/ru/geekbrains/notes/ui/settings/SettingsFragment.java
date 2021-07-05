@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -19,6 +20,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
@@ -27,6 +30,7 @@ import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.SharedPref;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.note.NotesCloudRepositoryImpl;
+import ru.geekbrains.notes.note.NotesLocalRepositoryImpl;
 import ru.geekbrains.notes.note.NotesRepository;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
@@ -47,6 +51,8 @@ public class SettingsFragment extends Fragment {
     private Settings settings;
     SwitchCompat aSwitch;
 
+    public static final String TAG = "SettingsFragment";
+
     private UserProfile userProfile = new UserProfile();
 
     private Publisher publisher;
@@ -59,6 +65,40 @@ public class SettingsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.v("Debug1", "SettingsFragment onCreate");
+    }
+
+    private void showAlertDialogClearNotes() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
+                .setTitle("ВНИМАНИЕ!")
+                .setMessage("Вы действительно хотите очистить список заметок?")
+                .setIcon(R.drawable.ic_clear)
+                .setCancelable(false)
+                .setPositiveButton("Да", (dialog, which) -> {
+                    if (SettingsFragment.this.getActivity() != null) {
+                        List<Note> notes = ((GlobalVariables) SettingsFragment.this.getActivity().getApplication()).getNotes();
+
+                        int authTypeService = settings.getAuthTypeService();
+                        String userName = AuthFragment.checkCloudStatusByUserName(settings, SettingsFragment.this.getContext(), SettingsFragment.this.getActivity());
+                        if (userName != null && !userName.equals("")) {
+                            NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
+                            cloudRepository.clearNotes(notes, result -> {
+                                Log.v("Debug1", "SettingsFragment cloudRepository.clearNotes");
+                                if ((int) result == notes.size())
+                                    if (getView() != null)
+                                        Snackbar.make(getView(), "Список заметок очищен", Snackbar.LENGTH_SHORT).show();
+                            });
+                        }
+
+                        //Очищаем в локальном репозитории
+                        NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext(), getActivity());
+                        localRepository.clearNotes(notes, result1 -> Log.v("Debug1", "SettingsFragment clearNotes localRepository.clearNotes"));
+
+                    }
+                })
+                .setNegativeButton("Нет", (dialog, which) -> {
+                });
+
+        builder.show();
     }
 
     @Override
@@ -75,14 +115,6 @@ public class SettingsFragment extends Fragment {
         Log.v("Debug1", "SettingsFragment onViewCreated");
 
         if (getContext() != null) {
-            //settings = (new SharedPref(getActivity().getApplication()).loadSettings());
-
-            //Читаем настройки из глобальной переменной
-            //Settings settings = new Settings();
-
-
-            //((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Настройки");
-            //getActivity().setTitle("Настройки");
 
             MainActivity.setTitle(getActivity(), "Настройки");
 
@@ -91,22 +123,7 @@ public class SettingsFragment extends Fragment {
             }
 
             Button clearAllNotes = view.findViewById(R.id.buttonClearAll);
-            clearAllNotes.setOnClickListener(v -> {
-                if (getActivity() != null) {
-                    List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
-
-                    int authTypeService = settings.getAuthTypeService();
-                    String userName = AuthFragment.checkCloudStatusByUserName(settings, getContext(), getActivity());
-                    if (userName != null && !userName.equals("")) {
-                        NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
-                        cloudRepository.clearNotes(notes, result -> Log.v("Debug1", "SettingsFragment clearNotes cloudRepository"));
-                    }
-                    notes.clear();
-                    ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
-                    new SharedPref(getActivity()).saveNotes(notes);
-
-                }
-            });
+            clearAllNotes.setOnClickListener(v -> showAlertDialogClearNotes());
 
             spinnerTextSize = view.findViewById(R.id.spinnerTextSize);
 

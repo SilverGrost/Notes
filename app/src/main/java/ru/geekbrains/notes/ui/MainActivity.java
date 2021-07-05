@@ -162,10 +162,7 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 Fragment viewNoteFragment = fragmentManager.findFragmentByTag("ViewNoteFragmentPortrait");
                 if (viewNoteFragment != null) {
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                     fragmentManager.popBackStack();
-                    fragmentTransaction.commit();
                 }
                 getAllFragment(fragmentManager);
             } else {
@@ -174,18 +171,18 @@ public class MainActivity extends AppCompatActivity implements PublisherHolder {
                 getAllFragment(fragmentManager);
                 if (((GlobalVariables) getApplication()).isViewNoteFragmentState()) {
                     Fragment viewNoteFragment = fragmentManager.findFragmentByTag("ViewNoteFragmentPortrait");
-                    if (viewNoteFragment != null) {
-                        Log.v("Debug1", "MainActivity onCreate savedInstanceState != null ORIENTATION_PORTRAIT viewNoteFragment != null");
-                    } else {
-                        Log.v("Debug1", "MainActivity onCreate savedInstanceState != null ORIENTATION_PORTRAIT viewNoteFragment == null");
+                    if (viewNoteFragment == null) {
                         viewNoteFragment = ViewNoteFragment.newInstance(((GlobalVariables) getApplication()).getCurrentNote());
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
+                        fragmentTransaction.addToBackStack(null);
+                        fragmentTransaction.commit();
                     }
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                    fragmentTransaction.add(R.id.frame_container_main, viewNoteFragment, "ViewNoteFragmentPortrait");
-                    fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.commit();
                 }
+
+
+
             }
         }
     }

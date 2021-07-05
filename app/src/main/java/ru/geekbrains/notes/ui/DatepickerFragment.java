@@ -36,6 +36,8 @@ public class DatepickerFragment extends Fragment {
     int monthOfYearFromDP = 0;
     int dayOfMonthFromDP = 0;
 
+    public static final String TAG = "DatepickerFragment";
+
     public DatepickerFragment() {
         // Required empty public constructor
     }

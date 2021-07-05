@@ -5,25 +5,24 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.DialogFragment;
 
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Date;
 import java.util.List;
 
 import ru.geekbrains.notes.GlobalVariables;
+import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.note.Note;
-import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.note.NotesCloudRepositoryImpl;
 import ru.geekbrains.notes.note.NotesLocalRepositoryImpl;
 import ru.geekbrains.notes.note.NotesRepository;
@@ -36,46 +35,27 @@ import static ru.geekbrains.notes.Constant.TYPE_EVENT_ADD_NOTE;
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_EDIT_NOTE;
 
 
-public class EditNoteFragment extends Fragment implements View.OnClickListener {
+public class EditNoteFragmentDialog extends DialogFragment implements View.OnClickListener {
 
     private static final String ARG = "NOTE_ID";
-    public static final String TAG = "EditNoteFragment";
+    public static final String TAG = "EditNoteFragmentDialog";
     int noteId = 0;
-
     private EditText editTextNoteValue;
 
     private Publisher publisher;
-
-    private View editFragment;
+    private View editFragmentDialog;
 
     private int newNoteId = -1;
 
     public View getEditFragment() {
-        return editFragment;
-    }
-
-    public static EditNoteFragment newInstance(int noteId) {
-        Log.v("Debug1", "EditNoteFragment newInstance noteId=" + noteId);
-        EditNoteFragment fragment = new EditNoteFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG, noteId);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.v("Debug1", "EditNoteFragment onCreate");
+        return editFragmentDialog;
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        Log.v("Debug1", "EditNoteFragment onAttach");
-        //getActivity().setTitle("Правка заметки");
+        Log.v("Debug1", "EditNoteFragmentDialog onAttach");
         MainActivity.setTitle(getActivity(), "Правка заметки");
-
         if (context instanceof PublisherHolder) {
             publisher = ((PublisherHolder) context).getPublisher();
         }
@@ -84,22 +64,22 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onDetach() {
         super.onDetach();
-        Log.v("Debug1", "EditNoteFragment onDetach");
+        Log.v("Debug1", "EditNoteFragmentDialog onDetach");
         publisher = null;
     }
 
-    public EditNoteFragment() {
-        // Required empty public constructor
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.v("Debug1", "EditNoteFragment onCreateView");
         setHasOptionsMenu(false);
-        View v = inflater.inflate(R.layout.fragment_edit_note, container, false);
-        FloatingActionButton button_ok = v.findViewById(R.id.button_ok);
+        View v = inflater.inflate(R.layout.fragment_edit_note_dialog, container, false);
+        Button button_ok = v.findViewById(R.id.button_ok);
         button_ok.setOnClickListener(this);
+
+        Button button_cancel = v.findViewById(R.id.button_cancel);
+        button_cancel.setOnClickListener(this);
         return v;
     }
 
@@ -107,7 +87,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "EditNoteFragment onViewCreated");
-        editFragment = view;
+        editFragmentDialog = view;
         fillEditNote(view);
     }
 
@@ -130,11 +110,11 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        Log.v("Debug1", "EditNoteFragment onClick");
+        Log.v("Debug1", "EditNoteFragmentDialog onClick");
 
         if (v.getId() == R.id.button_ok) {
 
-            Log.v("Debug1", "EditNoteFragment onClick button_ok noteId=" + noteId);
+            Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok noteId=" + noteId);
             String value = editTextNoteValue.getText().toString();
             Date date = new Date();
             if (getActivity() != null) {
@@ -169,19 +149,19 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
 
                     boolean finalCloudSync = cloudSync;
                     localRepository.addNote(notes, note, result -> {
-                        Log.v("Debug1", "EditNoteFragment onClick button_ok localRepository addNote");
+                        Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok localRepository addNote");
 
                         if (finalCloudSync) {
                             //Добавялем в облако и получаем облачный id
                             cloudRepository.addNote(notes, note, result13 -> {
                                 note.setIdCloud((String) result13);
-                                Log.v("Debug1", "EditNoteFragment onClick button_ok cloudRepository addNote result=" + result13);
+                                Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok cloudRepository addNote result=" + result13);
 
                                 //Обнавляем в локальном репозитории полученный облачный id
-                                localRepository.updateNote(notes, note, result1 -> Log.v("Debug1", "EditNoteFragment onClick button_ok localRepository updateNote"));
+                                localRepository.updateNote(notes, note, result1 -> Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok localRepository updateNote"));
 
                                 //Обнавляем в облачном репозитории полученный облачный id
-                                cloudRepository.updateNote(notes, note, result12 -> Log.v("Debug1", "EditNoteFragment onClick button_ok cloudRepository updateNote"));
+                                cloudRepository.updateNote(notes, note, result12 -> Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok cloudRepository updateNote"));
                             });
                         }
                     });
@@ -194,7 +174,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
                 }
 
                 if (publisher != null) {
-                    Log.v("Debug1", "EditNoteFragment onClick button_ok notify noteId=" + noteId);
+                    Log.v("Debug1", "EditNoteFragmentDialog onClick button_ok notify noteId=" + noteId);
                     if (noteId == -1)
                         publisher.notify(newNoteId, TYPE_EVENT_ADD_NOTE);
                     else
@@ -202,24 +182,22 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
                 }
             }
         }
+        else
+            if(v.getId() == R.id.button_ok){
+                dismiss();
+            }
 
-        Log.v("Debug1", "EditNoteFragment onClick FragmentTransaction");
-        if (getActivity() != null) {
-            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-            fragmentManager.popBackStack();
-        }
-        Log.v("Debug1", "EditNoteFragment onClick end");
+        dismiss();
+        Log.v("Debug1", "EditNoteFragmentDialog onClick end");
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.v("Debug1", "EditNoteFragment onStart");
+    public static EditNoteFragmentDialog newInstance(int noteId) {
+        Log.v("Debug1", "EditNoteFragmentDialog newInstance noteId=" + noteId);
+        EditNoteFragmentDialog fragment = new EditNoteFragmentDialog();
+        Bundle args = new Bundle();
+        args.putInt(ARG, noteId);
+        fragment.setArguments(args);
+        return fragment;
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.v("Debug1", "EditNoteFragment onStop");
-    }
 }
