@@ -18,8 +18,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
@@ -27,15 +28,19 @@ import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.R;
+import ru.geekbrains.notes.note.NotesCloudRepositoryImpl;
+import ru.geekbrains.notes.note.NotesLocalRepositoryImpl;
+import ru.geekbrains.notes.note.NotesRepository;
 import ru.geekbrains.notes.observer.ObserverNote;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
-import ru.geekbrains.notes.SharedPref;
+import ru.geekbrains.notes.ui.MainActivity;
+import ru.geekbrains.notes.ui.auth.AuthFragment;
 import ru.geekbrains.notes.ui.list.SearchResultFragment;
 
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_DELETE_NOTE;
 
-public class ViewNoteFragment extends Fragment implements /*View.OnClickListener, */ObserverNote {
+public class ViewNoteFragment extends Fragment implements ObserverNote {
 
     private static final String ARG = "NOTE_ID";
 
@@ -73,7 +78,7 @@ public class ViewNoteFragment extends Fragment implements /*View.OnClickListener
             buttonEditAction();
             return true;
         } else if (id == R.id.action_delete) {
-            buttonDeleteAction();
+            deleteNote();
             return true;
         }
 
@@ -109,6 +114,10 @@ public class ViewNoteFragment extends Fragment implements /*View.OnClickListener
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        //getActivity().setTitle("Просмотр заметки");
+        MainActivity.setTitle(getActivity(), "Просмотр заметки");
+
+
         Log.v("Debug1", "ViewNoteFragment onAttach context=" + context);
         if (context instanceof PublisherHolder) {
             publisher = ((PublisherHolder) context).getPublisher();
@@ -169,6 +178,7 @@ public class ViewNoteFragment extends Fragment implements /*View.OnClickListener
 
             Settings settings = new Settings();
             if (getActivity() != null) {
+                //Получаем настройки из глобальной переменной
                 settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
             }
 
@@ -214,53 +224,70 @@ public class ViewNoteFragment extends Fragment implements /*View.OnClickListener
         }
     }
 
-    private void buttonDeleteAction() {
-        Log.v("Debug1", "ViewNoteFragment buttonDeleteAction");
+    private void deleteNote() {
         if (getActivity() != null && getActivity().getApplication() != null) {
             List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
             int prevID = 0;
             int position = 0;
+            Note note = new Note();
             for (int i = 0; i < notes.size(); i++) {
                 if (notes.get(i).getID() == noteId) {
+                    note = notes.get(i);
                     notes.remove(i);
                     break;
                 }
                 prevID = notes.get(i).getID();
                 position = i;
             }
-            Log.v("Debug1", "ViewNoteFragment onClick button_delete prevID=" + prevID);
-            ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
-            if (getContext() != null) {
-                new SharedPref(getContext()).saveNotes(notes);
-                if (publisher != null) {
-                    Log.v("Debug1", "ViewNoteFragment onClick button_delete notify");
-                    publisher.notify(position, TYPE_EVENT_DELETE_NOTE);
+            Log.v("Debug1", "ViewNoteFragment deleteNote prevID=" + prevID);
+            //((GlobalVariables) getActivity().getApplication()).setNotes(notes);
+
+            boolean cloudSync = false;
+            int authTypeService = 0;
+            String userName = "";
+            if (getActivity() != null) {
+                //Получаем настройки из глобальной переменной
+                Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                authTypeService = settings.getAuthTypeService();
+                userName = AuthFragment.checkCloudStatusByUserName(settings, getContext(), getActivity());
+                if (userName != null && !userName.equals("")) {
+                    cloudSync = true;
                 }
-                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    if (getActivity() != null) {
-                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentManager.popBackStack();
-                        fragmentTransaction.commit();
-                    }
-                } else {
-                    fillViewNote(prevID, viewFragment);
+            }
+            Log.v("Debug1", "ViewNoteFragment deleteNote cloudSync=" + cloudSync);
+
+            NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext(), getActivity());
+            localRepository.removeNote(notes, note, result -> {
+                Log.v("Debug1", "ViewNoteFragment deleteNote localRepository removeNote onSuccess");
+                if (getView() != null)
+                    Snackbar.make(getView(), "Заметка удалена с устройства", Snackbar.LENGTH_SHORT).show();
+
+            });
+
+            if (cloudSync) {
+                NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
+                cloudRepository.removeNote(notes, note, result -> {
+                    Log.v("Debug1", "ViewNoteFragment deleteNote cloudRepository removeNote result=" + result);
+                    if (getView() != null)
+                        Snackbar.make(getView(), "Заметка удалена из облака", Snackbar.LENGTH_SHORT).show();
+                });
+            }
+
+            if (publisher != null) {
+                Log.v("Debug1", "ViewNoteFragment deleteNote notify");
+                publisher.notify(position, TYPE_EVENT_DELETE_NOTE);
+            }
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                if (getActivity() != null) {
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentManager.popBackStack();
+                    fragmentTransaction.commit();
                 }
             }
         }
     }
 
-    /*@Override
-    public void onClick(View v) {
-        Log.v("Debug1", "ViewNoteFragment onClick noteId=" + noteId);
-        if (v.getId() == R.id.button_edit) {
-            Log.v("Debug1", "ViewNoteFragment onClick button_edit");
-            buttonEditAction();
-        } else if (v.getId() == R.id.button_delete) {
-            Log.v("Debug1", "ViewNoteFragment onClick button_delete");
-            buttonDeleteAction();
-        }
-    }*/
 
     @Override
     public void onStart() {
@@ -277,8 +304,9 @@ public class ViewNoteFragment extends Fragment implements /*View.OnClickListener
 
     @Override
     public void updateNote(int noteID, int typeEvent) {
-        Log.v("Debug1", "ViewNoteFragment updateNote noteId=" + noteId);
-        fillViewNote(noteId, viewFragment);
+        Log.v("Debug1", "ViewNoteFragment updateNote noteId=" + noteId + ", typeEvent=" + typeEvent);
+        if (typeEvent != TYPE_EVENT_DELETE_NOTE)
+            fillViewNote(noteId, viewFragment);
     }
 
     public void onResume() {

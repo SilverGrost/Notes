@@ -4,9 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/frameEditNote"
+    android:background="@color/black"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/round_note_edit"
+
     tools:context=".ui.item.EditNoteFragment">
 
     <EditText
@@ -15,6 +16,7 @@
         android:layout_height="match_parent"
         android:ems="10"
         android:gravity="start|top"
+        android:background="@drawable/round_note_edit"
         android:inputType="textMultiLine|text"
         android:singleLine="true"
         tools:ignore="Autofill,LabelFor" />

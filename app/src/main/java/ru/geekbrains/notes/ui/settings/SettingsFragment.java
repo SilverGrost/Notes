@@ -5,7 +5,10 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,18 +26,28 @@ import ru.geekbrains.notes.R;
 import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.SharedPref;
 import ru.geekbrains.notes.note.Note;
+import ru.geekbrains.notes.note.NotesCloudRepositoryImpl;
+import ru.geekbrains.notes.note.NotesRepository;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
+import ru.geekbrains.notes.ui.MainActivity;
+import ru.geekbrains.notes.ui.auth.AuthFragment;
+import ru.geekbrains.notes.ui.auth.UserProfile;
 
+import static ru.geekbrains.notes.Constant.AUTH_RESULT;
+import static ru.geekbrains.notes.Constant.TYPE_AUTH_NONE;
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_CHANGE_SETTINGS;
+import static ru.geekbrains.notes.Constant.TYPE_EVENT_CLOUD_SYNC;
 
 public class SettingsFragment extends Fragment {
 
-    Spinner spinnerSort;
-    Spinner spinnerTextSize;
-    Spinner spinnerMaxCountLines;
+    private Spinner spinnerSort;
+    private Spinner spinnerTextSize;
+    private Spinner spinnerMaxCountLines;
+    private Settings settings;
+    SwitchCompat aSwitch;
 
-    Button clearAllNotes;
+    private UserProfile userProfile = new UserProfile();
 
     private Publisher publisher;
 
@@ -60,18 +73,38 @@ public class SettingsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.v("Debug1", "SettingsFragment onViewCreated");
-        Settings settings;
+
         if (getContext() != null) {
+            //settings = (new SharedPref(getActivity().getApplication()).loadSettings());
 
-            settings = (new SharedPref(getContext()).loadSettings());
+            //Читаем настройки из глобальной переменной
+            //Settings settings = new Settings();
 
-            clearAllNotes = view.findViewById(R.id.buttonClearAll);
+
+            //((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Настройки");
+            //getActivity().setTitle("Настройки");
+
+            MainActivity.setTitle(getActivity(), "Настройки");
+
+            if (getActivity() != null) {
+                settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+            }
+
+            Button clearAllNotes = view.findViewById(R.id.buttonClearAll);
             clearAllNotes.setOnClickListener(v -> {
                 if (getActivity() != null) {
                     List<Note> notes = ((GlobalVariables) getActivity().getApplication()).getNotes();
+
+                    int authTypeService = settings.getAuthTypeService();
+                    String userName = AuthFragment.checkCloudStatusByUserName(settings, getContext(), getActivity());
+                    if (userName != null && !userName.equals("")) {
+                        NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
+                        cloudRepository.clearNotes(notes, result -> Log.v("Debug1", "SettingsFragment clearNotes cloudRepository"));
+                    }
                     notes.clear();
                     ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
                     new SharedPref(getActivity()).saveNotes(notes);
+
                 }
             });
 
@@ -88,6 +121,7 @@ public class SettingsFragment extends Fragment {
                     /*if (getActivity() != null)
                         ((GlobalVariables) getActivity().getApplication()).setTextSizeId(position);*/
                 }
+
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0) {
                     //Toast.makeText(getContext(), "Position NothingSelected", Toast.LENGTH_SHORT).show();
@@ -106,6 +140,7 @@ public class SettingsFragment extends Fragment {
                     /*if (getActivity() != null)
                         ((GlobalVariables) getActivity().getApplication()).setSortTypeId(position);*/
                 }
+
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0) {
                 }
@@ -123,10 +158,99 @@ public class SettingsFragment extends Fragment {
                     /*if (getActivity() != null)
                         ((GlobalVariables) getActivity().getApplication()).setMaxCountLinesId(position);*/
                 }
+
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0) {
                 }
             });
+
+
+            if (getActivity() != null) {
+                getActivity().getSupportFragmentManager().setFragmentResultListener(AUTH_RESULT, this, (requestKey, result) -> {
+
+                    userProfile = result.getParcelable("UserProfile");
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getDisplayName()=" + userProfile.getDisplayName());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getEmail()=" + userProfile.getEmail());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getFamilyName()=" + userProfile.getFamilyName());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getGivenName()=" + userProfile.getGivenName());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getiD()=" + userProfile.getId());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getIdToken()=" + userProfile.getIdToken());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getPhotoURL()=" + userProfile.getPhotoURL());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getServerAuthCode()=" + userProfile.getServerAuthCode());
+                    Log.v("Debug1", "SettingsFragment onCreateView onFragmentResult userProfile.getTypeAutService()=" + userProfile.getTypeAutService());
+
+                    //settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+
+
+                    //Читаем настройки из глобальной переменной
+                    //Settings settings = new Settings();
+                    if (getActivity() != null) {
+                        settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                    }
+
+
+                    settings.setCloudSync(userProfile.getTypeAutService() != TYPE_AUTH_NONE);
+                    settings.setAuthTypeService(userProfile.getTypeAutService());
+
+                    //Сохраняем настройки в глобальную переменную
+                    ((GlobalVariables) getActivity().getApplication()).setSettings(settings);
+
+                    if (userProfile.getTypeAutService() == TYPE_AUTH_NONE)
+                        aSwitch.setChecked(false);
+
+                    if (publisher != null) {
+                        Log.v("Debug1", "SettingsFragment onViewCreated setFragmentResultListener notify");
+                        publisher.notify(-1, TYPE_EVENT_CLOUD_SYNC);
+                    }
+
+                    //Toast.makeText(requireContext(), "Auth Success", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            Button autButton = view.findViewById(R.id.buttonAuth);
+            autButton.setOnClickListener(v -> {
+                AuthFragment authFragment = AuthFragment.newInstance(settings.getAuthTypeService());
+                if (getActivity() != null) {
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    fragmentTransaction.add(R.id.frame_container_main, authFragment, "AuthFragment");
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
+                }
+            });
+
+            aSwitch = view.findViewById(R.id.switchAuth);
+
+
+            aSwitch.setChecked(settings.isCloudSync());
+
+            if (settings.getAuthTypeService() != 0) {
+                aSwitch.setChecked(true);
+                autButton.setVisibility(View.VISIBLE);
+            } else {
+                aSwitch.setChecked(false);
+                autButton.setVisibility(View.INVISIBLE);
+            }
+
+            aSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    autButton.setVisibility(View.VISIBLE);
+
+                    AuthFragment authFragment = AuthFragment.newInstance(settings.getAuthTypeService());
+                    if (getActivity() != null) {
+                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        fragmentTransaction.add(R.id.frame_container_main, authFragment, "AuthFragment");
+                        fragmentTransaction.addToBackStack(null);
+                        fragmentTransaction.commit();
+                    }
+
+                } else
+                    autButton.setVisibility(View.INVISIBLE);
+            });
+
         }
     }
 
@@ -167,7 +291,20 @@ public class SettingsFragment extends Fragment {
 
     @Override
     public void onDetach() {
-        Settings settings = new Settings(spinnerSort.getSelectedItemPosition(), spinnerTextSize.getSelectedItemPosition(), spinnerMaxCountLines.getSelectedItemPosition());
+
+        //settings = (new SharedPref(getActivity().getApplication()).loadSettings());
+
+        //Читаем настройки из глобальной переменной
+        //Settings settings = new Settings();
+        if (getActivity() != null) {
+            settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+        }
+
+        settings.setOrderType(spinnerSort.getSelectedItemPosition());
+        settings.setTextSizeId(spinnerTextSize.getSelectedItemPosition());
+        settings.setMaxCountLinesId(spinnerMaxCountLines.getSelectedItemPosition());
+
+        settings.setCloudSync(aSwitch.isChecked());
 
         String[] textSizeArray = getResources().getStringArray(R.array.text_size);
         int textSizeId = settings.getTextSizeId();
@@ -178,7 +315,7 @@ public class SettingsFragment extends Fragment {
         int maxCountLinesId = settings.getMaxCountLinesId();
         int maxCountLines;
 
-        switch (maxCountLinesId){
+        switch (maxCountLinesId) {
             case (0):              //Без ограничений
                 maxCountLines = -1;
                 break;

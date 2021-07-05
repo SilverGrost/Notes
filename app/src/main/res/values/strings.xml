@@ -38,6 +38,7 @@
 <li>Создание бокового навигационного меню для приложения<br />Создание полноценного заголовока для NavigationDrawer<br />Создание карточки для элемента списка.</li>
 <li>Добавленеи RecyclerView для отображения списка.<br />Создание карточки заметки<br />Добавление FloatingActionButton</li>
 <li>Добавление контекстного меню для карточки заметки<br />Обёртываение фрагмента с Datepicker в стиль диалога<br />Добавление авторазвёртывания заметки в списке</li>
+<li>Добавление облачной синхронизации через FireBase</br>Добавление функционала автоизации на сторонних сервисах</li>
 </ol>]]></string>
 
     <string name="textViewNoSearchResult">"Нет результатов поиска для запроса: "</string>
@@ -48,4 +49,16 @@
     <string name="ButtonAdd1000">Добавить 1000 заметок</string>
     <string name="MaxCountLines">Кол-во строк в списке</string>
     <string name="ImageViewDescriptionMenu">Menu</string>
+    <string name="textViewAuthBy">Вы авторизованы через:</string>
+    <string name="sign_out">Выйти</string>
+    <string name="textViewYouCan">Вы можете авторизоваться через:</string>
+    <string name="sign_in_vk">VK</string>
+    <string name="switchAuth">Облачная синхронизация</string>
+    <string name="buttonAuth">Настройки синхронизации</string>
+    <string name="imageviewava">imageViewAva</string>
+    <string name="textViewAuthByVK">Вы авторизованы через VK</string>
+    <string name="textViewAuthByGoogle">Вы авторизованы через Google</string>
+    <string name="textViewAuthByNONE">Вы не авторизованы</string>
+    <string name="buttonAddDemo">Добавить %1$d заметок</string>
+    <integer name="com_vk_sdk_AppId">7891094</integer>
 </resources>

@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.Fragment;
 
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import ru.geekbrains.notes.R;
+import ru.geekbrains.notes.ui.MainActivity;
 
 
 public class AboutFragment extends Fragment {
@@ -45,6 +45,11 @@ public class AboutFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         TextView textView = view.findViewById(R.id.textView3);
         textView.setText(HtmlCompat.fromHtml(getString(R.string.textAbout), HtmlCompat.FROM_HTML_MODE_LEGACY));
+        //((AppCompatActivity)getActivity()).getSupportActionBar().setSubtitle("О программе...");
+        //getActivity().setTitle("О программе...");
+        MainActivity.setTitle(getActivity(), "О программе...");
+
+
     }
 
     @Override

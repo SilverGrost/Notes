@@ -63,10 +63,10 @@
         android:layout_height="wrap_content"
         android:text="@string/textViewSortType"
         android:textSize="@dimen/textSizeInterface"
+        app:layout_constraintBottom_toTopOf="@+id/spinnerSort"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTextSize"
-        app:layout_constraintBottom_toTopOf="@+id/spinnerSort"/>
+        app:layout_constraintTop_toBottomOf="@+id/textViewTextSize" />
 
     <Spinner
         android:id="@+id/spinnerSort"
@@ -74,10 +74,33 @@
         android:layout_height="wrap_content"
         android:labelFor="@id/textViewSort"
         android:textSize="@dimen/textSizeInterface"
-        app:layout_constraintBottom_toTopOf="@+id/buttonClearAll"
+        app:layout_constraintBottom_toTopOf="@+id/switchAuth"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewSort" />
+
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switchAuth"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:text="@string/switchAuth"
+        android:textSize="@dimen/textSizeInterface"
+        app:layout_constraintBottom_toTopOf="@+id/buttonAuth"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerSort" />
+
+
+    <Button
+        android:id="@+id/buttonAuth"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/buttonAuth"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/switchAuth" />
 
     <Button
         android:id="@+id/buttonClearAll"
@@ -86,6 +109,7 @@
         android:text="@string/ClearlListNotes"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerSort" />
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

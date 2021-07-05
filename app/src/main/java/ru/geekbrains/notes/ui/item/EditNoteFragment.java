@@ -24,9 +24,13 @@ import ru.geekbrains.notes.GlobalVariables;
 import ru.geekbrains.notes.Settings;
 import ru.geekbrains.notes.note.Note;
 import ru.geekbrains.notes.R;
+import ru.geekbrains.notes.note.NotesCloudRepositoryImpl;
+import ru.geekbrains.notes.note.NotesLocalRepositoryImpl;
+import ru.geekbrains.notes.note.NotesRepository;
 import ru.geekbrains.notes.observer.Publisher;
 import ru.geekbrains.notes.observer.PublisherHolder;
-import ru.geekbrains.notes.SharedPref;
+import ru.geekbrains.notes.ui.MainActivity;
+import ru.geekbrains.notes.ui.auth.AuthFragment;
 
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_ADD_NOTE;
 import static ru.geekbrains.notes.Constant.TYPE_EVENT_EDIT_NOTE;
@@ -42,6 +46,8 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
     private Publisher publisher;
 
     private View editFragment;
+
+    private int newNoteId = -1;
 
     public View getEditFragment() {
         return editFragment;
@@ -66,6 +72,9 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         Log.v("Debug1", "EditNoteFragment onAttach");
+        //getActivity().setTitle("Правка заметки");
+        MainActivity.setTitle(getActivity(), "Правка заметки");
+
         if (context instanceof PublisherHolder) {
             publisher = ((PublisherHolder) context).getPublisher();
         }
@@ -124,7 +133,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
         Log.v("Debug1", "EditNoteFragment onClick");
 
         if (v.getId() == R.id.button_ok) {
-            int newNoteId = -1;
+
             Log.v("Debug1", "EditNoteFragment onClick button_ok noteId=" + noteId);
             String value = editTextNoteValue.getText().toString();
             Date date = new Date();
@@ -134,20 +143,55 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener {
                 note.setDateEdit(date.toInstant().getEpochSecond());
                 note.setValue(value);
 
+                boolean cloudSync = false;
+                int authTypeService = 0;
+                String userName = "";
+                if (getActivity() != null) {
+                    //Получаем настройки из глобальной переменной
+                    Settings settings = ((GlobalVariables) getActivity().getApplication()).getSettings();
+                    authTypeService = settings.getAuthTypeService();
+                    userName = AuthFragment.checkCloudStatusByUserName(settings, getContext(), getActivity());
+                    if (userName != null && !userName.equals("")) {
+                        cloudSync = true;
+                    }
+                }
+
+                NotesRepository localRepository = new NotesLocalRepositoryImpl(getContext(), getActivity());
+                NotesRepository cloudRepository = new NotesCloudRepositoryImpl(authTypeService, userName);
+
+
                 if (note.getID() == -1) {
                     note.setDateCreate(date.toInstant().getEpochSecond());
 
                     newNoteId = ((GlobalVariables) getActivity().getApplication()).getNewId();
 
                     note.setID(newNoteId);
-                    notes.add(note);
-                    ((GlobalVariables) getActivity().getApplication()).setNotes(notes);
-                } else {
-                    ((GlobalVariables) getActivity().getApplication()).setNoteById(noteId, note);
-                }
 
-                if (getContext() != null)
-                    new SharedPref(getContext()).saveNotes(notes);
+                    boolean finalCloudSync = cloudSync;
+                    localRepository.addNote(notes, note, result -> {
+                        Log.v("Debug1", "EditNoteFragment onClick button_ok localRepository addNote");
+
+                        if (finalCloudSync) {
+                            //Добавялем в облако и получаем облачный id
+                            cloudRepository.addNote(notes, note, result13 -> {
+                                note.setIdCloud((String) result13);
+                                Log.v("Debug1", "EditNoteFragment onClick button_ok cloudRepository addNote result=" + result13);
+
+                                //Обнавляем в локальном репозитории полученный облачный id
+                                localRepository.updateNote(notes, note, result1 -> Log.v("Debug1", "EditNoteFragment onClick button_ok localRepository updateNote"));
+
+                                //Обнавляем в облачном репозитории полученный облачный id
+                                cloudRepository.updateNote(notes, note, result12 -> Log.v("Debug1", "EditNoteFragment onClick button_ok cloudRepository updateNote"));
+                            });
+                        }
+                    });
+
+                } else {
+                    localRepository.updateNote(notes, note, result -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify TYPE_EVENT_EDIT_NOTE"));
+                    if (cloudSync) {
+                        cloudRepository.updateNote(notes, note, result -> Log.v("Debug1", "EditNoteFragment onClick button_ok notify cloudRepository update"));
+                    }
+                }
 
                 if (publisher != null) {
                     Log.v("Debug1", "EditNoteFragment onClick button_ok notify noteId=" + noteId);
