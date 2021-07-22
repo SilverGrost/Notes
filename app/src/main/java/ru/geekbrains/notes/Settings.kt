@@ -1,103 +1,27 @@
-package ru.geekbrains.notes;
+package ru.geekbrains.notes
 
-public class Settings {
-    private int orderType;
-    private int textSizeId;
-    private int maxCountLinesId;
-    private boolean cloudSync;
-    private int authTypeService;
-    private float textSize;
-    private int maxCountLines;
-    private int currentPosition;
-    private String userNameVK;
+class Settings {
+    var orderType = 0
+    var textSizeId = 0
+    var maxCountLinesId = 0
+    var isCloudSync = false
+    var authTypeService = 0
+    var textSize = 0f
+    var maxCountLines = 0
+    var currentPosition = 0
+    var userNameVK: String? = null
 
-    public String getUserNameVK() {
-        return userNameVK;
+    constructor() {}
+    constructor(orderType: Int, textSizeId: Int, maxCountLinesId: Int, authTypeService: Int) {
+        this.orderType = orderType
+        this.textSizeId = textSizeId
+        this.maxCountLinesId = maxCountLinesId
+        this.authTypeService = authTypeService
     }
 
-    public void setUserNameVK(String userNameVK) {
-        this.userNameVK = userNameVK;
+    constructor(orderType: Int, textSizeId: Int, maxCountLinesId: Int) {
+        this.orderType = orderType
+        this.textSizeId = textSizeId
+        this.maxCountLinesId = maxCountLinesId
     }
-
-    public int getAuthTypeService() {
-        return authTypeService;
-    }
-
-    public void setAuthTypeService(int authTypeService) {
-        this.authTypeService = authTypeService;
-    }
-
-    public boolean isCloudSync() {
-        return cloudSync;
-    }
-
-    public void setCloudSync(boolean cloudSync) {
-        this.cloudSync = cloudSync;
-    }
-
-    public int getCurrentPosition() {
-        return currentPosition;
-    }
-
-    public void setCurrentPosition(int currentPosition) {
-        this.currentPosition = currentPosition;
-    }
-
-    public void setOrderType(int orderType) {
-        this.orderType = orderType;
-    }
-
-    public Settings() {
-
-    }
-
-    public Settings(int orderType, int textSizeId, int maxCountLinesId, int authTypeService) {
-        this.orderType = orderType;
-        this.textSizeId = textSizeId;
-        this.maxCountLinesId = maxCountLinesId;
-        this.authTypeService = authTypeService;
-    }
-
-    public Settings(int orderType, int textSizeId, int maxCountLinesId) {
-        this.orderType = orderType;
-        this.textSizeId = textSizeId;
-        this.maxCountLinesId = maxCountLinesId;
-    }
-
-    public int getOrderType() {
-        return orderType;
-    }
-
-    public int getTextSizeId() {
-        return textSizeId;
-    }
-
-    public void setTextSizeId(int textSizeId) {
-        this.textSizeId = textSizeId;
-    }
-
-    public int getMaxCountLinesId() {
-        return maxCountLinesId;
-    }
-
-    public void setMaxCountLinesId(int maxCountLinesId) {
-        this.maxCountLinesId = maxCountLinesId;
-    }
-
-    public float getTextSize() {
-        return textSize;
-    }
-
-    public void setTextSize(float textSize) {
-        this.textSize = textSize;
-    }
-
-    public int getMaxCountLines() {
-        return maxCountLines;
-    }
-
-    public void setMaxCountLines(int maxCountLines) {
-        this.maxCountLines = maxCountLines;
-    }
-
 }

@@ -1,99 +1,57 @@
-package ru.geekbrains.notes.note;
+package ru.geekbrains.notes.note
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Parcel
+import android.os.Parcelable
+import android.os.Parcelable.Creator
 
-public class Note implements Parcelable {
-    private String value;
-    private int id;
-    private String idCloud;
-    private long dateEdit;
-    private long dateCreate;
+class Note : Parcelable {
+    var value: String? = null
+    var iD: Int
+    var idCloud: String? = null
+    var dateEdit: Long = 0
+    var dateCreate: Long = 0
 
-    public Note() {
-        this.id = -1;
+    constructor() {
+        iD = -1
     }
 
-    public String getIdCloud() {
-        return idCloud;
+    constructor(value: String?, id: Int, dateEdit: Long, dateCreate: Long) {
+        this.value = value
+        iD = id
+        this.dateEdit = dateEdit
+        this.dateCreate = dateCreate
+        idCloud = ""
     }
 
-    public void setIdCloud(String idCloud) {
-        this.idCloud = idCloud;
+    protected constructor(`in`: Parcel) {
+        value = `in`.readString()
+        iD = `in`.readInt()
+        dateEdit = `in`.readLong()
+        dateCreate = `in`.readLong()
+        idCloud = `in`.readString()
     }
 
-    public long getDateCreate() {
-        return dateCreate;
+    override fun describeContents(): Int {
+        return 0
     }
 
-    public void setDateCreate(long dateCreate) {
-        this.dateCreate = dateCreate;
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeString(value)
+        dest.writeInt(iD)
+        dest.writeLong(dateEdit)
+        dest.writeLong(dateCreate)
+        dest.writeString(idCloud)
     }
 
-    public Note(String value, int id, long dateEdit, long dateCreate) {
-        this.value = value;
-        this.id = id;
-        this.dateEdit = dateEdit;
-        this.dateCreate = dateCreate;
-        this.idCloud = "";
-    }
+    companion object {
+        @JvmField val CREATOR: Creator<Note?> = object : Creator<Note?> {
+            override fun createFromParcel(`in`: Parcel): Note? {
+                return Note(`in`)
+            }
 
-    protected Note(Parcel in) {
-        value = in.readString();
-        id = in.readInt();
-        dateEdit = in.readLong();
-        dateCreate = in.readLong();
-        idCloud = in.readString();
-    }
-
-    public static final Creator<Note> CREATOR = new Creator<Note>() {
-        @Override
-        public Note createFromParcel(Parcel in) {
-            return new Note(in);
+            override fun newArray(size: Int): Array<Note?> {
+                return arrayOfNulls(size)
+            }
         }
-
-        @Override
-        public Note[] newArray(int size) {
-            return new Note[size];
-        }
-    };
-
-    public String getValue() {
-        return value;
     }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public int getID() {
-        return id;
-    }
-
-    public void setID(int category) {
-        this.id = category;
-    }
-
-    public long getDateEdit() {
-        return dateEdit;
-    }
-
-    public void setDateEdit(long dateEdit) {
-        this.dateEdit = dateEdit;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(getValue());
-        dest.writeInt(getID());
-        dest.writeLong(getDateEdit());
-        dest.writeLong(getDateCreate());
-        dest.writeString(getIdCloud());
-    }
-
 }

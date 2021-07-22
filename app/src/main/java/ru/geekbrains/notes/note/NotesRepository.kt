@@ -1,18 +1,10 @@
-package ru.geekbrains.notes.note;
+package ru.geekbrains.notes.note
 
-import java.util.List;
-
-public interface NotesRepository {
-
-    void getNotes(Callback<List<Note>> callback);
-
-    void setNotes(List<Note> notes, Callback<Object> callback);
-
-    void clearNotes(List<Note> notes, Callback<Object> callback);
-
-    void addNote(List<Note> notes, Note note, Callback<Object> callback);
-
-    void removeNote(List<Note> notes, Note note, Callback<Object> callback);
-
-    void updateNote(List<Note> notes, Note note, Callback<Object> callback);
+interface NotesRepository {
+    fun getNotes(callback: Callback<List<Note?>?>?)
+    fun setNotes(notes: List<Note?>?, callback: Callback<Any?>?)
+    fun clearNotes(notes: List<Note?>?, callback: Callback<Any?>?)
+    fun addNote(notes: List<Note?>?, note: Note?, callback: Callback<Any>)
+    fun removeNote(notes: List<Note?>?, note: Note?, callback: Callback<Any>)
+    fun updateNote(notes: List<Note?>?, note: Note?, callback: Callback<Any>)
 }

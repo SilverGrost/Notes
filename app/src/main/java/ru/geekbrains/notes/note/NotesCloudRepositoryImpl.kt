@@ -1,176 +1,136 @@
-package ru.geekbrains.notes.note;
+package ru.geekbrains.notes.note
 
-import android.util.Log;
+import android.util.Log
+import com.google.android.gms.tasks.Task
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
+import ru.geekbrains.notes.Constant
+import java.util.*
 
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
-import static ru.geekbrains.notes.Constant.MILISECOND;
-
-public class NotesCloudRepositoryImpl implements NotesRepository {
-
-    private final String collectionId;
-    private final static String FIELD_DATE_CREATE = "date_create";
-    private final static String FIELD_DATE_EDIT = "date_edit";
-    private final static String VALUE = "value";
-    private final static String ID = "id";
-    private final static String IDCLOUD = "idCloud";
-    private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
-
-
-    public NotesCloudRepositoryImpl(int authTypeService, String userName) {
-        collectionId = authTypeService + "_" + userName;
-    }
-
-    @Override
-    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-    public void getNotes(Callback<List<Note>> callback) {
+class NotesCloudRepositoryImpl(authTypeService: Int, userName: String) : NotesRepository {
+    private val collectionId: String
+    private val firebaseFirestore = FirebaseFirestore.getInstance()
+    override fun getNotes(callback: Callback<List<Note>>) {
         firebaseFirestore.collection(collectionId)
                 .get()
-                .addOnCompleteListener(task -> {
-
-                    ArrayList<Note> result = new ArrayList<>();
-
-                    if (task.isSuccessful()) {
-                        QuerySnapshot resultTask = task.getResult();
-                        if( resultTask == null ) {
-                            return;
+                .addOnCompleteListener { task: Task<QuerySnapshot?> ->
+                    val result = ArrayList<Note>()
+                    if (task.isSuccessful) {
+                        val resultTask = task.result ?: return@addOnCompleteListener
+                        for (document in resultTask.documents) {
+                            val value = document[VALUE] as String?
+                            var date_create: Date? = null
+                            var o: Any?
+                            o = document[FIELD_DATE_CREATE]
+                            if (o != null) date_create = (o as Timestamp).toDate()
+                            var date_edit: Date? = null
+                            o = document[FIELD_DATE_EDIT]
+                            if (o != null) date_edit = (o as Timestamp).toDate()
+                            var id: Long = 0
+                            o = document[ID]
+                            if (o != null) id = o as Long
+                            val idCloud = document[IDCLOUD] as String?
+                            val note = Note()
+                            if (date_create != null) note.dateCreate = date_create.toInstant().epochSecond
+                            if (date_edit != null) note.dateEdit = date_edit.toInstant().epochSecond
+                            note.iD = id.toInt()
+                            note.value = value
+                            note.idCloud = idCloud
+                            result.add(note)
                         }
-
-                        for (DocumentSnapshot document : resultTask.getDocuments()) {
-                            String value = (String) document.get(VALUE);
-
-                            Date date_create = null;
-                            Object o;
-                            o = document.get(FIELD_DATE_CREATE);
-                            if (o != null)
-                                date_create = ((Timestamp) o).toDate();
-
-                            Date date_edit = null;
-                            o = document.get(FIELD_DATE_EDIT);
-                            if (o != null)
-                                date_edit = ((Timestamp) o).toDate();
-
-                            long id = 0;
-                            o = document.get(ID);
-                            if (o != null)
-                                id = (long) o;
-
-                            String idCloud = (String) document.get(IDCLOUD);
-
-                            Note note = new Note();
-
-                            if (date_create != null)
-                                note.setDateCreate(date_create.toInstant().getEpochSecond());
-
-                            if (date_edit != null)
-                                note.setDateEdit(date_edit.toInstant().getEpochSecond());
-
-                            note.setID((int) id);
-                            note.setValue(value);
-                            note.setIdCloud(idCloud);
-                            result.add(note);
-                        }
-                        callback.onSuccess(result);
+                        callback.onSuccess(result)
                     } else {
-                        task.getException();
+                        task.exception
                     }
-                });
+                }
     }
 
-    @Override
-    public void setNotes(List<Note> notes, Callback<Object> callback) {
-        for (int i = 0; i < notes.size(); i++) {
-            addNote(notes, notes.get(i), callback);
+    override fun setNotes(notes: List<Note>, callback: Callback<Any>) {
+        for (i in notes.indices) {
+            addNote(notes, notes[i], callback)
         }
     }
 
-    @Override
-    public void clearNotes(List<Note> notes, Callback<Object> callback) {
-        for (int i = 0; i < notes.size(); i++) {
-            if (notes.get(i).getIdCloud() != null && !notes.get(i).getIdCloud().equals("")) {
-                int finalI = i;
+    override fun clearNotes(notes: List<Note>, callback: Callback<Any>) {
+        for (i in notes.indices) {
+            if (notes[i].idCloud != null && notes[i].idCloud != "") {
                 firebaseFirestore.collection(collectionId)
-                        .document(notes.get(i).getIdCloud())
+                        .document(notes[i].idCloud!!)
                         .delete()
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                callback.onSuccess(finalI);
+                        .addOnCompleteListener { task: Task<Void?> ->
+                            if (task.isSuccessful) {
+                                callback.onSuccess(i)
                             }
-                        });
+                        }
             }
         }
     }
 
-    @Override
-    public void addNote(List<Note> notes, Note note, Callback<Object> callback) {
-        HashMap<String, Object> data = new HashMap<>();
-
-        data.put(ID, note.getID());
-        Date dateCreate = new Date(note.getDateCreate() * MILISECOND);
-        Date dateEdit = new Date(note.getDateEdit() * MILISECOND);
-        data.put(FIELD_DATE_CREATE, dateCreate);
-        data.put(FIELD_DATE_EDIT, dateEdit);
-        data.put(VALUE, note.getValue());
-        data.put(IDCLOUD, note.getIdCloud());
-
-        Log.v("Debug1", "NotesCloudRepositoryImpl addNote note.getID()=" + note.getID() + ", note.getValue()=" + note.getValue() + ", note.getIdCloud()=" + note.getIdCloud());
-
+    override fun addNote(notes: List<Note>, note: Note, callback: Callback<Any>) {
+        val data = HashMap<String, Any?>()
+        data[ID] = note.iD
+        val dateCreate = Date(note.dateCreate * Constant.MILISECOND)
+        val dateEdit = Date(note.dateEdit * Constant.MILISECOND)
+        data[FIELD_DATE_CREATE] = dateCreate
+        data[FIELD_DATE_EDIT] = dateEdit
+        data[VALUE] = note.value
+        data[IDCLOUD] = note.idCloud
+        Log.v("Debug1", "NotesCloudRepositoryImpl addNote note.getID()=" + note.iD + ", note.getValue()=" + note.value + ", note.getIdCloud()=" + note.idCloud)
         firebaseFirestore.collection(collectionId)
                 .add(data)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        if (task.getResult() != null) {
-                            String idCloud = task.getResult().getId();
-                            callback.onSuccess(idCloud);
+                .addOnCompleteListener { task: Task<DocumentReference?> ->
+                    if (task.isSuccessful) {
+                        if (task.result != null) {
+                            val idCloud = task.result!!.id
+                            callback.onSuccess(idCloud)
                         }
                     }
-                });
+                }
     }
 
-    @Override
-    public void removeNote(List<Note> notes, Note note, Callback<Object> callback) {
-        Log.v("Debug1", "NotesCloudRepositoryImpl removeNote note.getID()=" + note.getID() + ", note.getValue()=" + note.getValue() + ", note.getIdCloud()" + note.getIdCloud());
-        if (note.getIdCloud() != null && !note.getIdCloud().equals("")) {
+    override fun removeNote(notes: List<Note>, note: Note, callback: Callback<Any>) {
+        Log.v("Debug1", "NotesCloudRepositoryImpl removeNote note.getID()=" + note.iD + ", note.getValue()=" + note.value + ", note.getIdCloud()" + note.idCloud)
+        if (note.idCloud != null && note.idCloud != "") {
             firebaseFirestore.collection(collectionId)
-                    .document(note.getIdCloud())
+                    .document(note.idCloud!!)
                     .delete()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            callback.onSuccess(note);
+                    .addOnCompleteListener { task: Task<Void?> ->
+                        if (task.isSuccessful) {
+                            callback.onSuccess(note)
                         }
-                    });
+                    }
         }
     }
 
-    @Override
-    public void updateNote(List<Note> notes, Note note, Callback<Object> callback) {
-
-        if (note.getIdCloud() != null && !note.getIdCloud().equals("")) {
-
-            HashMap<String, Object> data = new HashMap<>();
-            data.put(ID, note.getID());
-            Date dateCreate = new Date(note.getDateCreate() * MILISECOND);
-            Date dateEdit = new Date(note.getDateEdit() * MILISECOND);
-            data.put(FIELD_DATE_CREATE, dateCreate);
-            data.put(FIELD_DATE_EDIT, dateEdit);
-            data.put(VALUE, note.getValue());
-            data.put(IDCLOUD, note.getIdCloud());
-
-            Log.v("Debug1", "NotesCloudRepositoryImpl updateNote note.getID()=" + note.getID() + ", note.getValue()=" + note.getValue() + ", note.getIdCloud()" + note.getIdCloud());
-
-            if (note.getIdCloud() != null && !note.getIdCloud().equals(""))
-            firebaseFirestore.collection(collectionId)
-                    .document(note.getIdCloud())
+    override fun updateNote(notes: List<Note>, note: Note, callback: Callback<Any>) {
+        if (note.idCloud != null && note.idCloud != "") {
+            val data = HashMap<String, Any?>()
+            data[ID] = note.iD
+            val dateCreate = Date(note.dateCreate * Constant.MILISECOND)
+            val dateEdit = Date(note.dateEdit * Constant.MILISECOND)
+            data[FIELD_DATE_CREATE] = dateCreate
+            data[FIELD_DATE_EDIT] = dateEdit
+            data[VALUE] = note.value
+            data[IDCLOUD] = note.idCloud
+            Log.v("Debug1", "NotesCloudRepositoryImpl updateNote note.getID()=" + note.iD + ", note.getValue()=" + note.value + ", note.getIdCloud()" + note.idCloud)
+            if (note.idCloud != null && note.idCloud != "") firebaseFirestore.collection(collectionId)
+                    .document(note.idCloud!!)
                     .update(data)
-                    .addOnCompleteListener(task -> callback.onSuccess(note));
+                    .addOnCompleteListener { task: Task<Void?>? -> callback.onSuccess(note) }
         }
+    }
+
+    companion object {
+        private const val FIELD_DATE_CREATE = "date_create"
+        private const val FIELD_DATE_EDIT = "date_edit"
+        private const val VALUE = "value"
+        private const val ID = "id"
+        private const val IDCLOUD = "idCloud"
+    }
+
+    init {
+        collectionId = authTypeService.toString() + "_" + userName
     }
 }

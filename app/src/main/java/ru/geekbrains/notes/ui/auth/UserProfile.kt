@@ -1,133 +1,57 @@
-package ru.geekbrains.notes.ui.auth;
+package ru.geekbrains.notes.ui.auth
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Parcel
+import android.os.Parcelable
+import android.os.Parcelable.Creator
 
-public class UserProfile implements Parcelable {
-    private String idToken;
-    private String photoURL;
-    private String serverAuthCode;
-    private String displayName;
-    private String email;
-    private String familyName;
-    private String givenName;
-    private String id;
-    private int typeAutService;
+class UserProfile : Parcelable {
+    var idToken: String? = null
+    var photoURL: String? = null
+    var serverAuthCode: String? = null
+    var displayName: String? = null
+    var email: String? = null
+    var familyName: String? = null
+    var givenName: String? = null
+    var id: String? = null
+    var typeAutService = 0
 
-    public UserProfile() {
+    constructor() {}
+    protected constructor(`in`: Parcel) {
+        idToken = `in`.readString()
+        photoURL = `in`.readString()
+        serverAuthCode = `in`.readString()
+        displayName = `in`.readString()
+        email = `in`.readString()
+        familyName = `in`.readString()
+        givenName = `in`.readString()
+        id = `in`.readString()
+        typeAutService = `in`.readInt()
     }
 
-
-    protected UserProfile(Parcel in) {
-        idToken = in.readString();
-        photoURL = in.readString();
-        serverAuthCode = in.readString();
-        displayName = in.readString();
-        email = in.readString();
-        familyName = in.readString();
-        givenName = in.readString();
-        id = in.readString();
-        typeAutService = in.readInt();
+    override fun describeContents(): Int {
+        return 0
     }
 
-    public static final Creator<UserProfile> CREATOR = new Creator<UserProfile>() {
-        @Override
-        public UserProfile createFromParcel(Parcel in) {
-            return new UserProfile(in);
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeString(idToken)
+        dest.writeString(photoURL)
+        dest.writeString(serverAuthCode)
+        dest.writeString(displayName)
+        dest.writeString(email)
+        dest.writeString(familyName)
+        dest.writeString(givenName)
+        dest.writeString(id)
+    }
+
+    companion object {
+        @JvmField val CREATOR: Creator<UserProfile?> = object : Creator<UserProfile?> {
+            override fun createFromParcel(`in`: Parcel): UserProfile? {
+                return UserProfile(`in`)
+            }
+
+            override fun newArray(size: Int): Array<UserProfile?> {
+                return arrayOfNulls(size)
+            }
         }
-
-        @Override
-        public UserProfile[] newArray(int size) {
-            return new UserProfile[size];
-        }
-    };
-
-    public int getTypeAutService() {
-        return typeAutService;
-    }
-
-    public void setTypeAutService(int typeAutService) {
-        this.typeAutService = typeAutService;
-    }
-
-    public String getIdToken() {
-        return idToken;
-    }
-
-    public void setIdToken(String idToken) {
-        this.idToken = idToken;
-    }
-
-    public String getPhotoURL() {
-        return photoURL;
-    }
-
-    public void setPhotoURL(String photoURL) {
-        this.photoURL = photoURL;
-    }
-
-    public String getServerAuthCode() {
-        return serverAuthCode;
-    }
-
-    public void setServerAuthCode(String serverAuthCode) {
-        this.serverAuthCode = serverAuthCode;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getFamilyName() {
-        return familyName;
-    }
-
-    public void setFamilyName(String familyName) {
-        this.familyName = familyName;
-    }
-
-    public String getGivenName() {
-        return givenName;
-    }
-
-    public void setGivenName(String givenName) {
-        this.givenName = givenName;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String iD) {
-        this.id = iD;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(getIdToken());
-        dest.writeString(getPhotoURL());
-        dest.writeString(getServerAuthCode());
-        dest.writeString(getDisplayName());
-        dest.writeString(getEmail());
-        dest.writeString(getFamilyName());
-        dest.writeString(getGivenName());
-        dest.writeString(getId());
     }
 }

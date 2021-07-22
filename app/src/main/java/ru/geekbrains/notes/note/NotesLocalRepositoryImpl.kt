@@ -1,85 +1,65 @@
-package ru.geekbrains.notes.note;
+package ru.geekbrains.notes.note
 
-import android.app.Activity;
-import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
+import android.app.Activity
+import android.content.Context
+import android.os.Handler
+import android.os.Looper
+import ru.geekbrains.notes.GlobalVariables
+import ru.geekbrains.notes.SharedPref
+import java.util.concurrent.Executors
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import ru.geekbrains.notes.GlobalVariables;
-import ru.geekbrains.notes.SharedPref;
-
-public class NotesLocalRepositoryImpl implements NotesRepository {
-
-    private final Context context;
-    private final Activity activity;
-
-    private final ExecutorService executor = Executors.newCachedThreadPool();
-    private final Handler handler = new Handler(Looper.getMainLooper());
-
-    public NotesLocalRepositoryImpl(Context context, Activity activity) {
-        this.context = context;
-        this.activity = activity;
+class NotesLocalRepositoryImpl(private val context: Context, private val activity: Activity) : NotesRepository {
+    private val executor = Executors.newCachedThreadPool()
+    private val handler = Handler(Looper.getMainLooper())
+    override fun getNotes(callback: Callback<List<Note>>) {
+        executor.execute {
+            handler.post {
+                val notes: List<Note> = SharedPref(context).loadNotes()
+                callback.onSuccess(notes)
+            }
+        }
     }
 
-
-    @Override
-    public void getNotes(Callback<List<Note>> callback) {
-        executor.execute(() -> handler.post(() -> {
-
-            List<Note> notes = new SharedPref(context).loadNotes();
-            callback.onSuccess(notes);
-        }));
+    override fun setNotes(notes: List<Note>, callback: Callback<Any>) {
+        executor.execute {
+            SharedPref(context).saveNotes(notes)
+            handler.post { callback.onSuccess(notes) }
+        }
     }
 
-    @Override
-    public void setNotes(List<Note> notes, Callback<Object> callback) {
-        executor.execute(() -> {
-            new SharedPref(context).saveNotes(notes);
-            handler.post(() -> callback.onSuccess(notes));
-        });
+    override fun clearNotes(notes: MutableList<Note>, callback: Callback<Any>) {
+        notes.clear()
+        (activity.application as GlobalVariables).notes = notes
+        setNotes(notes, callback)
     }
 
-    @Override
-    public void clearNotes(List<Note> notes, Callback<Object> callback) {
-        notes.clear();
-        ((GlobalVariables) activity.getApplication()).setNotes(notes);
-        setNotes(notes, callback);
+    override fun addNote(notes: MutableList<Note>, note: Note, callback: Callback<Any>) {
+        notes.add(note)
+        (activity.application as GlobalVariables).notes = notes
+        setNotes(notes, callback)
     }
 
-    @Override
-    public void addNote(List<Note> notes, Note note, Callback<Object> callback) {
-        notes.add(note);
-        ((GlobalVariables) activity.getApplication()).setNotes(notes);
-        setNotes(notes, callback);
-    }
-
-    @Override
-    public void removeNote(List<Note> notes, Note note, Callback<Object> callback) {
-        executor.execute(() -> {
-            for (int i = 0; i < notes.size(); i++) {
-                if (notes.get(i).getID() == note.getID()) {
-                    notes.remove(i);
-                    ((GlobalVariables) activity.getApplication()).setNotes(notes);
-                    break;
+    override fun removeNote(notes:  MutableList <Note>, note: Note, callback: Callback<Any>) {
+        executor.execute {
+            for (i in notes.indices) {
+                if (notes[i].iD == note.iD) {
+                    notes.removeAt(i)
+                    (activity.application as GlobalVariables).notes = notes
+                    break
                 }
             }
-            new SharedPref(context).saveNotes(notes);
-            handler.post(() -> callback.onSuccess(true));
-        });
+            SharedPref(context).saveNotes(notes)
+            handler.post { callback.onSuccess(true) }
+        }
     }
 
-    @Override
-    public void updateNote(List<Note> notes, Note note, Callback<Object> callback) {
-        for (int i = 0; i < notes.size(); i++) {
-            if (notes.get(i).getID() == note.getID()) {
-                notes.set(i, note);
-                ((GlobalVariables) activity.getApplication()).setNotes(notes);
-                setNotes(notes, callback);
-                break;
+    override fun updateNote(notes: MutableList<Note>, note: Note, callback: Callback<Any>) {
+        for (i in notes.indices) {
+            if (notes[i].iD == note.iD) {
+                notes[i] = note
+                (activity.application as GlobalVariables).notes = notes
+                setNotes(notes, callback)
+                break
             }
         }
     }

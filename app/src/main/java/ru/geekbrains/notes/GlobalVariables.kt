@@ -1,136 +1,98 @@
-package ru.geekbrains.notes;
+package ru.geekbrains.notes
 
-import android.app.Application;
+import android.app.Application
+import ru.geekbrains.notes.note.Note
+import java.util.*
 
-import java.util.ArrayList;
-import java.util.List;
-
-import ru.geekbrains.notes.note.Note;
-
-public class GlobalVariables extends Application {
-
-    private List<Note> notes;
-    private List<Note> notesCloud;
-
-    private int currentNote;
-
-    private boolean viewNoteFragmentState;
-    private Settings settings;
-
-    public Settings getSettings() {
-        return settings;
-    }
-
-    public void setSettings(Settings settings) {
-        this.settings = settings;
-    }
-
-    public boolean isViewNoteFragmentState() {
-        return viewNoteFragmentState;
-    }
-
-    public void setViewNoteFragmentState(boolean viewNoteFragmentState) {
-        this.viewNoteFragmentState = viewNoteFragmentState;
-    }
-
-    public int getCurrentNote() {
-        Note note = getNoteByNoteId(currentNote);
-        if (note.getID() != -1)
-            return currentNote;
-        else
-            return notes.size() - 1;
-    }
-
-    public void setCurrentNote(int currentNote) {
-        this.currentNote = currentNote;
-    }
-
-    public List<Note> getNotes() {
-        return notes;
-    }
-
-    public List<Note> getNotesWithText(String query) {
-        List<Note> result = new ArrayList<>();
-        for (int i = 0; i < notes.size(); i++) {
-            if (notes.get(i).getValue().toUpperCase().contains(query.toUpperCase()))
-                result.add(notes.get(i));
+class GlobalVariables : Application() {
+    private var notes: MutableList<Note>? = null
+    private var notesCloud: MutableList<Note>? = null
+    var currentNote = 0
+        get() {
+            val note = getNoteByNoteId(field)
+            return if (note.iD != -1) field else notes!!.size - 1
         }
-        return result;
+    var isViewNoteFragmentState = false
+    var settings: Settings? = null
+    fun getNotes(): List<Note>? {
+        return notes
     }
 
-    public void setNotes(List<Note> notes) {
-        this.notes = notes;
+    fun getNotesWithText(query: String): List<Note> {
+        val result: MutableList<Note> = ArrayList()
+        for (i in notes!!.indices) {
+            if (notes!![i].value!!.toUpperCase().contains(query.toUpperCase())) result.add(notes!![i])
+        }
+        return result
     }
 
-    public void setNotesCloud(List<Note> notes) {
-        this.notesCloud = notes;
+    fun setNotes(notes: MutableList<Note>?) {
+        this.notes = notes
     }
 
-    public List<Note> getNotesCloud() {
-        return notesCloud;
+    fun setNotesCloud(notes: MutableList<Note>?) {
+        notesCloud = notes
     }
 
-    public int getScrollPositionByNoteId(int noteId){
-        for (int i = 0; i < notes.size(); i++) {
-            if (notes.get(i).getID() == noteId) {
-                return i;
+    fun getNotesCloud(): List<Note>? {
+        return notesCloud
+    }
+
+    fun getScrollPositionByNoteId(noteId: Int): Int {
+        for (i in notes!!.indices) {
+            if (notes!![i].iD == noteId) {
+                return i
             }
         }
-        return 0;
+        return 0
     }
 
-    public int getNewId(){
-        int newId = 0;
-        if (notes.size() > 0){
-            newId = notes.get(0).getID();
-            for (int i = 1; i < notes.size(); i++) {
-                if (notes.get(i).getID() > newId) {
-                    newId = notes.get(i).getID();
+    val newId: Int
+        get() {
+            var newId = 0
+            if (notes!!.size > 0) {
+                newId = notes!![0].iD
+                for (i in 1 until notes!!.size) {
+                    if (notes!![i].iD > newId) {
+                        newId = notes!![i].iD
+                    }
                 }
+                newId++
             }
-            newId++;
+            return newId
         }
-        return newId;
-    }
 
-
-
-
-    public void setNoteById(int noteId, Note note){
-        for (int i = 0; i < notes.size(); i++) {
-            if (notes.get(i).getID() == noteId) {
-                notes.set(i, note);
+    fun setNoteById(noteId: Int, note: Note) {
+        for (i in notes!!.indices) {
+            if (notes!![i].iD == noteId) {
+                notes!![i] = note
             }
         }
     }
 
-    public Note getNoteByNoteId(int noteId){
-        for (int i = 0; i < notes.size(); i++) {
-            if (notes.get(i).getID() == noteId) {
-                return notes.get(i);
+    fun getNoteByNoteId(noteId: Int): Note {
+        for (i in notes!!.indices) {
+            if (notes!![i].iD == noteId) {
+                return notes!![i]
             }
         }
-        return new Note();
+        return Note()
     }
 
-
-
-    public void updateNoteCloudById(int noteId, Note note){
-        for (int i = 0; i < notesCloud.size(); i++) {
-            if (notesCloud.get(i).getID() == noteId) {
-                notesCloud.set(i, note);
+    fun updateNoteCloudById(noteId: Int, note: Note) {
+        for (i in notesCloud!!.indices) {
+            if (notesCloud!![i].iD == noteId) {
+                notesCloud!![i] = note
             }
         }
     }
 
-    public Note getNoteCloudByNoteId(int noteId){
-        for (int i = 0; i < notesCloud.size(); i++) {
-            if (notesCloud.get(i).getID() == noteId) {
-                return notesCloud.get(i);
+    fun getNoteCloudByNoteId(noteId: Int): Note {
+        for (i in notesCloud!!.indices) {
+            if (notesCloud!![i].iD == noteId) {
+                return notesCloud!![i]
             }
         }
-        return new Note();
+        return Note()
     }
-
-
 }

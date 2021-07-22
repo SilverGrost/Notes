@@ -1,103 +1,84 @@
-package ru.geekbrains.notes.ui.settings;
+package ru.geekbrains.notes.ui.settings
 
-import android.content.Context;
-import android.os.Bundle;
+import android.content.Context
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.core.text.HtmlCompat
+import androidx.fragment.app.Fragment
+import ru.geekbrains.notes.R
+import ru.geekbrains.notes.ui.MainActivity
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.text.HtmlCompat;
-import androidx.fragment.app.Fragment;
-
-import android.text.Html;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
-import ru.geekbrains.notes.R;
-import ru.geekbrains.notes.ui.MainActivity;
-
-
-public class AboutFragment extends Fragment {
-
-    public static final String TAG = "AboutFragment";
-
-    public AboutFragment() {
-        // Required empty public constructor
+class AboutFragment : Fragment() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.v("Debug1", "AboutFragment onCreate")
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.v("Debug1", "AboutFragment onCreate");
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_about, container, false);
-        Log.v("Debug1", "AboutFragment onCreateView");
+        val v = inflater.inflate(R.layout.fragment_about, container, false)
+        Log.v("Debug1", "AboutFragment onCreateView")
         //getActivity().en
-        return v;
+        return v
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        TextView textView = view.findViewById(R.id.textView3);
-        textView.setText(HtmlCompat.fromHtml(getString(R.string.textAbout), HtmlCompat.FROM_HTML_MODE_LEGACY));
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val textView = view.findViewById<TextView>(R.id.textView3)
+        textView.text = HtmlCompat.fromHtml(getString(R.string.textAbout), HtmlCompat.FROM_HTML_MODE_LEGACY)
 
         //textView.setText(Html.fromHtml(getString(R.string.textAbout),Html.FROM_HTML_MODE_LEGACY));
         //((AppCompatActivity)getActivity()).getSupportActionBar().setSubtitle("О программе...");
         //getActivity().setTitle("О программе...");
-        MainActivity.setTitle(getActivity(), "О программе...");
-
-
+        MainActivity.setTitle(activity, "О программе...")
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.v("Debug1", "AboutFragment onStart");
+    override fun onStart() {
+        super.onStart()
+        Log.v("Debug1", "AboutFragment onStart")
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.v("Debug1", "AboutFragment onStop");
+    override fun onStop() {
+        super.onStop()
+        Log.v("Debug1", "AboutFragment onStop")
     }
 
-    public void onResume() {
-        super.onResume();
-        Log.v("Debug1", "AboutFragment onResume");
+    override fun onResume() {
+        super.onResume()
+        Log.v("Debug1", "AboutFragment onResume")
     }
 
-    public void onPause() {
-        super.onPause();
-        Log.v("Debug1", "AboutFragment onPause");
+    override fun onPause() {
+        super.onPause()
+        Log.v("Debug1", "AboutFragment onPause")
     }
 
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.v("Debug1", "AboutFragment onDestroyView");
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.v("Debug1", "AboutFragment onDestroyView")
     }
 
-    public void onDestroy() {
-        super.onDestroy();
-        Log.v("Debug1", "AboutFragment onDestroy");
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.v("Debug1", "AboutFragment onDestroy")
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        Log.v("Debug1", "AboutFragment onAttach");
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        Log.v("Debug1", "AboutFragment onAttach")
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        Log.v("Debug1", "AboutFragment onDetach");
+    override fun onDetach() {
+        super.onDetach()
+        Log.v("Debug1", "AboutFragment onDetach")
+    }
+
+    companion object {
+        const val TAG = "AboutFragment"
     }
 }

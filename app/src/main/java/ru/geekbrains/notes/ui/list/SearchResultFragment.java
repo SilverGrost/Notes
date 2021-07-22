@@ -257,7 +257,7 @@ public class SearchResultFragment extends Fragment implements ObserverNote {
             fragmentTransaction.commit();
         } else {
             Log.v("Debug1", "ListNotesFragment viewNote viewNoteFragment != null");
-            viewNoteFragment.fillViewNote(noteId, viewNoteFragment.getViewFragment());
+            viewNoteFragment.fillViewNote(noteId);
         }
     }
 

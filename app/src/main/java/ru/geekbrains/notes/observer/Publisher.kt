@@ -1,34 +1,30 @@
-package ru.geekbrains.notes.observer;
+package ru.geekbrains.notes.observer
 
-import java.util.ArrayList;
-import java.util.List;
-
-import ru.geekbrains.notes.note.Note;
+import java.util.*
 
 // Обработчик подписок
-public class Publisher {
-
-    private List<ObserverNote> observers;
-
-    //Конструктор
-    public Publisher() {
-        observers = new ArrayList<>();
-    }
+class Publisher {
+    private val observers: MutableList<ObserverNote>
 
     // Подписать
-    public void subscribe(ObserverNote observer) {
-        observers.add(observer);
+    fun subscribe(observer: ObserverNote) {
+        observers.add(observer)
     }
 
     // Отписать
-    public void unsubscribe(ObserverNote observer) {
-        observers.remove(observer);
+    fun unsubscribe(observer: ObserverNote) {
+        observers.remove(observer)
     }
 
     // Разослать событие
-    public void notify(int noteID, int typeEvent) {
-        for (ObserverNote observer: observers) {
-            observer.updateNote(noteID, typeEvent);
+    fun notify(noteID: Int, typeEvent: Int) {
+        for (observer in observers) {
+            observer.updateNote(noteID, typeEvent)
         }
+    }
+
+    //Конструктор
+    init {
+        observers = ArrayList()
     }
 }

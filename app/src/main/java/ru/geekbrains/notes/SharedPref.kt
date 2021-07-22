@@ -1,93 +1,104 @@
-package ru.geekbrains.notes;
+package ru.geekbrains.notes
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import ru.geekbrains.notes.note.Note;
-
-import static ru.geekbrains.notes.Constant.*;
+import android.content.Context
+import android.content.SharedPreferences
+import android.util.Log
+import ru.geekbrains.notes.Constant.APPSETTINGSCLOUDSYNC
+import ru.geekbrains.notes.Constant.APPSETTINGSCURRENTPOSITION
+import ru.geekbrains.notes.Constant.APPSETTINGSMAXCOUNTLINES
+import ru.geekbrains.notes.Constant.APPSETTINGSSORTTYPE
+import ru.geekbrains.notes.Constant.APPSETTINGSTEXTSIZE
+import ru.geekbrains.notes.Constant.AUTHTYPESERVICE
+import ru.geekbrains.notes.Constant.COUNTNOTES
+import ru.geekbrains.notes.Constant.DEFAULTAUTHTYPESERVICE
+import ru.geekbrains.notes.Constant.DEFAULTCLOUDSYNC
+import ru.geekbrains.notes.Constant.DEFAULTCURRENTPOSITION
+import ru.geekbrains.notes.Constant.DEFAULTLMAXCOUNTLINESID
+import ru.geekbrains.notes.Constant.DEFAULTSORTTYPEID
+import ru.geekbrains.notes.Constant.DEFAULTTEXTSIZEID
+import ru.geekbrains.notes.Constant.DEFAULTUSERNAMEVK
+import ru.geekbrains.notes.Constant.NAME_SHARED_PREFERENCE
+import ru.geekbrains.notes.Constant.NOTEDATE
+import ru.geekbrains.notes.Constant.NOTEDATECREATE
+import ru.geekbrains.notes.Constant.NOTEID
+import ru.geekbrains.notes.Constant.NOTEIDCLOUD
+import ru.geekbrains.notes.Constant.NOTEVALUE
+import ru.geekbrains.notes.Constant.USERNAMEVK
+import ru.geekbrains.notes.note.Note
+import java.util.*
 
 //Пока храню заметки через SharedPreferences. Понимаю, что криво, но потом переделаю на БД
-public class SharedPref {
-
-    private final android.content.SharedPreferences SharedPreferences;
-
-    public SharedPref(Context context) {
-        this.SharedPreferences = context.getSharedPreferences(NAME_SHARED_PREFERENCE, Context.MODE_PRIVATE);
-    }
+class SharedPref(context: Context) {
+    private val sharedPreferences: SharedPreferences = context.getSharedPreferences(NAME_SHARED_PREFERENCE, Context.MODE_PRIVATE)
 
     // Чтение заметки
-    private Note loadNote(int id) {
-        Note note = new Note();
-        note.setValue(SharedPreferences.getString(NOTEVALUE + id, note.getValue()));
-        note.setID(SharedPreferences.getInt(NOTEID + id, note.getID()));
-        note.setDateEdit(SharedPreferences.getLong(NOTEDATE + id, note.getDateEdit()));
-        note.setDateCreate(SharedPreferences.getLong(NOTEDATECREATE + id, note.getDateCreate()));
-        note.setIdCloud(SharedPreferences.getString(NOTEIDCLOUD + id, note.getIdCloud()));
-        return note;
+    private fun loadNote(id: Int): Note {
+        val note = Note()
+        note.value = sharedPreferences.getString(NOTEVALUE + id, note.value)
+        note.iD = sharedPreferences.getInt(NOTEID + id, note.iD)
+        note.dateEdit = sharedPreferences.getLong(NOTEDATE + id, note.dateEdit)
+        note.dateCreate = sharedPreferences.getLong(NOTEDATECREATE + id, note.dateCreate)
+        note.idCloud = sharedPreferences.getString(NOTEIDCLOUD + id, note.idCloud)
+        return note
     }
 
     // Чтение заметок
-    public ArrayList<Note> loadNotes() {
-        int countNotes = SharedPreferences.getInt(COUNTNOTES, 0);
-        ArrayList<Note> notes = new ArrayList<>();
-        for (int i = 0; i < countNotes; i++) {
-            notes.add(loadNote(i));
+    fun loadNotes(): ArrayList<Note> {
+        val countNotes = sharedPreferences.getInt(COUNTNOTES, 0)
+        val notes = ArrayList<Note>()
+        for (i in 0 until countNotes) {
+            notes.add(loadNote(i))
         }
-        return notes;
+        return notes
     }
 
     // Сохранение заметки
-    private void saveNote(Note note, int id) {
-        SharedPreferences.Editor editor = SharedPreferences.edit();
-        editor.putString(NOTEVALUE + id, note.getValue());
-        editor.putInt(NOTEID + id, note.getID());
-        editor.putLong(NOTEDATE + id, note.getDateEdit());
-        editor.putLong(NOTEDATECREATE + id, note.getDateCreate());
-        editor.putString(NOTEIDCLOUD + id, note.getIdCloud());
-
-        editor.apply();
+    private fun saveNote(note: Note, id: Int) {
+        val editor = sharedPreferences.edit()
+        editor.putString(NOTEVALUE + id, note.value)
+        editor.putInt(NOTEID + id, note.iD)
+        editor.putLong(NOTEDATE + id, note.dateEdit)
+        editor.putLong(NOTEDATECREATE + id, note.dateCreate)
+        editor.putString(NOTEIDCLOUD + id, note.idCloud)
+        editor.apply()
     }
 
     // Сохранение заметок
-    public void saveNotes(List<Note> notes) {
-        Log.v("Debug1", "SharedPref saveNotes start");
-        SharedPreferences.Editor editor = SharedPreferences.edit();
-        editor.putInt(COUNTNOTES, notes.size());
-        for (int i = 0; i < notes.size(); i++) {
-            saveNote(notes.get(i), i);
+    fun saveNotes(notes: List<Note>) {
+        Log.v("Debug1", "SharedPref saveNotes start")
+        val editor = sharedPreferences.edit()
+        editor.putInt(COUNTNOTES, notes.size)
+        for (i in notes.indices) {
+            saveNote(notes[i], i)
         }
-        editor.apply();
-        Log.v("Debug1", "SharedPref saveNotes end");
+        editor.apply()
+        Log.v("Debug1", "SharedPref saveNotes end")
     }
 
     // Чтение настроек
-    public Settings loadSettings() {
-        Settings settings = new Settings();
-        settings.setOrderType(SharedPreferences.getInt(APPSETTINGSSORTTYPE, DEFAULTSORTTYPEID));
-        settings.setTextSizeId(SharedPreferences.getInt(APPSETTINGSTEXTSIZE, DEFAULTTEXTSIZEID));
-        settings.setMaxCountLinesId(SharedPreferences.getInt(APPSETTINGSMAXCOUNTLINES, DEFAULTLMAXCOUNTLINESID));
-        settings.setCurrentPosition(SharedPreferences.getInt(APPSETTINGSCURRENTPOSITION, DEFAULTCURRENTPOSITION));
-        settings.setCloudSync(SharedPreferences.getBoolean(APPSETTINGSCLOUDSYNC, DEFAULTCLOUDSYNC));
-        settings.setAuthTypeService(SharedPreferences.getInt(AUTHTYPESERVICE, DEFAULTAUTHTYPESERVICE));
-        settings.setUserNameVK(SharedPreferences.getString(USERNAMEVK, DEFAULTUSERNAMEVK));
-        return settings;
+    fun loadSettings(): Settings {
+        val settings = Settings()
+        settings.orderType = sharedPreferences.getInt(APPSETTINGSSORTTYPE, DEFAULTSORTTYPEID)
+        settings.textSizeId = sharedPreferences.getInt(APPSETTINGSTEXTSIZE, DEFAULTTEXTSIZEID)
+        settings.maxCountLinesId = sharedPreferences.getInt(APPSETTINGSMAXCOUNTLINES, DEFAULTLMAXCOUNTLINESID)
+        settings.currentPosition = sharedPreferences.getInt(APPSETTINGSCURRENTPOSITION, DEFAULTCURRENTPOSITION)
+        settings.isCloudSync = sharedPreferences.getBoolean(APPSETTINGSCLOUDSYNC, DEFAULTCLOUDSYNC)
+        settings.authTypeService = sharedPreferences.getInt(AUTHTYPESERVICE, DEFAULTAUTHTYPESERVICE)
+        settings.userNameVK = sharedPreferences.getString(USERNAMEVK, DEFAULTUSERNAMEVK)
+        return settings
     }
 
     // Сохранение настроек
-    public void saveSettings(Settings settings) {
-        SharedPreferences.Editor editor = SharedPreferences.edit();
-        editor.putInt(APPSETTINGSTEXTSIZE, settings.getTextSizeId());
-        editor.putInt(APPSETTINGSSORTTYPE, settings.getOrderType());
-        editor.putInt(APPSETTINGSMAXCOUNTLINES, settings.getMaxCountLinesId());
-        editor.putInt(APPSETTINGSCURRENTPOSITION, settings.getCurrentPosition());
-        editor.putBoolean(APPSETTINGSCLOUDSYNC, settings.isCloudSync());
-        editor.putInt(AUTHTYPESERVICE, settings.getAuthTypeService());
-        editor.putString(USERNAMEVK, settings.getUserNameVK());
-        editor.apply();
+    fun saveSettings(settings: Settings) {
+        val editor = sharedPreferences.edit()
+        editor.putInt(APPSETTINGSTEXTSIZE, settings.textSizeId)
+        editor.putInt(APPSETTINGSSORTTYPE, settings.orderType)
+        editor.putInt(APPSETTINGSMAXCOUNTLINES, settings.maxCountLinesId)
+        editor.putInt(APPSETTINGSCURRENTPOSITION, settings.currentPosition)
+        editor.putBoolean(APPSETTINGSCLOUDSYNC, settings.isCloudSync)
+        editor.putInt(AUTHTYPESERVICE, settings.authTypeService)
+        editor.putString(USERNAMEVK, settings.userNameVK)
+        editor.apply()
     }
+
 }

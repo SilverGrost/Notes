@@ -1,12 +1,10 @@
-package ru.geekbrains.notes.note.comparator;
+package ru.geekbrains.notes.note.comparator
 
-import java.util.Comparator;
+import ru.geekbrains.notes.note.Note
+import java.util.*
 
-import ru.geekbrains.notes.note.Note;
-
-public class HeaderSorterComparator implements Comparator<Note> {
-    @Override
-    public int compare(Note note1, Note note2) {
-        return note1.getValue().toUpperCase().compareTo(note2.getValue().toUpperCase());
+class HeaderSorterComparator : Comparator<Note> {
+    override fun compare(note1: Note, note2: Note): Int {
+        return note1.value.toUpperCase().compareTo(note2.value.toUpperCase())
     }
 }

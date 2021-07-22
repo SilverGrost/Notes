@@ -1,5 +1,5 @@
-package ru.geekbrains.notes.observer;
+package ru.geekbrains.notes.observer
 
-public interface PublisherHolder {
-    Publisher getPublisher();
+interface PublisherHolder {
+    val publisher: Publisher?
 }

@@ -1,142 +1,120 @@
-package ru.geekbrains.notes.ui;
+package ru.geekbrains.notes.ui
 
-import android.content.Context;
-import android.os.Bundle;
+import android.annotation.SuppressLint
+import android.content.Context
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.DatePicker
+import androidx.fragment.app.Fragment
+import ru.geekbrains.notes.Constant.MILISECOND
+import ru.geekbrains.notes.GlobalVariables
+import ru.geekbrains.notes.R
+import ru.geekbrains.notes.SharedPref
+import ru.geekbrains.notes.observer.Publisher
+import ru.geekbrains.notes.observer.PublisherHolder
+import java.util.*
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.DatePicker;
-
-import java.util.Calendar;
-import java.util.List;
-
-import ru.geekbrains.notes.GlobalVariables;
-import ru.geekbrains.notes.R;
-import ru.geekbrains.notes.SharedPref;
-import ru.geekbrains.notes.note.Note;
-import ru.geekbrains.notes.observer.Publisher;
-import ru.geekbrains.notes.observer.PublisherHolder;
-
-import static ru.geekbrains.notes.Constant.MILISECOND;
-
-
-public class DatepickerFragment extends Fragment {
-
-    private static final String ARG = "NOTE_ID";
-    private int noteId;
-    private Publisher publisher;
-    int yearFromDP = 0;
-    int monthOfYearFromDP = 0;
-    int dayOfMonthFromDP = 0;
-
-    public static final String TAG = "DatepickerFragment";
-
-    public DatepickerFragment() {
-        // Required empty public constructor
-    }
-
-    public static DatepickerFragment newInstance(int noteId) {
-        Log.v("Debug1", "DatepickerFragment newInstance noteId=" + noteId);
-        DatepickerFragment fragment = new DatepickerFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt(ARG, noteId);
-        fragment.setArguments(bundle);
-        return fragment;
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_datepicker, container, false);
-        if (getArguments() != null && getActivity() != null) {
-            noteId = getArguments().getInt(ARG, 0);
-            Log.v("Debug1", "DatepickerFragment onCreateView noteId=" + noteId);
-
-            Note note = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
-            long date = note.getDateEdit() * MILISECOND;
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(date);
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH);
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-            Button button_ok = v.findViewById(R.id.button_dp_ok);
-            button_ok.setOnClickListener(v1 -> {
-                Log.v("Debug1", "DatepickerFragment button_ok");
-                Calendar calendarNew = Calendar.getInstance();
-                calendarNew.set(yearFromDP, monthOfYearFromDP, dayOfMonthFromDP);
-                long newDate = calendarNew.getTimeInMillis() / MILISECOND;
-                if (DatepickerFragment.this.getActivity() != null) {
-                    note.setDateEdit(newDate);
-                    ((GlobalVariables) DatepickerFragment.this.getActivity().getApplication()).setNoteById(noteId, note);
-                    List<Note> notes = ((GlobalVariables) DatepickerFragment.this.getActivity().getApplication()).getNotes();
-                    new SharedPref(DatepickerFragment.this.getActivity()).saveNotes(notes);
+class DatepickerFragment : Fragment() {
+    private var noteId = 0
+    private var publisher: Publisher? = null
+    private var yearFromDP = 0
+    private var monthOfYearFromDP = 0
+    private var dayOfMonthFromDP = 0
+    @SuppressLint("UseRequireInsteadOfGet")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        val v = inflater.inflate(R.layout.fragment_datepicker, container, false)
+        if (arguments != null && activity != null) {
+            noteId = requireArguments().getInt(ARG, 0)
+            Log.v("Debug1", "DatepickerFragment onCreateView noteId=$noteId")
+            val note = (requireActivity().application as GlobalVariables).getNoteByNoteId(noteId)
+            val date: Long = note.dateEdit * MILISECOND
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = date
+            val year = calendar[Calendar.YEAR]
+            val month = calendar[Calendar.MONTH]
+            val day = calendar[Calendar.DAY_OF_MONTH]
+            val buttonOk = v.findViewById<Button>(R.id.button_dp_ok)
+            buttonOk.setOnClickListener {
+                Log.v("Debug1", "DatepickerFragment button_ok")
+                val calendarNew = Calendar.getInstance()
+                calendarNew[yearFromDP, monthOfYearFromDP] = dayOfMonthFromDP
+                val newDate: Long = calendarNew.timeInMillis / MILISECOND
+                if (this@DatepickerFragment.activity != null) {
+                    note.dateEdit = newDate
+                    (this@DatepickerFragment.activity!!.application as GlobalVariables).setNoteById(noteId, note)
+                    val notes = (this@DatepickerFragment.activity!!.application as GlobalVariables).getNotes()
+                    SharedPref(this@DatepickerFragment.activity!!).saveNotes(notes!!)
                     if (publisher != null) {
-                        publisher.notify(noteId, 3);
+                        publisher!!.notify(noteId, 3)
                     }
-                    if (DatepickerFragment.this.getActivity() != null) {
-                        FragmentManager fragmentManager = DatepickerFragment.this.getActivity().getSupportFragmentManager();
-                        fragmentManager.popBackStack();
+                    if (this@DatepickerFragment.activity != null) {
+                        val fragmentManager = this@DatepickerFragment.activity!!.supportFragmentManager
+                        fragmentManager.popBackStack()
                     }
                 }
-            });
-
-            Button button_cancel = v.findViewById(R.id.button_dp_cancel);
-            button_cancel.setOnClickListener(v12 -> {
-                if (DatepickerFragment.this.getActivity() != null) {
-                    FragmentManager fragmentManager = DatepickerFragment.this.getActivity().getSupportFragmentManager();
-                    fragmentManager.popBackStack();
+            }
+            val buttonCancel = v.findViewById<Button>(R.id.button_dp_cancel)
+            buttonCancel.setOnClickListener {
+                if (this@DatepickerFragment.activity != null) {
+                    val fragmentManager = this@DatepickerFragment.activity!!.supportFragmentManager
+                    fragmentManager.popBackStack()
                 }
-            });
-
-            DatePicker datePicker = v.findViewById(R.id.datepicker);
-            datePicker.init(year, month, day, (view, year1, monthOfYear, dayOfMonth) -> {
-                Log.v("Debug1", "DatepickerFragment onDateChanged into");
-                yearFromDP = year1;
-                monthOfYearFromDP = monthOfYear;
-                dayOfMonthFromDP = dayOfMonth;
-            });
+            }
+            val datePicker = v.findViewById<DatePicker>(R.id.datepicker)
+            datePicker.init(year, month, day) { _: DatePicker?, year1: Int, monthOfYear: Int, dayOfMonth: Int ->
+                Log.v("Debug1", "DatepickerFragment onDateChanged into")
+                yearFromDP = year1
+                monthOfYearFromDP = monthOfYear
+                dayOfMonthFromDP = dayOfMonth
+            }
         }
-        return v;
+        return v
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        Log.v("Debug1", "DatepickerFragment onViewCreated");
-        if (getArguments() != null && getActivity() != null) {
-            noteId = getArguments().getInt(ARG, 0);
-            Log.v("Debug1", "DatepickerFragment onViewCreated noteId=" + noteId);
-            Note note = ((GlobalVariables) getActivity().getApplication()).getNoteByNoteId(noteId);
-            long date = note.getDateEdit() / MILISECOND;
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(date);
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Log.v("Debug1", "DatepickerFragment onViewCreated")
+        if (arguments != null && activity != null) {
+            noteId = requireArguments().getInt(ARG, 0)
+            Log.v("Debug1", "DatepickerFragment onViewCreated noteId=$noteId")
+            val note = (requireActivity().application as GlobalVariables).getNoteByNoteId(noteId)
+            val date: Long = note.dateEdit / MILISECOND
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = date
         }
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-
-        MainActivity.setTitle(getActivity(), "Правка даты");
-
-        Log.v("Debug1", "DatepickerFragment onAttach");
-        if (context instanceof PublisherHolder) {
-            publisher = ((PublisherHolder) context).getPublisher();
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        MainActivity.setTitle(activity, "Правка даты")
+        Log.v("Debug1", "DatepickerFragment onAttach")
+        if (context is PublisherHolder) {
+            publisher = (context as PublisherHolder).publisher
         }
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        Log.v("Debug1", "DatepickerFragment onDetach");
-        publisher = null;
+    override fun onDetach() {
+        super.onDetach()
+        Log.v("Debug1", "DatepickerFragment onDetach")
+        publisher = null
+    }
+
+    companion object {
+        private const val ARG = "NOTE_ID"
+        const val TAG = "DatepickerFragment"
+        @JvmStatic
+        fun newInstance(noteId: Int): DatepickerFragment {
+            Log.v("Debug1", "DatepickerFragment newInstance noteId=$noteId")
+            val fragment = DatepickerFragment()
+            val bundle = Bundle()
+            bundle.putInt(ARG, noteId)
+            fragment.arguments = bundle
+            return fragment
+        }
     }
 }

@@ -1,6 +1,5 @@
-package ru.geekbrains.notes.note;
+package ru.geekbrains.notes.note
 
-public interface Callback<T> {
-
-    void onSuccess(T result);
+interface Callback<T> {
+    fun onSuccess(result: T)
 }
