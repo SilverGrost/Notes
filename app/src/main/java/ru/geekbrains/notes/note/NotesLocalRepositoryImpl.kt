@@ -11,6 +11,7 @@ import java.util.concurrent.Executors
 class NotesLocalRepositoryImpl(private val context: Context, private val activity: Activity) : NotesRepository {
     private val executor = Executors.newCachedThreadPool()
     private val handler = Handler(Looper.getMainLooper())
+
     override fun getNotes(callback: Callback<List<Note>>) {
         executor.execute {
             handler.post {
